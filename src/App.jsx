@@ -7,25 +7,37 @@ import NotesView from './components/NotesView';
 import { useStore } from './lib/store';
 import './App.css';
 
-const SettingsView = () => (
-  <div className="safe-area animate-fade-in">
-    <h1>Settings</h1>
-    <div className="settings-list" style={{ marginTop: '24px' }}>
-      <div className="setting-item glass-card">
-        <span>Assistant Voice</span>
-        <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Nova</span>
-      </div>
-      <div className="setting-item glass-card">
-        <span>Daily Reminders</span>
-        <div className="toggle active"></div>
-      </div>
-      <div className="setting-item glass-card">
-        <span>Sync to Cloud</span>
-        <div className="toggle"></div>
+const SettingsView = () => {
+  const { theme, toggleTheme } = useStore();
+  
+  return (
+    <div className="safe-area animate-fade-in">
+      <h1>Settings</h1>
+      <div className="settings-list" style={{ marginTop: '24px' }}>
+        <div className="setting-item glass-card">
+          <span>Theme</span>
+          <div 
+            className={`toggle ${theme === 'light' ? 'active' : ''}`}
+            onClick={toggleTheme}
+            style={{ cursor: 'pointer' }}
+          ></div>
+        </div>
+        <div className="setting-item glass-card">
+          <span>Assistant Voice</span>
+          <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Nova</span>
+        </div>
+        <div className="setting-item glass-card">
+          <span>Daily Reminders</span>
+          <div className="toggle active"></div>
+        </div>
+        <div className="setting-item glass-card">
+          <span>Sync to Cloud</span>
+          <div className="toggle"></div>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 function App() {
   const { activeTab } = useStore();

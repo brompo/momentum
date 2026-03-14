@@ -17,6 +17,10 @@ export const StoreProvider = ({ children }) => {
   });
 
   const [activeTab, setActiveTab] = useState('Goals'); // Default tab
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('ga_theme');
+    return saved || 'dark';
+  });
 
   // Persistence effects
   useEffect(() => {
@@ -26,6 +30,15 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('ga_notes', JSON.stringify(notes));
   }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem('ga_theme', theme);
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+  }, [theme]);
 
   // Actions
   const addGoal = (title, year) => {
@@ -99,6 +112,10 @@ export const StoreProvider = ({ children }) => {
     setNotes(prev => [newNote, ...prev]);
   };
 
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const value = {
     goals,
     notes,
@@ -107,7 +124,9 @@ export const StoreProvider = ({ children }) => {
     addGoal,
     addMilestone,
     addTask,
-    addNote
+    addNote,
+    theme,
+    toggleTheme
   };
 
   return (
