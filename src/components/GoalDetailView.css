@@ -1,0 +1,151 @@
+.goal-detail-view {
+  padding-top: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+.detail-header {
+  margin-bottom: 40px;
+}
+
+.detail-header h1 {
+  font-size: 2.2rem;
+  margin-top: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-small-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--primary);
+  background: var(--primary-glow);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.milestone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.milestone-card {
+  padding: 20px;
+}
+
+.ms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ms-header h3 {
+  font-size: 1.1rem;
+  color: var(--text-main);
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.check-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 50%;
+}
+
+.check-circle.completed {
+  background: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.add-task-placeholder {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.inline-add {
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.inline-add input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--primary);
+  color: white;
+  padding: 8px 0;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.inline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.inline-actions button {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.inline-actions button.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.task-input-row input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 4px 0;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.empty-substate {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 20px;
+}

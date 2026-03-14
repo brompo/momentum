@@ -1,0 +1,71 @@
+.goal-card {
+  padding: 24px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+}
+
+.goal-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--primary);
+}
+
+.goal-card-header {
+  margin-bottom: 20px;
+}
+
+.goal-card-header h3 {
+  margin-top: 12px;
+  font-size: 1.4rem;
+}
+
+.stat-row {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  align-self: flex-end;
+}

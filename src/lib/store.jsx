@@ -1,0 +1,118 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const StoreContext = createContext();
+
+export const useStore = () => useContext(StoreContext);
+
+export const StoreProvider = ({ children }) => {
+  // Initialize state from localStorage
+  const [goals, setGoals] = useState(() => {
+    const saved = localStorage.getItem('ga_goals');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('ga_notes');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [activeTab, setActiveTab] = useState('Goals'); // Default tab
+
+  // Persistence effects
+  useEffect(() => {
+    localStorage.setItem('ga_goals', JSON.stringify(goals));
+  }, [goals]);
+
+  useEffect(() => {
+    localStorage.setItem('ga_notes', JSON.stringify(notes));
+  }, [notes]);
+
+  // Actions
+  const addGoal = (title, year) => {
+    const newGoal = {
+      id: crypto.randomUUID(),
+      title,
+      year: year || new Date().getFullYear(),
+      milestones: [],
+      createdAt: new Date().toISOString()
+    };
+    setGoals(prev => [...prev, newGoal]);
+    return newGoal;
+  };
+
+  const addMilestone = (goalId, title) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: [
+            ...goal.milestones,
+            {
+              id: crypto.randomUUID(),
+              title,
+              tasks: [],
+              createdAt: new Date().toISOString()
+            }
+          ]
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const addTask = (goalId, milestoneId, title, scheduledDate) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: goal.milestones.map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: [
+                  ...ms.tasks,
+                  {
+                    id: crypto.randomUUID(),
+                    title,
+                    scheduledDate,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                  }
+                ]
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const addNote = (milestoneId, content) => {
+    const newNote = {
+      id: crypto.randomUUID(),
+      milestoneId,
+      content,
+      timestamp: new Date().toISOString()
+    };
+    setNotes(prev => [newNote, ...prev]);
+  };
+
+  const value = {
+    goals,
+    notes,
+    activeTab,
+    setActiveTab,
+    addGoal,
+    addMilestone,
+    addTask,
+    addNote
+  };
+
+  return (
+    <StoreContext.Provider value={value}>
+      {children}
+    </StoreContext.Provider>
+  );
+};

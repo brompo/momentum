@@ -1,0 +1,90 @@
+.calendar-header {
+  margin-bottom: 32px;
+}
+
+.date-strip {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 50px;
+}
+
+.date-item.selected {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.date-item.today:not(.selected) {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.day-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.day-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.agenda-section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenda-card {
+  padding: 20px;
+}
+
+.agenda-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+}
+
+.agenda-goal {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.agenda-ms {
+  color: var(--text-dim);
+}
+
+.agenda-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.complete-btn {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
