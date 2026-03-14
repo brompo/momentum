@@ -60,6 +60,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Prevent Safari Auto-Zoom */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-main);
