@@ -3,11 +3,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 import './ReloadPrompt.css'
 
 function ReloadPrompt() {
-  const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needUpdate: [needUpdate, setNeedUpdate],
-    updateServiceWorker,
-  } = useRegisterSW({
+  const swUpdateValues = useRegisterSW({
     onRegistered(r) {
       console.log('SW Registered: ' + r)
     },
@@ -15,6 +11,14 @@ function ReloadPrompt() {
       console.log('SW registration error', error)
     },
   })
+
+  if (!swUpdateValues) return null;
+
+  const {
+    offlineReady: [offlineReady, setOfflineReady],
+    needUpdate: [needUpdate, setNeedUpdate],
+    updateServiceWorker,
+  } = swUpdateValues
 
   const close = () => {
     setOfflineReady(false)
