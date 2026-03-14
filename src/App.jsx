@@ -4,6 +4,7 @@ import GoalsView from './components/GoalsView';
 import GoalDetailView from './components/GoalDetailView';
 import CalendarView from './components/CalendarView';
 import NotesView from './components/NotesView';
+import ReloadPrompt from './components/ReloadPrompt';
 import { useStore } from './lib/store';
 import './App.css';
 
@@ -67,6 +68,7 @@ function App() {
         {renderContent()}
       </main>
       <TabBar />
+      <ReloadPrompt />
     </div>
   );
 }
