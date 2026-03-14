@@ -3,12 +3,13 @@ import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask } = useStore();
+  const { addMilestone, addTask, toggleTask } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskValue, setNewTaskValue] = useState('');
 
   const handleAddMilestone = (e) => {
     e.preventDefault();
@@ -22,11 +23,25 @@ const GoalDetailView = ({ goal, onBack }) => {
   const handleAddTask = (e, milestoneId) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
-      addTask(goal.id, milestoneId, newTaskTitle);
+      addTask(goal.id, milestoneId, newTaskTitle, newTaskValue);
       setNewTaskTitle('');
+      setNewTaskValue('');
       setActiveMilestoneId(null);
     }
   };
+
+  // Progress Calculations
+  const allTasks = goal.milestones.flatMap(ms => ms.tasks);
+  const completedTasks = allTasks.filter(t => t.completed);
+  
+  const targetVal = parseFloat(goal.targetNumber.replace(/[^0-9.]/g, '')) || 0;
+  const currentVal = completedTasks.reduce((acc, t) => acc + (t.value || 0), 0);
+  const totalVal = allTasks.reduce((acc, t) => acc + (t.value || 0), 0);
+  
+  const hasTarget = targetVal > 0;
+  const progressPercent = hasTarget 
+    ? Math.min(Math.round((currentVal / targetVal) * 100), 100)
+    : (allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0);
 
   return (
     <div className="goal-detail-view safe-area animate-fade-in">
@@ -43,9 +58,14 @@ const GoalDetailView = ({ goal, onBack }) => {
         </div>
         <h1>{goal.title}</h1>
         {goal.targetNumber && (
-          <div className="target-badge glass">
-            <span className="label">Target</span>
-            <span className="value">{goal.targetNumber}</span>
+          <div className="numeric-progress glass">
+            <div className="progress-info">
+              <span className="label">Overall Progress</span>
+              <span className="value">{currentVal.toLocaleString()} / {goal.targetNumber}</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+            </div>
           </div>
         )}
         {goal.note && <p className="goal-note">{goal.note}</p>}
@@ -85,9 +105,15 @@ const GoalDetailView = ({ goal, onBack }) => {
 
                 <div className="tasks-list">
                   {ms.tasks.map(task => (
-                    <div key={task.id} className="task-item">
-                      <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
-                      <span>{task.title}</span>
+                    <div key={task.id} className="task-row">
+                      <div 
+                        className={`task-item ${task.completed ? 'completed' : ''}`}
+                        onClick={() => toggleTask(goal.id, ms.id, task.id)}
+                      >
+                        <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
+                        <span>{task.title}</span>
+                      </div>
+                      {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
                     </div>
                   ))}
                   
@@ -95,10 +121,19 @@ const GoalDetailView = ({ goal, onBack }) => {
                     <form className="task-input-row" onSubmit={(e) => handleAddTask(e, ms.id)}>
                       <input 
                         autoFocus
+                        className="task-title-input"
                         placeholder="Add task..." 
                         value={newTaskTitle}
                         onChange={e => setNewTaskTitle(e.target.value)}
                       />
+                      <input 
+                        className="task-value-input"
+                        type="number"
+                        placeholder="Value" 
+                        value={newTaskValue}
+                        onChange={e => setNewTaskValue(e.target.value)}
+                      />
+                      <button type="submit" hidden></button>
                     </form>
                   ) : (
                     <button className="add-task-placeholder" onClick={() => setActiveMilestoneId(ms.id)}>

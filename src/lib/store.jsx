@@ -77,7 +77,7 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, scheduledDate) => {
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate) => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -91,11 +91,34 @@ export const StoreProvider = ({ children }) => {
                   {
                     id: crypto.randomUUID(),
                     title,
+                    value: Number(value) || 0,
                     scheduledDate,
                     completed: false,
                     createdAt: new Date().toISOString()
                   }
                 ]
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const toggleTask = (goalId, milestoneId, taskId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: goal.milestones.map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: ms.tasks.map(task => 
+                  task.id === taskId ? { ...task, completed: !task.completed } : task
+                )
               };
             }
             return ms;
@@ -128,6 +151,7 @@ export const StoreProvider = ({ children }) => {
     addGoal,
     addMilestone,
     addTask,
+    toggleTask,
     addNote,
     theme,
     toggleTheme

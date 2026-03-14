@@ -2,10 +2,25 @@ import React from 'react';
 import './GoalCard.css';
 
 const GoalCard = ({ goal, onClick }) => {
+  // Enhanced progress calculation
+  const allTasks = goal.milestones.flatMap(ms => ms.tasks);
+  const completedTasks = allTasks.filter(t => t.completed);
   const milestoneCount = goal.milestones.length;
-  const taskCount = goal.milestones.reduce((acc, ms) => acc + ms.tasks.length, 0);
-  const completedTasks = goal.milestones.reduce((acc, ms) => acc + ms.tasks.filter(t => t.completed).length, 0);
-  const progress = taskCount > 0 ? Math.round((completedTasks / taskCount) * 100) : 0;
+  const taskCount = allTasks.length;
+  
+  const targetVal = parseFloat(goal.targetNumber.replace(/[^0-9.]/g, '')) || 0;
+  
+  let progress = 0;
+  let progressLabel = "";
+
+  if (targetVal > 0) {
+    const currentVal = completedTasks.reduce((acc, t) => acc + (t.value || 0), 0);
+    progress = Math.min(Math.round((currentVal / targetVal) * 100), 100);
+    progressLabel = `${currentVal.toLocaleString()} / ${goal.targetNumber}`;
+  } else {
+    progress = allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0;
+    progressLabel = `${progress}% Complete`;
+  }
 
   return (
     <div className="goal-card glass-card smooth-all animate-fade-in" onClick={() => onClick(goal)}>
@@ -40,7 +55,7 @@ const GoalCard = ({ goal, onClick }) => {
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
           </div>
-          <span className="progress-text">{progress}% Complete</span>
+          <span className="progress-text">{progressLabel}</span>
         </div>
       </div>
     </div>
