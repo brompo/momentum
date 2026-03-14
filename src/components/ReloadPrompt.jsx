@@ -14,15 +14,14 @@ function ReloadPrompt() {
 
   if (!swUpdateValues) return null;
 
-  const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needUpdate: [needUpdate, setNeedUpdate],
-    updateServiceWorker,
-  } = swUpdateValues
+  // Use safer access if properties are missing in dev mode
+  const [offlineReady, setOfflineReady] = swUpdateValues.offlineReady || [false, () => {}]
+  const [needUpdate, setNeedUpdate] = swUpdateValues.needUpdate || [false, () => {}]
+  const updateServiceWorker = swUpdateValues.updateServiceWorker
 
   const close = () => {
-    setOfflineReady(false)
-    setNeedUpdate(false)
+    if (setOfflineReady) setOfflineReady(false)
+    if (setNeedUpdate) setNeedUpdate(false)
   }
 
   return (
