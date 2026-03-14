@@ -34,7 +34,7 @@ const GoalDetailView = ({ goal, onBack }) => {
   const allTasks = goal.milestones.flatMap(ms => ms.tasks);
   const completedTasks = allTasks.filter(t => t.completed);
   
-  const targetVal = parseFloat(goal.targetNumber.replace(/[^0-9.]/g, '')) || 0;
+  const targetVal = parseFloat((goal.targetNumber || '').toString().replace(/[^0-9.]/g, '')) || 0;
   const currentVal = completedTasks.reduce((acc, t) => acc + (t.value || 0), 0);
   const totalVal = allTasks.reduce((acc, t) => acc + (t.value || 0), 0);
   

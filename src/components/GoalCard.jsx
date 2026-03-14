@@ -8,7 +8,7 @@ const GoalCard = ({ goal, onClick }) => {
   const milestoneCount = goal.milestones.length;
   const taskCount = allTasks.length;
   
-  const targetVal = parseFloat(goal.targetNumber.replace(/[^0-9.]/g, '')) || 0;
+  const targetVal = parseFloat((goal.targetNumber || '').toString().replace(/[^0-9.]/g, '')) || 0;
   
   let progress = 0;
   let progressLabel = "";
