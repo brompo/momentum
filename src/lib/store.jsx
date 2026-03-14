@@ -41,11 +41,15 @@ export const StoreProvider = ({ children }) => {
   }, [theme]);
 
   // Actions
-  const addGoal = (title, year) => {
+  const addGoal = (title, note = '', startDate = '', endDate = '', targetNumber = '') => {
     const newGoal = {
       id: crypto.randomUUID(),
       title,
-      year: year || new Date().getFullYear(),
+      note,
+      startDate,
+      endDate,
+      targetNumber,
+      year: new Date().getFullYear(),
       milestones: [],
       createdAt: new Date().toISOString()
     };

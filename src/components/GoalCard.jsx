@@ -10,8 +10,18 @@ const GoalCard = ({ goal, onClick }) => {
   return (
     <div className="goal-card glass-card smooth-all animate-fade-in" onClick={() => onClick(goal)}>
       <div className="goal-card-header">
-        <span className="badge badge-primary">{goal.year}</span>
+        <div className="header-top">
+          <span className="badge badge-primary">{goal.year}</span>
+          {goal.endDate && (
+            <span className="card-date">{new Date(goal.endDate).toLocaleDateString()}</span>
+          )}
+        </div>
         <h3>{goal.title}</h3>
+        {goal.targetNumber && (
+          <div className="card-target">
+            <span className="label">Target:</span> {goal.targetNumber}
+          </div>
+        )}
       </div>
       
       <div className="goal-card-body">

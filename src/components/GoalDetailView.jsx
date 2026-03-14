@@ -33,8 +33,22 @@ const GoalDetailView = ({ goal, onBack }) => {
       <button className="back-btn" onClick={onBack}>← Back</button>
       
       <div className="detail-header">
-        <span className="badge badge-primary">{goal.year}</span>
+        <div className="header-meta">
+          <span className="badge badge-primary">{goal.year}</span>
+          {goal.startDate && goal.endDate && (
+            <span className="date-range">
+              {new Date(goal.startDate).toLocaleDateString()} — {new Date(goal.endDate).toLocaleDateString()}
+            </span>
+          )}
+        </div>
         <h1>{goal.title}</h1>
+        {goal.targetNumber && (
+          <div className="target-badge glass">
+            <span className="label">Target</span>
+            <span className="value">{goal.targetNumber}</span>
+          </div>
+        )}
+        {goal.note && <p className="goal-note">{goal.note}</p>}
       </div>
 
       <div className="milestones-section">

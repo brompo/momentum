@@ -14,9 +14,37 @@
   margin-bottom: 20px;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-date {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
 .goal-card-header h3 {
-  margin-top: 12px;
+  margin: 0;
   font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.card-target {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.card-target .label {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 
 .stat-row {
