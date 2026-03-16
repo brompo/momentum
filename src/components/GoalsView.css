@@ -172,17 +172,14 @@ textarea.modal-input {
   transform: scale(0.95);
 }
 
-/* Sticky Header Scoped for Goals View */
 .goals-view .header-row {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(8px);
-  background: rgba(226, 240, 255, 0.85);
   margin: 0 -16px 20px -16px;
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  padding: 16px 0;
 }
 
 .goals-view .header-row h1 {

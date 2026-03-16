@@ -2,19 +2,22 @@
 
 :root {
   /* Dynamic Color Palette - Indigo & Emerald mix for a premium look */
-  --bg-main: #060608;
+  --bg-main: #bacdf3;
   --bg-card: #0F1117;
   --bg-card-hover: #161922;
-  
-  --primary: #6366f1; /* Indigo */
+
+  --primary: #6366f1;
+  /* Indigo */
   --primary-glow: rgba(99, 102, 241, 0.2);
-  --secondary: #10b981; /* Emerald */
-  --accent: #f43f5e; /* Rose for alerts/delete */
-  
+  --secondary: #10b981;
+  /* Emerald */
+  --accent: #f43f5e;
+  /* Rose for alerts/delete */
+
   --text-main: #F9FAFB;
   --text-muted: #9CA3AF;
   --text-dim: #6B7280;
-  
+
   --border-subtle: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(15, 17, 23, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
@@ -22,34 +25,35 @@
 
   --font-body: 'Inter', sans-serif;
   --font-display: 'Outfit', sans-serif;
-  
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-xl: 32px;
-  
+
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-  
+
   --tab-bar-height: 84px;
 }
 
 /* Light Theme Overrides */
 .light-theme {
-  --bg-main: #F3F4F6;
+  --bg-main: #f3f7ff;
   --bg-card: #FFFFFF;
   --bg-card-hover: #F9FAFB;
-  
+
   --text-main: #111827;
   --text-muted: #4B5563;
   --text-dim: #9CA3AF;
-  
+
   --border-subtle: rgba(0, 0, 0, 0.05);
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(0, 0, 0, 0.1);
-  
-  --primary: #4f46e5; /* Slightly darker indigo for better contrast on light */
+
+  --primary: #4f46e5;
+  /* Slightly darker indigo for better contrast on light */
   --primary-glow: rgba(79, 70, 229, 0.1);
 }
 
@@ -61,7 +65,9 @@
 }
 
 /* Prevent Safari Auto-Zoom */
-input, select, textarea {
+input,
+select,
+textarea {
   font-size: 16px !important;
 }
 
@@ -71,12 +77,16 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   overflow-x: hidden;
-  overscroll-behavior-y: none; /* Mobile-feel */
+  overscroll-behavior-y: none;
+  /* Mobile-feel */
   min-height: 100vh;
 }
 
 /* Typography */
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -104,7 +114,8 @@ h1, h2, h3, h4 {
 
 /* Layout */
 .app-container {
-  max-width: 500px; /* Constrain for mobile feeling on desktop */
+  max-width: 500px;
+  /* Constrain for mobile feeling on desktop */
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
@@ -123,8 +134,13 @@ h1, h2, h3, h4 {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {
