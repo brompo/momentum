@@ -51,6 +51,7 @@ export const StoreProvider = ({ children }) => {
       targetNumber,
       year: new Date().getFullYear(),
       milestones: [],
+      metrics: [],
       createdAt: new Date().toISOString()
     };
     setGoals(prev => [...prev, newGoal]);
@@ -149,6 +150,79 @@ export const StoreProvider = ({ children }) => {
     setGoals(prev => prev.filter(goal => goal.id !== goalId));
   };
 
+  const addMetric = (goalId, title, targetValue) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          metrics: [
+            ...(goal.metrics || []),
+            {
+              id: crypto.randomUUID(),
+              title,
+              currentValue: 0,
+              targetValue: Number(targetValue) || 0,
+              entries: [],
+              createdAt: new Date().toISOString()
+            }
+          ]
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const updateMetricValue = (goalId, metricId, valueDelta) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          metrics: (goal.metrics || []).map(m => {
+            if (m.id === metricId) {
+              const newVal = Math.max(0, (m.currentValue || 0) + valueDelta);
+              return { ...m, currentValue: m.targetValue ? Math.min(newVal, m.targetValue) : newVal };
+            }
+            return m;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const addMetricEntry = (goalId, metricId, { text, date, value }) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          metrics: (goal.metrics || []).map(m => {
+            if (m.id === metricId) {
+              const numericValue = Number(value) || 0;
+              const newEntries = [
+                ...(m.entries || []),
+                {
+                  id: crypto.randomUUID(),
+                  text: text || '',
+                  date: date || new Date().toISOString().split('T')[0],
+                  value: numericValue,
+                  createdAt: new Date().toISOString()
+                }
+              ];
+              const newVal = (m.currentValue || 0) + numericValue;
+              return {
+                ...m,
+                entries: newEntries,
+                currentValue: m.targetValue ? Math.min(newVal, m.targetValue) : newVal
+              };
+            }
+            return m;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
@@ -166,7 +240,10 @@ export const StoreProvider = ({ children }) => {
     theme,
     toggleTheme,
     updateGoal,
-    deleteGoal
+    deleteGoal,
+    addMetric,
+    updateMetricValue,
+    addMetricEntry
   };
 
   return (

@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask, toggleTask, updateGoal, deleteGoal } = useStore();
+  const { addMilestone, addTask, toggleTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -19,6 +19,35 @@ const GoalDetailView = ({ goal, onBack }) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskValue, setNewTaskValue] = useState('');
   const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Tasks'
+  const [isAddingMetric, setIsAddingMetric] = useState(false);
+  const [newMetricTitle, setNewMetricTitle] = useState('');
+  const [newMetricTarget, setNewMetricTarget] = useState('');
+
+  const [activeLogMetric, setActiveLogMetric] = useState(null);
+  const [logForm, setLogForm] = useState({
+    text: '',
+    date: new Date().toISOString().split('T')[0],
+    value: 1
+  });
+
+  const handleAddMetric = (e) => {
+    e.preventDefault();
+    if (newMetricTitle.trim() && newMetricTarget) {
+      addMetric(goal.id, newMetricTitle, newMetricTarget);
+      setNewMetricTitle('');
+      setNewMetricTarget('');
+      setIsAddingMetric(false);
+    }
+  };
+
+  const handleAddMetricEntry = (e) => {
+    e.preventDefault();
+    if (activeLogMetric) {
+      addMetricEntry(goal.id, activeLogMetric.id, logForm);
+      setActiveLogMetric(null);
+      setLogForm({ text: '', date: new Date().toISOString().split('T')[0], value: 1 });
+    }
+  };
 
   const handleAddMilestone = (e) => {
     e.preventDefault();
@@ -96,6 +125,79 @@ const GoalDetailView = ({ goal, onBack }) => {
           </div>
         </div>
       )}
+
+      {/* Sub-Metrics Section */}
+      <div className="metrics-rack">
+        <div className="section-header">
+          <h2>Sub-Metrics</h2>
+          <button className="add-small-btn" onClick={() => setIsAddingMetric(!isAddingMetric)}>+</button>
+        </div>
+
+        {isAddingMetric && (
+          <form className="inline-add glass-card" onSubmit={handleAddMetric}>
+            <div className="form-row">
+              <input 
+                autoFocus
+                placeholder="Metric Name (e.g. Leads)" 
+                value={newMetricTitle}
+                onChange={e => setNewMetricTitle(e.target.value)}
+              />
+              <input 
+                type="number"
+                placeholder="Target" 
+                value={newMetricTarget}
+                onChange={e => setNewMetricTarget(e.target.value)}
+              />
+            </div>
+            <div className="inline-actions">
+              <button type="button" onClick={() => setIsAddingMetric(false)}>Cancel</button>
+              <button type="submit" className="active">Add</button>
+            </div>
+          </form>
+        )}
+
+        <div className="metrics-list-row">
+          {(goal.metrics || []).length === 0 && !isAddingMetric && (
+            <p className="empty-substate">No sub-metrics added yet.</p>
+          )}
+          {(goal.metrics || []).map(m => (
+            <div key={m.id} className="metric-badge-item glass-card flex-column">
+              <div className="metric-top-row">
+                <div className="metric-info">
+                  <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
+                      <path d="M3 3v18h18" />
+                      <polyline points="7 16 11 12 16 14 19 8" />
+                    </svg>
+                    {m.title}
+                  </span>
+                  <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
+                </div>
+                <div className="metric-stepper">
+                  <button onClick={() => updateMetricValue(goal.id, m.id, -1)}>-</button>
+                  <button className="plus" onClick={() => {
+                    setActiveLogMetric(m);
+                    setLogForm(prev => ({ ...prev, value: 1 }));
+                  }}>+</button>
+                </div>
+              </div>
+
+              {/* Log History */}
+              {(m.entries || []).length > 0 && (
+                <div className="metric-history-logs">
+                  {(m.entries).map(entry => (
+                    <div key={entry.id} className="history-log-item">
+                      <span className="log-date">{entry.date.split('-').slice(1).join('/')}</span>
+                      <span className="log-text">{entry.text}</span>
+                      <span className="log-value">+{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="tab-bar-capsule">
         <button 
@@ -269,6 +371,53 @@ const GoalDetailView = ({ goal, onBack }) => {
                 <div style={{ flex: 1 }}></div>
                 <button type="button" className="btn-secondary" onClick={() => setIsEditingGoal(false)}>Cancel</button>
                 <button type="submit" className="btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {activeLogMetric && (
+        <div className="modal-overlay glass" onClick={() => setActiveLogMetric(null)}>
+          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
+            <h2>Log Entry: {activeLogMetric.title}</h2>
+            <form onSubmit={handleAddMetricEntry} className="expanded-form">
+              <div className="form-group">
+                <label>Description / Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Added 5 Organic leads"
+                  value={logForm.text}
+                  onChange={e => setLogForm({ ...logForm, text: e.target.value })}
+                  className="modal-input"
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    value={logForm.date}
+                    onChange={e => setLogForm({ ...logForm, date: e.target.value })}
+                    className="modal-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Value / Count</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={logForm.value}
+                    onChange={e => setLogForm({ ...logForm, value: parseFloat(e.target.value) || 1 })}
+                    className="modal-input"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setActiveLogMetric(null)}>Cancel</button>
+                <button type="submit" className="btn-primary">Add Entry</button>
               </div>
             </form>
           </div>

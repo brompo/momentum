@@ -52,10 +52,17 @@ const GoalCard = ({ goal, onClick }) => {
             <span className="stat-icon">🎯</span>
             <span className="stat-text">{completedMilestonesCount}/{milestoneCount} milestones</span>
           </div>
-          <div className="stat-item">
-            <span className="stat-icon">⭕</span>
-            <span className="stat-text">{completedCount}/{taskCount} tasks</span>
-          </div>
+          {(goal.metrics || []).map(m => (
+            <div key={m.id} className="stat-item">
+              <span className="stat-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(1px)' }}>
+                  <path d="M3 3v18h18" />
+                  <polyline points="7 16 11 12 16 14 19 8" />
+                </svg>
+              </span>
+              <span className="stat-text">{m.title}: {m.currentValue}/{m.targetValue}</span>
+            </div>
+          ))}
         </div>
 
         <div className="progress-container-thick">
