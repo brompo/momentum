@@ -89,7 +89,7 @@ const GoalDetailView = ({ goal, onBack }) => {
         <div className="numeric-progress glass">
           <div className="progress-info">
             <span className="label">Overall Progress</span>
-            <span className="value">{currentVal.toLocaleString()} / {goal.targetNumber}</span>
+            <span className="value">{currentVal.toLocaleString()} / {targetVal.toLocaleString()}</span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
