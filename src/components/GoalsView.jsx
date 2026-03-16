@@ -14,41 +14,50 @@ const GoalsView = ({ onSelectGoal }) => {
     targetNumber: ''
   });
 
+  const [error, setError] = useState('');
+
   const handleAddGoal = (e) => {
     e.preventDefault();
-    if (newGoal.title.trim()) {
-      addGoal(
-        newGoal.title, 
-        newGoal.note, 
-        newGoal.startDate, 
-        newGoal.endDate, 
-        newGoal.targetNumber
-      );
-      setNewGoal({ title: '', note: '', startDate: '', endDate: '', targetNumber: '' });
-      setIsAdding(false);
+    if (!newGoal.title.trim()) {
+      setError('Goal Name is required.');
+      return;
     }
+
+    addGoal(
+      newGoal.title,
+      newGoal.note,
+      newGoal.startDate,
+      newGoal.endDate,
+      newGoal.targetNumber
+    );
+    setNewGoal({ title: '', note: '', startDate: '', endDate: '', targetNumber: '' });
+    setError('');
+    setIsAdding(false);
   };
 
   return (
-    <div className="goals-view safe-area animate-fade-in">
+    <>
+      <div className="goals-view safe-area animate-fade-in">
       <div className="header-row">
-        <h1>Yearly Goals</h1>
-        <button className="add-btn smooth-all" onClick={() => setIsAdding(true)}>+</button>
+        <h1>Goal List</h1>
       </div>
 
       {isAdding && (
         <div className="modal-overlay glass" onClick={() => setIsAdding(false)}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
             <h2>New Goal</h2>
+
+            {error && <div className="form-error">{error}</div>}
+
             <form onSubmit={handleAddGoal} className="expanded-form">
               <div className="form-group">
                 <label>Goal Name</label>
-                <input 
+                <input
                   autoFocus
-                  type="text" 
-                  placeholder="What do you want to achieve?" 
+                  type="text"
+                  placeholder="What do you want to achieve?"
                   value={newGoal.title}
-                  onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                  onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
                   className="modal-input"
                   required
                 />
@@ -56,10 +65,10 @@ const GoalsView = ({ onSelectGoal }) => {
 
               <div className="form-group">
                 <label>Note</label>
-                <textarea 
-                  placeholder="Add some details..." 
+                <textarea
+                  placeholder="Add some details..."
                   value={newGoal.note}
-                  onChange={e => setNewGoal({...newGoal, note: e.target.value})}
+                  onChange={e => setNewGoal({ ...newGoal, note: e.target.value })}
                   className="modal-input"
                   rows="3"
                 />
@@ -68,19 +77,19 @@ const GoalsView = ({ onSelectGoal }) => {
               <div className="form-row">
                 <div className="form-group">
                   <label>Start Date</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={newGoal.startDate}
-                    onChange={e => setNewGoal({...newGoal, startDate: e.target.value})}
+                    onChange={e => setNewGoal({ ...newGoal, startDate: e.target.value })}
                     className="modal-input"
                   />
                 </div>
                 <div className="form-group">
                   <label>End Date</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={newGoal.endDate}
-                    onChange={e => setNewGoal({...newGoal, endDate: e.target.value})}
+                    onChange={e => setNewGoal({ ...newGoal, endDate: e.target.value })}
                     className="modal-input"
                   />
                 </div>
@@ -88,11 +97,11 @@ const GoalsView = ({ onSelectGoal }) => {
 
               <div className="form-group">
                 <label>Target Number (Optional)</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. $10,000 or 50 lbs" 
+                <input
+                  type="text"
+                  placeholder="e.g. $10,000 or 50 lbs"
                   value={newGoal.targetNumber}
-                  onChange={e => setNewGoal({...newGoal, targetNumber: e.target.value})}
+                  onChange={e => setNewGoal({ ...newGoal, targetNumber: e.target.value })}
                   className="modal-input"
                 />
               </div>
@@ -115,7 +124,10 @@ const GoalsView = ({ onSelectGoal }) => {
           ))
         )}
       </div>
-    </div>
+      </div>
+
+      <button className="fab-btn smooth-all" onClick={() => setIsAdding(true)}>+</button>
+    </>
   );
 };
 

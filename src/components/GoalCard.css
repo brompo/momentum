@@ -1,99 +1,124 @@
 .goal-card {
-  padding: 24px;
-  margin-bottom: 16px;
+  background: white;
+  padding: 15px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
   cursor: pointer;
-  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
 }
 
 .goal-card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 .goal-card-header {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
-.header-top {
+.title-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.card-date {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  font-weight: 500;
-}
-
-.goal-card-header h3 {
+.title-row h3 {
   margin: 0;
-  font-size: 1.4rem;
-  line-height: 1.2;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  /* Dark text for cards */
+  line-height: 1.3;
 }
 
-.card-target {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+/* Badges */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.725rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-info {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #f87171;
+}
+
+.badge-muted {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* Compact Stats */
+.compact-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #64748b;
   font-weight: 500;
 }
 
-.card-target .label {
-  color: var(--primary);
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
+.stat-icon {
+  font-size: 0.6rem;
 }
 
-.stat-row {
+/* Thick Progress Bar */
+.progress-container-thick {
+  position: relative;
   display: flex;
-  gap: 32px;
-  margin-bottom: 24px;
+  align-items: center;
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.progress-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.progress-bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.05);
+.progress-bar-thick {
+  height: 14px;
+  background: #f3f4f6;
   border-radius: 10px;
   overflow: hidden;
+  width: 100%;
 }
 
-.progress-fill {
+.progress-fill-thick {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: #2dd4bf;
+  /* Teal/Cyan */
   border-radius: 10px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  transition: width 0.6s ease;
 }
 
-.progress-text {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  align-self: flex-end;
+.progress-percent {
+  font-size: 0.65rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.progress-percent.outside {
+  position: absolute;
+  left: 8px;
+  color: #6b7280;
+}
+
+.numeric-progress-label {
+  font-size: 0.65rem;
+  color: #64748b;
+  text-align: right;
+  margin-top: 3px;
 }

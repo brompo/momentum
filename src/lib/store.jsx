@@ -139,6 +139,16 @@ export const StoreProvider = ({ children }) => {
     setNotes(prev => [newNote, ...prev]);
   };
 
+  const updateGoal = (goalId, updates) => {
+    setGoals(prev => prev.map(goal => 
+      goal.id === goalId ? { ...goal, ...updates } : goal
+    ));
+  };
+
+  const deleteGoal = (goalId) => {
+    setGoals(prev => prev.filter(goal => goal.id !== goalId));
+  };
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
@@ -154,7 +164,9 @@ export const StoreProvider = ({ children }) => {
     toggleTask,
     addNote,
     theme,
-    toggleTheme
+    toggleTheme,
+    updateGoal,
+    deleteGoal
   };
 
   return (
