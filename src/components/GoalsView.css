@@ -176,7 +176,7 @@ textarea.modal-input {
   position: sticky;
   top: 0;
   z-index: 100;
-  margin: 0 -16px 20px -16px;
+  margin: 0;
   display: flex;
   justify-content: center;
   padding: 16px 0;
