@@ -8,18 +8,18 @@ const GoalCard = ({ goal, onClick }) => {
   const completedCount = completedTasks.length;
 
   // Calculate Days Left / Expired
-  const daysLeft = goal.endDate ? Math.ceil((new Date(goal.endDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
-  let badgeText = "No date";
-  let badgeClass = "badge-muted";
-  if (daysLeft !== null) {
-    if (daysLeft > 0) {
-      badgeText = `${daysLeft}d left`;
-      badgeClass = "badge-info";
-    } else {
-      badgeText = "Expired";
-      badgeClass = "badge-danger";
-    }
-  }
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "No date";
+    const d = new Date(dateStr);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = months[d.getMonth()];
+    const year = String(d.getFullYear()).slice(-2);
+    return `${day}-${month}-${year}`;
+  };
+
+  const badgeText = goal.endDate ? formatDate(goal.endDate) : "No date";
+  const badgeClass = goal.endDate ? "badge-info" : "badge-muted";
 
   const targetVal = parseFloat((goal.targetNumber || '').toString().replace(/[^0-9.]/g, '')) || 0;
   const currentVal = targetVal > 0 ? completedTasks.reduce((acc, t) => acc + (t.value || 0), 0) : 0;

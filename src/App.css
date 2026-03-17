@@ -29,8 +29,7 @@
 }
 
 .main-content {
-  overflow-y: auto;
-  height: 100vh;
+  display: contents; /* Let window scroll naturally to fix elastic height buffers */
 }
 
 .setting-item {

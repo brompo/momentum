@@ -173,7 +173,8 @@ textarea.modal-input {
 }
 
 .goals-view.safe-area {
-  padding-top: 60px !important; /* Push list items down below the fixed header */
+  padding-top: 65px !important;
+  /* Push list items down below the fixed header */
 }
 
 .goals-view .header-row {
@@ -187,9 +188,11 @@ textarea.modal-input {
   margin: 0;
   display: flex;
   justify-content: center;
-  padding: 18px 0;
-  background: transparent; /* Default transparent */
-  transition: all 0.25s ease; /* Smooth elevation transition */
+  padding: 25px 0;
+  background: transparent;
+  /* Default transparent */
+  transition: all 0.25s ease;
+  /* Smooth elevation transition */
 }
 
 /* Elevated Sticky Mode on Scroll */

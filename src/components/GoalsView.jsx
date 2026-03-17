@@ -19,23 +19,15 @@ const GoalsView = ({ onSelectGoal }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const container = document.querySelector('.main-content');
-      if (container) {
-        setIsScrolled(container.scrollTop > 10);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
 
-    const container = document.querySelector('.main-content');
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      // Trigger initial check
-      handleScroll();
-    }
+    window.addEventListener('scroll', handleScroll);
+    // Trigger initial check
+    handleScroll();
 
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
-      }
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 

@@ -1,5 +1,6 @@
-.goal-detail-view {
-  padding-top: 20px;
+.goal-detail-view.safe-area {
+  padding-top: 64px !important;
+  /* Offset for safe absolute head triggers */
 }
 
 .back-btn {
@@ -50,7 +51,8 @@
 
 .progress-info {
   display: flex;
-  flex-direction: column; /* Stack vertically for legibility */
+  flex-direction: column;
+  /* Stack vertically for legibility */
   align-items: flex-start;
   gap: 4px;
   margin-bottom: 12px !important;
@@ -64,7 +66,8 @@
 }
 
 .progress-info .value {
-  font-size: 1.4rem !important; /* Increased font-size for high visibility */
+  font-size: 1.4rem !important;
+  /* Increased font-size for high visibility */
   font-weight: 800;
   font-family: var(--font-display);
   color: #1e293b;
@@ -365,10 +368,28 @@
 
 /* Redesign updates */
 .detail-top-nav {
+  position: fixed;
+  /* Lock to viewport independently of scrolls blockers */
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Center within app-container layout bounding box */
+  max-width: 500px;
+  width: 100%;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: transparent;
+  /* Default transparent */
+  transition: all 0.25s ease;
+}
+
+.detail-top-nav.scrolled {
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .back-btn-icon,
@@ -400,7 +421,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin: 24px 0px;
 }
 
 .accent-bar {
@@ -691,7 +712,8 @@ textarea.modal-input {
 
 .history-log-item.editing-row {
   display: grid;
-  grid-template-columns: 100px 1fr 45px auto; /* Rigid Columns */
+  grid-template-columns: 100px 1fr 45px auto;
+  /* Rigid Columns */
   gap: 4px;
   padding: 4px;
   background: #f8fafc;
@@ -701,8 +723,11 @@ textarea.modal-input {
   border: 1px solid #e2e8f0;
 }
 
-.edit-log-date, .edit-log-text, .edit-log-value {
-  width: 100% !important; /* Let Grid determine absolute widths */
+.edit-log-date,
+.edit-log-text,
+.edit-log-value {
+  width: 100% !important;
+  /* Let Grid determine absolute widths */
   font-size: 0.75rem;
   padding: 4px;
   border: 1px solid #e2e8f0;

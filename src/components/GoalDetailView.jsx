@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
@@ -34,6 +34,20 @@ const GoalDetailView = ({ goal, onBack }) => {
   const [editingEntryId, setEditingEntryId] = useState(null);
   const [editEntryForm, setEditEntryForm] = useState({ text: '', date: '', value: 1 });
   const [collapsedMilestones, setCollapsedMilestones] = useState({});
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const toggleMilestoneCollapse = (id) => {
     setCollapsedMilestones(prev => ({ ...prev, [id]: !prev[id] }));
@@ -134,7 +148,7 @@ const GoalDetailView = ({ goal, onBack }) => {
 
   return (
     <div className="goal-detail-view safe-area animate-fade-in">
-      <div className="detail-top-nav">
+      <div className={`detail-top-nav ${isScrolled ? 'scrolled' : ''}`}>
         <button className="back-btn-icon" onClick={onBack}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
         </button>
