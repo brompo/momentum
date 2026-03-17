@@ -13,9 +13,9 @@ const CalendarView = () => {
     localStorage.setItem('ga_calendar_view_mode', viewMode);
   }, [viewMode]);
   const [editingTask, setEditingTask] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '', priority: 'Medium' });
+  const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '', priority: 'Low' });
   const [addingFollowUp, setAddingFollowUp] = useState(null);
-  const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '', priority: 'Medium' });
+  const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '', priority: 'Low' });
 
   const handleWeekChange = (offset) => {
     const newDate = new Date(selectedDate);
@@ -61,7 +61,7 @@ const CalendarView = () => {
     const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
     const day = String(tomorrow.getDate()).padStart(2, '0');
     const tomorrowStr = `${year}-${month}-${day}T09:00`;
-    setFollowUpForm({ title: '', value: '', scheduledDate: tomorrowStr, markDone: true, notes: '' });
+    setFollowUpForm({ title: '', value: '', scheduledDate: tomorrowStr, markDone: true, notes: '', priority: task.priority || 'Low' });
   };
 
   const handleAddFollowUp = (e) => {

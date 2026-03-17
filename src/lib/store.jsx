@@ -60,7 +60,7 @@ export const StoreProvider = ({ children }) => {
     return newGoal;
   };
 
-  const addMilestone = (goalId, title) => {
+  const addMilestone = (goalId, title, priority = 'Low') => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -70,6 +70,7 @@ export const StoreProvider = ({ children }) => {
             {
               id: crypto.randomUUID(),
               title,
+              priority,
               tasks: [],
               createdAt: new Date().toISOString()
             }
@@ -81,6 +82,11 @@ export const StoreProvider = ({ children }) => {
   };
 
   const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID(), parentTaskId = null, parentUpdates = {}) => {
+    let finalDate = scheduledDate;
+    if (finalDate && !finalDate.includes('T')) {
+      finalDate = finalDate + 'T09:00';
+    }
+
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -98,7 +104,7 @@ export const StoreProvider = ({ children }) => {
                     id: taskId,
                     title,
                     value: Number(value) || 0,
-                    scheduledDate,
+                    scheduledDate: finalDate,
                     priority,
                     completed: false,
                     createdAt: new Date().toISOString()
@@ -157,6 +163,11 @@ export const StoreProvider = ({ children }) => {
   };
 
   const updateTask = (goalId, milestoneId, taskId, updates) => {
+    let finalUpdates = { ...updates };
+    if (finalUpdates.scheduledDate && !finalUpdates.scheduledDate.includes('T')) {
+      finalUpdates.scheduledDate = finalUpdates.scheduledDate + 'T09:00';
+    }
+
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -166,7 +177,7 @@ export const StoreProvider = ({ children }) => {
               return {
                 ...ms,
                 tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { ...task, ...updates } : task
+                  task.id === taskId ? { ...task, ...finalUpdates } : task
                 )
               };
             }

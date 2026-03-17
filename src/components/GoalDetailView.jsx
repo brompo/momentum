@@ -14,6 +14,7 @@ const GoalDetailView = ({ goal, onBack }) => {
     targetNumber: goal.targetNumber || ''
   });
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
+  const [newMilestonePriority, setNewMilestonePriority] = useState('Low');
   
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -83,8 +84,9 @@ const GoalDetailView = ({ goal, onBack }) => {
   const handleAddMilestone = (e) => {
     e.preventDefault();
     if (newMilestoneTitle.trim()) {
-      addMilestone(goal.id, newMilestoneTitle);
+      addMilestone(goal.id, newMilestoneTitle, newMilestonePriority);
       setNewMilestoneTitle('');
+      setNewMilestonePriority('Low');
       setIsAddingMilestone(false);
     }
   };
@@ -93,7 +95,11 @@ const GoalDetailView = ({ goal, onBack }) => {
     if (taskForm.title.trim()) {
       const cleanNumeric = taskForm.value.toString().replace(/[^0-9]/g, '');
       const numericValue = parseFloat(cleanNumeric) || 0;
-      addTask(goal.id, milestoneId, taskForm.title, numericValue, taskForm.scheduledDate);
+      
+      const milestone = goal.milestones.find(m => m.id === milestoneId);
+      const priorityToUse = milestone ? milestone.priority : 'Low';
+
+      addTask(goal.id, milestoneId, taskForm.title, numericValue, taskForm.scheduledDate, priorityToUse);
       setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] });
     }
     setActiveMilestoneId(null);
@@ -295,13 +301,25 @@ const GoalDetailView = ({ goal, onBack }) => {
           </div>
 
           {isAddingMilestone && (
-            <form className="inline-add glass-card" onSubmit={handleAddMilestone}>
+            <form className="inline-add glass-card" onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
               <input 
                 autoFocus
                 placeholder="Enter milestone..." 
                 value={newMilestoneTitle}
                 onChange={e => setNewMilestoneTitle(e.target.value)}
+                style={{ width: '100%', marginBottom: 0 }}
               />
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <select 
+                  value={newMilestonePriority} 
+                  onChange={e => setNewMilestonePriority(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
+                >
+                  <option value="Low">Low Priority 🔵</option>
+                  <option value="Medium">Medium Priority 🟡</option>
+                  <option value="High">High Priority 🔴</option>
+                </select>
+              </div>
               <div className="inline-actions">
                 <button type="button" onClick={() => setIsAddingMilestone(false)}>Cancel</button>
                 <button type="submit" className="active">Add</button>
