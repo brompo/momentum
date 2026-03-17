@@ -80,17 +80,20 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID()) => {
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID(), parentTaskId = null, parentUpdates = {}) => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
           ...goal,
           milestones: goal.milestones.map(ms => {
             if (ms.id === milestoneId) {
+              const updatedTasks = (ms.tasks || []).map(t => 
+                t.id === parentTaskId ? { ...t, followUpTaskId: taskId, ...parentUpdates } : t
+              );
               return {
                 ...ms,
                 tasks: [
-                  ...ms.tasks,
+                  ...updatedTasks,
                   {
                     id: taskId,
                     title,

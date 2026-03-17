@@ -57,7 +57,10 @@ const CalendarView = () => {
     setAddingFollowUp(task);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0] + 'T09:00';
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const tomorrowStr = `${year}-${month}-${day}T09:00`;
     setFollowUpForm({ title: '', value: '', scheduledDate: tomorrowStr, markDone: true, notes: '' });
   };
 
@@ -68,16 +71,24 @@ const CalendarView = () => {
       const numericValue = parseFloat(cleanNumeric) || 0;
       
       const newTaskId = crypto.randomUUID();
-      addTask(addingFollowUp.goalId, addingFollowUp.milestoneId, followUpForm.title, numericValue, followUpForm.scheduledDate, followUpForm.priority, newTaskId);
-
-      // Link back:
-      updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { 
-        followUpTaskId: newTaskId 
-      });
-
+      const originalUpdates = {};
+      
       if (followUpForm.notes.trim()) {
-        updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { notes: followUpForm.notes });
+        originalUpdates.notes = followUpForm.notes;
       }
+
+      // Single Dispatch Update to eliminate state race condition
+      addTask(
+        addingFollowUp.goalId, 
+        addingFollowUp.milestoneId, 
+        followUpForm.title, 
+        numericValue, 
+        followUpForm.scheduledDate, 
+        followUpForm.priority, 
+        newTaskId, 
+        addingFollowUp.id, 
+        originalUpdates
+      );
 
       if (followUpForm.markDone && !addingFollowUp.completed) {
         toggleTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id);
@@ -214,7 +225,11 @@ const CalendarView = () => {
     if (!t.scheduledDate) {
       return isToday;
     }
-    return t.scheduledDate.split('T')[0] === selectedDate.toISOString().split('T')[0];
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const localDateStr = `${year}-${month}-${day}`;
+    return t.scheduledDate.split('T')[0] === localDateStr;
   }).sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
     return (a.scheduledDate || '').localeCompare(b.scheduledDate || '');

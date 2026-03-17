@@ -400,8 +400,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   transition: background 0.2s;
 }
@@ -807,6 +807,7 @@ textarea.modal-input {
 .task-modal-row {
   grid-template-columns: 1fr 130px !important;
 }
+
 .task-date-badge.past {
   color: #ef4444 !important;
   background: #fef2f2 !important;
