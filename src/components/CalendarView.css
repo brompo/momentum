@@ -212,3 +212,187 @@
 .date-strip {
   flex: 1;
 }
+
+.agenda-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-followup-btn {
+  background: #e0e7ff;
+  color: var(--primary);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.add-followup-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.modal-context {
+  display: flex;
+  gap: 4px;
+  font-size: 0.75rem;
+  margin-bottom: 12px;
+  color: var(--text-dim);
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.context-goal {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Icon Button for Follow up */
+.add-followup-btn.icon-btn {
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+}
+
+.agenda-goal {
+  transition: color 0.15s !important;
+}
+
+.agenda-goal:hover {
+  text-decoration: underline;
+  color: var(--primary) !important;
+}
+
+/* Beautify Add Follow-up Modal Forms */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.task-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-form label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.task-form input {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: var(--radius-md, 8px) !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+  color: var(--text-dark) !important;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.task-form input:focus {
+  border-color: var(--primary) !important;
+  background: white !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.task-modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.checkbox-group {
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500 !important;
+  color: var(--text-dark) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  cursor: pointer;
+  width: auto !important;
+}
+
+/* Modal Actions Buttons */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.modal-actions button {
+  padding: 10px 16px !important;
+  border-radius: var(--radius-md, 8px) !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border: none !important;
+}
+
+.primary-btn {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.primary-btn:hover {
+  background: var(--primary-hover, #4338ca) !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;
+}
+
+.secondary-btn {
+  background: #f1f5f9 !important;
+  color: var(--text-dark) !important;
+}
+
+.secondary-btn:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Beautify Textarea inside Modal */
+.task-form textarea {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: var(--radius-md, 8px) !important;
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+  color: var(--text-dark) !important;
+  transition: all 0.2s;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.task-form textarea:focus {
+  border-color: var(--primary) !important;
+  background: white !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}

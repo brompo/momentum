@@ -41,9 +41,7 @@ const SettingsView = () => {
 };
 
 function App() {
-  const { activeTab } = useStore();
-  const [selectedGoalId, setSelectedGoalId] = useState(null);
-  const { goals } = useStore();
+  const { activeTab, selectedGoalId, setSelectedGoalId, goals } = useStore();
 
   const selectedGoal = goals.find(g => g.id === selectedGoalId);
 

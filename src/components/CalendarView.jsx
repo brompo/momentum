@@ -3,11 +3,13 @@ import { useStore } from '../lib/store';
 import './CalendarView.css';
 
 const CalendarView = () => {
-  const { goals, toggleTask, updateTask } = useStore();
+  const { goals, toggleTask, updateTask, addTask, setSelectedGoalId, setActiveTab } = useStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'agenda'
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '' });
+  const [addingFollowUp, setAddingFollowUp] = useState(null); 
+  const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '' });
 
   const handleWeekChange = (offset) => {
     const newDate = new Date(selectedDate);
@@ -41,6 +43,32 @@ const CalendarView = () => {
   const formatNumberWithCommas = (num) => {
     if (!num) return '';
     return Number(num).toLocaleString();
+  };
+
+  const handleFollowUpClick = (task) => {
+    setAddingFollowUp(task);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    setFollowUpForm({ title: '', value: '', scheduledDate: tomorrowStr, markDone: true, notes: '' });
+  };
+
+  const handleAddFollowUp = (e) => {
+    e.preventDefault();
+    if (addingFollowUp && followUpForm.title.trim()) {
+      const cleanNumeric = followUpForm.value ? followUpForm.value.toString().replace(/[^0-9]/g, '') : '';
+      const numericValue = parseFloat(cleanNumeric) || 0;
+      addTask(addingFollowUp.goalId, addingFollowUp.milestoneId, followUpForm.title, numericValue, followUpForm.scheduledDate);
+      
+      if (followUpForm.notes.trim()) {
+        updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { notes: followUpForm.notes });
+      }
+
+      if (followUpForm.markDone && !addingFollowUp.completed) {
+        toggleTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id);
+      }
+      setAddingFollowUp(null);
+    }
   };
 
   // Helper to get formatted dates for the week
@@ -84,12 +112,21 @@ const CalendarView = () => {
         <div className="agenda-item-content">
           <span className="agenda-task-title">{task.title}</span>
           <div className="agenda-meta">
-            <span className="agenda-goal">{task.goalTitle}</span>
+            <span className="agenda-goal" onClick={(e) => { e.stopPropagation(); setSelectedGoalId(task.goalId); setActiveTab('Goals'); }} style={{ cursor: 'pointer' }}>
+              {task.goalTitle}
+            </span>
             <span className="agenda-ms">{task.milestoneTitle}</span>
           </div>
         </div>
       </div>
-      {task.value > 0 && <span className="agenda-task-value">{task.value.toLocaleString()}</span>}
+      <div className="agenda-item-actions">
+        <button className="add-followup-btn icon-btn" onClick={(e) => { e.stopPropagation(); handleFollowUpClick(task); }} title="Add Follow-up">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
     </div>
   );
 
@@ -264,6 +301,81 @@ const CalendarView = () => {
               <div className="modal-actions">
                 <button type="button" className="secondary-btn" onClick={() => setEditingTask(null)}>Cancel</button>
                 <button type="submit" className="primary-btn">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Follow-up Modal */}
+      {addingFollowUp && (
+        <div className="modal-overlay" onClick={() => setAddingFollowUp(null)}>
+          <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add Follow-up Task</h3>
+              <button className="close-modal" onClick={() => setAddingFollowUp(null)}>&times;</button>
+            </div>
+            <div className="modal-context">
+              <span className="context-goal">{addingFollowUp.goalTitle}</span>
+              <span className="context-ms"> {addingFollowUp.milestoneTitle}</span>
+            </div>
+            <form onSubmit={handleAddFollowUp} className="task-form">
+              <div className="form-group">
+                <label>Add a Note / Lesson Learned (Optional)</label>
+                <textarea 
+                  value={followUpForm.notes} 
+                  onChange={e => setFollowUpForm({ ...followUpForm, notes: e.target.value })} 
+                  placeholder="What were the efforts / lessons learned?"
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Next Step (Follow Up Task)</label>
+                <input 
+                  type="text" 
+                  value={followUpForm.title} 
+                  onChange={e => setFollowUpForm({ ...followUpForm, title: e.target.value })} 
+                  placeholder="What is the next step?"
+                  required
+                />
+              </div>
+              
+              <div className="form-row task-modal-row">
+                <div className="form-group">
+                  <label>Value (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={followUpForm.value} 
+                    onChange={e => setFollowUpForm({ ...followUpForm, value: e.target.value })} 
+                    placeholder="e.g. 5,000"
+                  />
+                </div>
+                
+                <div className="form-group date-input-group">
+                  <label>Schedule Date</label>
+                  <input 
+                    type="date" 
+                    value={followUpForm.scheduledDate} 
+                    onChange={e => setFollowUpForm({ ...followUpForm, scheduledDate: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={followUpForm.markDone} 
+                    onChange={e => setFollowUpForm({ ...followUpForm, markDone: e.target.checked })} 
+                  />
+                  <span>Mark original task as completed</span>
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-btn" onClick={() => setAddingFollowUp(null)}>Cancel</button>
+                <button type="submit" className="primary-btn">Create Task</button>
               </div>
             </form>
           </div>
