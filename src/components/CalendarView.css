@@ -396,3 +396,16 @@
   background: white !important;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
 }
+
+/* Responsive Mobile Layouts for Modals */
+@media (max-width: 480px) {
+  .task-modal-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+.task-form input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}

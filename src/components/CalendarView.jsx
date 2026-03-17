@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../lib/store';
 import './CalendarView.css';
 
 const CalendarView = () => {
   const { goals, toggleTask, updateTask, addTask, setSelectedGoalId, setActiveTab } = useStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'agenda'
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('ga_calendar_view_mode') || 'calendar';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ga_calendar_view_mode', viewMode);
+  }, [viewMode]);
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '' });
   const [addingFollowUp, setAddingFollowUp] = useState(null); 
