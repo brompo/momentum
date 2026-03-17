@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
@@ -17,9 +17,7 @@ const GoalDetailView = ({ goal, onBack }) => {
   
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editTaskForm, setEditTaskForm] = useState({ title: '', value: '' });
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskValue, setNewTaskValue] = useState('');
+  const [taskForm, setTaskForm] = useState({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] });
   const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Tasks'
   const [isAddingMetric, setIsAddingMetric] = useState(false);
   const [newMetricTitle, setNewMetricTitle] = useState('');
@@ -91,27 +89,51 @@ const GoalDetailView = ({ goal, onBack }) => {
     }
   };
 
+  const saveNewTask = (milestoneId) => {
+    if (taskForm.title.trim()) {
+      const cleanNumeric = taskForm.value.toString().replace(/[^0-9]/g, '');
+      const numericValue = parseFloat(cleanNumeric) || 0;
+      addTask(goal.id, milestoneId, taskForm.title, numericValue, taskForm.scheduledDate);
+      setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] });
+    }
+    setActiveMilestoneId(null);
+  };
+
   const handleAddTask = (e, milestoneId) => {
     e.preventDefault();
-    if (newTaskTitle.trim()) {
-      const cleanNumeric = newTaskValue.toString().replace(/[^0-9]/g, '');
+    saveNewTask(milestoneId);
+  };
+
+  const saveEditTask = (milestoneId, taskId) => {
+    if (taskForm.title && taskForm.title.trim()) {
+      const cleanNumeric = taskForm.value.toString().replace(/[^0-9]/g, '');
       const numericValue = parseFloat(cleanNumeric) || 0;
-      addTask(goal.id, milestoneId, newTaskTitle, numericValue);
-      setNewTaskTitle('');
-      setNewTaskValue('');
-      setActiveMilestoneId(null);
+      updateTask(goal.id, milestoneId, taskId, {
+        title: taskForm.title,
+        value: numericValue,
+        scheduledDate: taskForm.scheduledDate
+      });
     }
+    setEditingTaskId(null);
   };
 
   const handleEditTaskSave = (e, milestoneId, taskId) => {
     e.preventDefault();
-    const cleanNumeric = editTaskForm.value.toString().replace(/[^0-9]/g, '');
-    const numericValue = parseFloat(cleanNumeric) || 0;
-    updateTask(goal.id, milestoneId, taskId, {
-      title: editTaskForm.title,
-      value: numericValue
-    });
-    setEditingTaskId(null);
+    saveEditTask(milestoneId, taskId);
+  };
+
+  const handleTaskSubmit = (e) => {
+    e.preventDefault();
+    if (activeMilestoneId) {
+      saveNewTask(activeMilestoneId);
+    } else if (editingTaskId) {
+      const milestone = goal.milestones.find(m => m.tasks.some(t => t.id === editingTaskId));
+      if (milestone) {
+        saveEditTask(milestone.id, editingTaskId);
+      } else {
+        setEditingTaskId(null);
+      }
+    }
   };
 
   const handleUpdateGoal = (e) => {
@@ -208,34 +230,33 @@ const GoalDetailView = ({ goal, onBack }) => {
           </form>
         )}
 
-        <div className="metrics-list-row">
-          {(goal.metrics || []).length === 0 && !isAddingMetric && (
-            <p className="empty-substate">No sub-metrics added yet.</p>
-          )}
-          {(goal.metrics || []).map(m => (
-            <div 
-              key={m.id} 
-              className="metric-badge-item glass-card"
-              onClick={() => {
-                setActiveLogMetric(m);
-                setLogForm(prev => ({ ...prev, value: 1 }));
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="metric-info">
-                <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
-                    <path d="M3 3v18h18" />
-                    <polyline points="7 16 11 12 16 14 19 8" />
-                  </svg>
-                  {m.title}
-                </span>
-                <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
+        {(goal.metrics || []).length > 0 && (
+          <div className="metrics-list-row">
+            {(goal.metrics || []).map(m => (
+              <div 
+                key={m.id} 
+                className="metric-badge-item glass-card"
+                onClick={() => {
+                  setActiveLogMetric(m);
+                  setLogForm(prev => ({ ...prev, value: 1 }));
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="metric-info">
+                  <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
+                      <path d="M3 3v18h18" />
+                      <polyline points="7 16 11 12 16 14 19 8" />
+                    </svg>
+                    {m.title}
+                  </span>
+                  <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
+                </div>
+                <button className="add-small-btn" style={{ margin: 0 }}>+</button>
               </div>
-              <button className="add-small-btn" style={{ margin: 0 }}>+</button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="tab-bar-capsule">
@@ -299,79 +320,36 @@ const GoalDetailView = ({ goal, onBack }) => {
                   {!collapsedMilestones[ms.id] && (
                     <div className="tasks-list">
                       {ms.tasks.map(task => (
-                        editingTaskId === task.id ? (
-                          <form key={task.id} className="task-input-row" onSubmit={(e) => handleEditTaskSave(e, ms.id, task.id)}>
-                            <input 
-                              autoFocus
-                              className="task-title-input"
-                              value={editTaskForm.title}
-                              onChange={e => setEditTaskForm({ ...editTaskForm, title: e.target.value })}
-                            />
-                            <input 
-                              className="task-value-input"
-                              type="text"
-                              value={formatNumberWithCommas(editTaskForm.value)}
-                              onChange={e => {
-                                const clean = e.target.value.replace(/[^0-9]/g, '');
-                                setEditTaskForm({ ...editTaskForm, value: clean });
-                              }}
-                            />
-                            <button type="submit" className="save-edit-btn">✓</button>
-                            <button type="button" className="save-edit-btn cancel" onClick={() => setEditingTaskId(null)}>&times;</button>
-                          </form>
-                        ) : (
-                          <div key={task.id} className="task-row">
-                            <div 
-                              className={`task-item ${task.completed ? 'completed' : ''}`}
-                              onClick={() => toggleTask(goal.id, ms.id, task.id)}
-                            >
-                              <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
-                              <span>{task.title}</span>
-                            </div>
-                            <div className="task-actions">
-                              <button className="edit-task-btn" onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingTaskId(task.id);
-                                setEditTaskForm({ title: task.title, value: task.value.toString() });
-                              }} title="Edit Task">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(1px)' }}>
-                                  <path d="M12 20h9" />
-                                  <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                                </svg>
-                              </button>
-                              {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
-                              <button className="delete-task-btn" onClick={(e) => { e.stopPropagation(); deleteTask(goal.id, ms.id, task.id); }} title="Delete Task">&times;</button>
-                            </div>
+                        <div key={task.id} className="task-row">
+                          <div 
+                            className={`task-item ${task.completed ? 'completed' : ''}`}
+                            onClick={() => toggleTask(goal.id, ms.id, task.id)}
+                          >
+                            <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
+                            <span>{task.title}</span>
+                            {task.scheduledDate && <span className="task-date-badge">{task.scheduledDate.split('-').slice(1).join('/')}</span>}
                           </div>
-                        )
+                          <div className="task-actions">
+                            <button className="edit-task-btn" onClick={(e) => {
+                              e.stopPropagation();
+                              setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '' });
+                              setEditingTaskId(task.id);
+                              setActiveMilestoneId(null);
+                            }} title="Edit Task">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(1px)' }}>
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                              </svg>
+                            </button>
+                            {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
+                            <button className="delete-task-btn" onClick={(e) => { e.stopPropagation(); deleteTask(goal.id, ms.id, task.id); }} title="Delete Task">&times;</button>
+                          </div>
+                        </div>
                       ))}
                       
-                      {activeMilestoneId === ms.id ? (
-                        <form className="task-input-row" onSubmit={(e) => handleAddTask(e, ms.id)}>
-                          <input 
-                            autoFocus
-                            className="task-title-input"
-                            placeholder="Add task..." 
-                            value={newTaskTitle}
-                            onChange={e => setNewTaskTitle(e.target.value)}
-                          />
-                          <input 
-                            className="task-value-input"
-                            type="text"
-                            placeholder="Value" 
-                            value={formatNumberWithCommas(newTaskValue)}
-                            onChange={e => {
-                              const clean = e.target.value.replace(/[^0-9]/g, '');
-                              setNewTaskValue(clean);
-                            }}
-                          />
-                          <button type="submit" className="save-edit-btn">✓</button>
-                        </form>
-                      ) : (
-                        <button className="add-task-placeholder" onClick={() => setActiveMilestoneId(ms.id)}>
-                          + Add a task
-                        </button>
-                      )}
+                      <button className="add-task-placeholder" onClick={() => { setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] }); setActiveMilestoneId(ms.id); setEditingTaskId(null); }}>
+                        + Add a task
+                      </button>
                     </div>
                   )}
                 </div>
@@ -396,6 +374,59 @@ const GoalDetailView = ({ goal, onBack }) => {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {(activeMilestoneId || editingTaskId) && (
+        <div className="modal-overlay glass" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>
+          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-with-title">
+              <h2>{editingTaskId ? 'Edit Task' : 'Add Task'}</h2>
+              <button className="close-btn" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>&times;</button>
+            </div>
+            <form onSubmit={handleTaskSubmit} className="expanded-form">
+              <div className="form-group">
+                <label>Task Title</label>
+                <input 
+                  autoFocus
+                  type="text"
+                  placeholder="e.g. Call client"
+                  value={taskForm.title}
+                  onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                  className="modal-input"
+                  required
+                />
+              </div>
+              <div className="form-row task-modal-row">
+                <div className="form-group">
+                  <label>Value (Optional)</label>
+                  <input 
+                    type="text"
+                    placeholder="e.g. 100"
+                    value={formatNumberWithCommas(taskForm.value)}
+                    onChange={e => {
+                      const clean = e.target.value.replace(/[^0-9]/g, '');
+                      setTaskForm({ ...taskForm, value: clean });
+                    }}
+                    className="modal-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Schedule Date</label>
+                  <input 
+                    type="date"
+                    value={taskForm.scheduledDate || ''}
+                    onChange={e => setTaskForm({ ...taskForm, scheduledDate: e.target.value })}
+                    className="modal-input"
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>Cancel</button>
+                <button type="submit" className="btn-primary">{editingTaskId ? 'Save Changes' : 'Add Task'}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -125,7 +125,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   cursor: pointer;
   flex: 1;
@@ -137,11 +137,10 @@
 }
 
 .task-value {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-main);
   background: rgba(255, 255, 255, 0.05);
-  padding: 2px 8px;
   border-radius: 6px;
 }
 
@@ -220,7 +219,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
@@ -781,4 +780,30 @@ textarea.modal-input {
   background: #f8fafc;
   color: var(--primary);
   border-color: #cbd5e1 !important;
+}
+
+.task-date-input {
+  width: 130px;
+  border-left: 1px solid #cbd5e1 !important;
+  padding-left: 10px !important;
+  font-size: 0.8rem !important;
+  color: #475569;
+}
+
+.task-date-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: #eff6ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.task-modal-row {
+  grid-template-columns: 1.8fr 1fr !important;
+}
+
+.task-modal-row {
+  grid-template-columns: 1fr 130px !important;
 }

@@ -34,7 +34,14 @@ const CalendarView = () => {
   // or we just show all pending tasks for simplicity in the assistant view.
   // For now, let's show ALL tasks but highlight those with dates or just show the 'Agenda'.
   
-  const todayTasks = allTasks.filter(t => !t.completed);
+  const todayTasks = allTasks.filter(t => {
+    if (t.completed) return false;
+    const isToday = selectedDate.toDateString() === new Date().toDateString();
+    if (!t.scheduledDate) {
+      return isToday; // Show unscheduled on Today's view
+    }
+    return t.scheduledDate === selectedDate.toISOString().split('T')[0];
+  });
 
   return (
     <div className="calendar-view safe-area animate-fade-in">
