@@ -14,7 +14,7 @@ const CalendarView = () => {
   }, [viewMode]);
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '' });
-  const [addingFollowUp, setAddingFollowUp] = useState(null); 
+  const [addingFollowUp, setAddingFollowUp] = useState(null);
   const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '' });
 
   const handleWeekChange = (offset) => {
@@ -65,7 +65,7 @@ const CalendarView = () => {
       const cleanNumeric = followUpForm.value ? followUpForm.value.toString().replace(/[^0-9]/g, '') : '';
       const numericValue = parseFloat(cleanNumeric) || 0;
       addTask(addingFollowUp.goalId, addingFollowUp.milestoneId, followUpForm.title, numericValue, followUpForm.scheduledDate);
-      
+
       if (followUpForm.notes.trim()) {
         updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { notes: followUpForm.notes });
       }
@@ -151,7 +151,7 @@ const CalendarView = () => {
   };
 
   allTasks.forEach(task => {
-    if (task.completed) return; 
+    if (task.completed) return;
     if (!task.scheduledDate) {
       groupedTasks.unscheduled.push(task);
       return;
@@ -178,7 +178,7 @@ const CalendarView = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const isTomorrow = selectedDate.toDateString() === tomorrow.toDateString();
-    
+
     if (isToday) return "Today's Tasks";
     if (isTomorrow) return "Tomorrow's Tasks";
     return `${selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}'s Tasks`;
@@ -274,32 +274,32 @@ const CalendarView = () => {
             <form onSubmit={handleUpdateTask} className="task-form">
               <div className="form-group">
                 <label>Task Title</label>
-                <input 
-                  type="text" 
-                  value={editForm.title} 
-                  onChange={e => setEditForm({ ...editForm, title: e.target.value })} 
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={e => setEditForm({ ...editForm, title: e.target.value })}
                   placeholder="What needs to be done?"
                   required
                 />
               </div>
-              
+
               <div className="form-row task-modal-row">
                 <div className="form-group">
                   <label>Value (Optional)</label>
-                  <input 
-                    type="text" 
-                    value={editForm.value} 
-                    onChange={e => setEditForm({ ...editForm, value: e.target.value })} 
+                  <input
+                    type="text"
+                    value={editForm.value}
+                    onChange={e => setEditForm({ ...editForm, value: e.target.value })}
                     placeholder="e.g. 5,000"
                   />
                 </div>
-                
+
                 <div className="form-group date-input-group">
                   <label>Schedule Date</label>
-                  <input 
-                    type="date" 
-                    value={editForm.scheduledDate} 
-                    onChange={e => setEditForm({ ...editForm, scheduledDate: e.target.value })} 
+                  <input
+                    type="date"
+                    value={editForm.scheduledDate}
+                    onChange={e => setEditForm({ ...editForm, scheduledDate: e.target.value })}
                   />
                 </div>
               </div>
@@ -328,9 +328,9 @@ const CalendarView = () => {
             <form onSubmit={handleAddFollowUp} className="task-form">
               <div className="form-group">
                 <label>Add a Note / Lesson Learned (Optional)</label>
-                <textarea 
-                  value={followUpForm.notes} 
-                  onChange={e => setFollowUpForm({ ...followUpForm, notes: e.target.value })} 
+                <textarea
+                  value={followUpForm.notes}
+                  onChange={e => setFollowUpForm({ ...followUpForm, notes: e.target.value })}
                   placeholder="What were the efforts / lessons learned?"
                   rows="3"
                 />
@@ -338,45 +338,49 @@ const CalendarView = () => {
 
               <div className="form-group">
                 <label>Next Step (Follow Up Task)</label>
-                <input 
-                  type="text" 
-                  value={followUpForm.title} 
-                  onChange={e => setFollowUpForm({ ...followUpForm, title: e.target.value })} 
+                <input
+                  type="text"
+                  value={followUpForm.title}
+                  onChange={e => setFollowUpForm({ ...followUpForm, title: e.target.value })}
                   placeholder="What is the next step?"
                   required
                 />
               </div>
-              
+
               <div className="form-row task-modal-row">
                 <div className="form-group">
                   <label>Value (Optional)</label>
-                  <input 
-                    type="text" 
-                    value={followUpForm.value} 
-                    onChange={e => setFollowUpForm({ ...followUpForm, value: e.target.value })} 
+                  <input
+                    type="text"
+                    value={followUpForm.value}
+                    onChange={e => setFollowUpForm({ ...followUpForm, value: e.target.value })}
                     placeholder="e.g. 5,000"
                   />
                 </div>
-                
+
                 <div className="form-group date-input-group">
                   <label>Schedule Date</label>
-                  <input 
-                    type="date" 
-                    value={followUpForm.scheduledDate} 
-                    onChange={e => setFollowUpForm({ ...followUpForm, scheduledDate: e.target.value })} 
+                  <input
+                    type="date"
+                    value={followUpForm.scheduledDate}
+                    onChange={e => setFollowUpForm({ ...followUpForm, scheduledDate: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div className="form-group checkbox-group">
-                <label className="checkbox-label">
-                  <input 
-                    type="checkbox" 
-                    checked={followUpForm.markDone} 
-                    onChange={e => setFollowUpForm({ ...followUpForm, markDone: e.target.checked })} 
+              <div className="form-group checkbox-group" style={{ display: 'block', width: '100%', marginTop: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: '8px', width: '100%' }}>
+                  <input
+                    type="checkbox"
+                    id="markDoneCheckbox"
+                    checked={followUpForm.markDone}
+                    onChange={e => setFollowUpForm({ ...followUpForm, markDone: e.target.checked })}
+                    style={{ margin: 0, flexShrink: 0, cursor: 'pointer' }}
                   />
-                  <span>Mark original task as completed</span>
-                </label>
+                  <label htmlFor="markDoneCheckbox" style={{ flex: 1, textAlign: 'left', whiteSpace: 'normal', fontSize: '0.7rem', color: '#1e293b', cursor: 'pointer', display: 'inline', margin: 0, textTransform: 'none', letterSpacing: 0, fontWeight: 500 }}>
+                    Mark original task as completed
+                  </label>
+                </div>
               </div>
 
               <div className="modal-actions">

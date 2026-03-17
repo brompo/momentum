@@ -160,6 +160,7 @@
   color: var(--text-dim);
   opacity: 0.8;
 }
+
 .header-top {
   display: flex;
   justify-content: space-between;
@@ -190,7 +191,7 @@
 .view-toggle button.active {
   background: white;
   color: var(--primary);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .date-strip-row {
@@ -406,7 +407,6 @@
 }
 
 .task-form input {
-  width: 100% !important;
   box-sizing: border-box !important;
 }
 
@@ -414,4 +414,75 @@
 .task-form input,
 .task-form textarea {
   font-size: 16px !important;
+}
+
+/* Fix Modal Bottom Collision with TabBar */
+.calendar-view .modal-content {
+  padding-bottom: 90px !important;
+}
+
+/* Fix Checkbox Label Wrap */
+.checkbox-label {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.checkbox-label span {
+  flex: 1;
+  font-size: 0.9rem !important;
+  white-space: normal !important;
+}
+
+/* Beautify Close Modal Button */
+.close-modal {
+  background: #f1f5f9 !important;
+  border: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.2rem !important;
+  color: var(--text-dark) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  padding: 0 !important;
+}
+
+.close-modal:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Force Checkbox and Text together */
+.checkbox-label {
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+
+.checkbox-label input {
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Force Checkbox Container Block Bounds */
+.checkbox-group {
+  display: block !important;
+  width: 100% !important;
+  margin-top: 8px !important;
+}
+
+.checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  gap: 10px !important;
+}
+
+.checkbox-label span {
+  text-align: left !important;
+  flex: 1 !important;
 }
