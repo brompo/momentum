@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './CalendarView.css';
 
 const CalendarView = () => {
-  const { goals, toggleTask, updateTask, addTask, setSelectedGoalId, setActiveTab } = useStore();
+  const { goals, toggleTask, updateTask, addTask, setSelectedGoalId, setActiveTab, setPreviousTab } = useStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('ga_calendar_view_mode') || 'calendar';
@@ -118,7 +118,7 @@ const CalendarView = () => {
         <div className="agenda-item-content">
           <span className="agenda-task-title">{task.title}</span>
           <div className="agenda-meta">
-            <span className="agenda-goal" onClick={(e) => { e.stopPropagation(); setSelectedGoalId(task.goalId); setActiveTab('Goals'); }} style={{ cursor: 'pointer' }}>
+            <span className="agenda-goal" onClick={(e) => { e.stopPropagation(); setPreviousTab('Calendar'); setSelectedGoalId(task.goalId); setActiveTab('Goals'); }} style={{ cursor: 'pointer' }}>
               {task.goalTitle}
             </span>
             <span className="agenda-ms">{task.milestoneTitle}</span>
@@ -321,13 +321,15 @@ const CalendarView = () => {
               <h3>Add Follow-up Task</h3>
               <button className="close-modal" onClick={() => setAddingFollowUp(null)}>&times;</button>
             </div>
-            <div className="modal-context">
-              <span className="context-goal">{addingFollowUp.goalTitle}</span>
-              <span className="context-ms"> {addingFollowUp.milestoneTitle}</span>
+            <div className="modal-task-source" style={{ background: '#fef3c7', padding: '10px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, color: '#92400e', marginBottom: '14px', border: '1px solid #fde68a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ flex: 1 }}>
+                <span style={{ color: '#d97706', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block' }}>Following up on:</span>
+                <span style={{ color: '#78350f', fontSize: '0.9rem', fontWeight: 700 }}>{addingFollowUp.title}</span>
+              </div>
             </div>
             <form onSubmit={handleAddFollowUp} className="task-form">
               <div className="form-group">
-                <label>Add a Note / Lesson Learned (Optional)</label>
+                <label>Note / Lesson Learned (Optional)</label>
                 <textarea
                   value={followUpForm.notes}
                   onChange={e => setFollowUpForm({ ...followUpForm, notes: e.target.value })}

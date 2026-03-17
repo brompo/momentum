@@ -18,6 +18,7 @@ export const StoreProvider = ({ children }) => {
 
   const [activeTab, setActiveTab] = useState('Goals'); // Default tab
   const [selectedGoalId, setSelectedGoalId] = useState(null);
+  const [previousTab, setPreviousTab] = useState(null);
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('ga_theme');
     return saved || 'dark';
@@ -327,6 +328,8 @@ export const StoreProvider = ({ children }) => {
     setActiveTab,
     selectedGoalId,
     setSelectedGoalId,
+    previousTab,
+    setPreviousTab,
     addGoal,
     addMilestone,
     addTask,

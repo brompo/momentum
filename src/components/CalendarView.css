@@ -486,3 +486,15 @@
   text-align: left !important;
   flex: 1 !important;
 }
+/* Force Close Modal to Top-Right Corner */
+.modal-content {
+  position: relative !important;
+}
+
+.close-modal {
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  margin: 0 !important;
+  z-index: 10 !important;
+}

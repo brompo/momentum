@@ -41,7 +41,7 @@ const SettingsView = () => {
 };
 
 function App() {
-  const { activeTab, selectedGoalId, setSelectedGoalId, goals } = useStore();
+  const { activeTab, selectedGoalId, setSelectedGoalId, goals, previousTab, setPreviousTab, setActiveTab } = useStore();
 
   const selectedGoal = goals.find(g => g.id === selectedGoalId);
 
@@ -50,7 +50,16 @@ function App() {
       case 'Calendar': return <CalendarView />;
       case 'Goals': 
         return selectedGoal ? (
-          <GoalDetailView goal={selectedGoal} onBack={() => setSelectedGoalId(null)} />
+          <GoalDetailView 
+            goal={selectedGoal} 
+            onBack={() => {
+              if (previousTab) {
+                setActiveTab(previousTab);
+                setPreviousTab(null);
+              }
+              setSelectedGoalId(null);
+            }} 
+          />
         ) : (
           <GoalsView onSelectGoal={(goal) => setSelectedGoalId(goal.id)} />
         );
