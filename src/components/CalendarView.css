@@ -89,7 +89,7 @@
 
 .agenda-task-title {
   font-size: 0.75rem;
-  font-weight: 5Co00;
+  font-weight: 500;
   color: var(--text-main);
 }
 
@@ -101,7 +101,7 @@
 
 .agenda-goal {
   color: var(--primary);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .agenda-ms {
@@ -137,6 +137,7 @@
   color: white;
   font-size: 10px;
 }
+
 .agenda-group {
   display: flex;
   flex-direction: column;
