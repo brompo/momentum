@@ -136,6 +136,17 @@ const GoalDetailView = ({ goal, onBack }) => {
     }
   };
 
+  const getDateStatusClass = (dateString) => {
+    if (!dateString) return '';
+    const taskDate = new Date(dateString + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    if (taskDate < today) return 'past';
+    if (taskDate > today) return 'future';
+    return 'today';
+  };
+
   const handleUpdateGoal = (e) => {
     e.preventDefault();
     updateGoal(goal.id, editForm);
@@ -319,7 +330,13 @@ const GoalDetailView = ({ goal, onBack }) => {
 
                   {!collapsedMilestones[ms.id] && (
                     <div className="tasks-list">
-                      {ms.tasks.map(task => (
+                      {[...ms.tasks].sort((a, b) => {
+                        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                        if (a.scheduledDate && b.scheduledDate) return a.scheduledDate.localeCompare(b.scheduledDate);
+                        if (a.scheduledDate) return -1;
+                        if (b.scheduledDate) return 1;
+                        return 0;
+                      }).map(task => (
                         <div key={task.id} className="task-row">
                           <div 
                             className={`task-item ${task.completed ? 'completed' : ''}`}
@@ -327,7 +344,11 @@ const GoalDetailView = ({ goal, onBack }) => {
                           >
                             <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
                             <span>{task.title}</span>
-                            {task.scheduledDate && <span className="task-date-badge">{task.scheduledDate.split('-').slice(1).join('/')}</span>}
+                            {task.scheduledDate && (
+                              <span className={`task-date-badge ${getDateStatusClass(task.scheduledDate)}`}>
+                                {task.scheduledDate.split('-').slice(1).join('/')}
+                              </span>
+                            )}
                           </div>
                           <div className="task-actions">
                             <button className="edit-task-btn" onClick={(e) => {

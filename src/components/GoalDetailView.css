@@ -807,3 +807,12 @@ textarea.modal-input {
 .task-modal-row {
   grid-template-columns: 1fr 130px !important;
 }
+.task-date-badge.past {
+  color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+.task-date-badge.future {
+  color: #10b981 !important;
+  background: #ecfdf5 !important;
+}
