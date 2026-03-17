@@ -172,14 +172,31 @@ textarea.modal-input {
   transform: scale(0.95);
 }
 
+.goals-view.safe-area {
+  padding-top: 60px !important; /* Push list items down below the fixed header */
+}
+
 .goals-view .header-row {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 500px;
+  width: 100%;
+  z-index: 1000;
   margin: 0;
   display: flex;
   justify-content: center;
-  padding: 16px 0;
+  padding: 18px 0;
+  background: transparent; /* Default transparent */
+  transition: all 0.25s ease; /* Smooth elevation transition */
+}
+
+/* Elevated Sticky Mode on Scroll */
+.goals-view .header-row.scrolled {
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .goals-view .header-row h1 {

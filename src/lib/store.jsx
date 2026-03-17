@@ -130,6 +130,48 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const deleteTask = (goalId, milestoneId, taskId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: goal.milestones.map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: ms.tasks.filter(task => task.id !== taskId)
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const updateTask = (goalId, milestoneId, taskId, updates) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: (ms.tasks || []).map(task => 
+                  task.id === taskId ? { ...task, ...updates } : task
+                )
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
   const addNote = (milestoneId, content) => {
     const newNote = {
       id: crypto.randomUUID(),
@@ -223,6 +265,56 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const deleteMetricEntry = (goalId, metricId, entryId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          metrics: goal.metrics.map(m => {
+            if (m.id === metricId) {
+              const entry = m.entries.find(e => e.id === entryId);
+              const decrementValue = entry ? Number(entry.value) : 0;
+              return {
+                ...m,
+                currentValue: Math.max(0, (m.currentValue || 0) - decrementValue),
+                entries: m.entries.filter(e => e.id !== entryId)
+              };
+            }
+            return m;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const updateMetricEntry = (goalId, metricId, entryId, updates) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          metrics: goal.metrics.map(m => {
+            if (m.id === metricId) {
+              const entry = m.entries.find(e => e.id === entryId);
+              const oldValue = entry ? Number(entry.value) : 0;
+              const newValue = updates.value !== undefined ? Number(updates.value) : oldValue;
+              const valueDelta = newValue - oldValue;
+              const newVal = (m.currentValue || 0) + valueDelta;
+              
+              return {
+                ...m,
+                currentValue: Math.max(0, m.targetValue ? Math.min(newVal, m.targetValue) : newVal),
+                entries: (m.entries || []).map(e => e.id === entryId ? { ...e, ...updates, value: newValue } : e)
+              };
+            }
+            return m;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
@@ -243,7 +335,11 @@ export const StoreProvider = ({ children }) => {
     deleteGoal,
     addMetric,
     updateMetricValue,
-    addMetricEntry
+    addMetricEntry,
+    deleteTask,
+    updateTask,
+    deleteMetricEntry,
+    updateMetricEntry
   };
 
   return (

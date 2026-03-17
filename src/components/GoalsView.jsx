@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../lib/store';
 import GoalCard from './GoalCard';
 import './GoalsView.css';
@@ -15,6 +15,29 @@ const GoalsView = ({ onSelectGoal }) => {
   });
 
   const [error, setError] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = document.querySelector('.main-content');
+      if (container) {
+        setIsScrolled(container.scrollTop > 10);
+      }
+    };
+
+    const container = document.querySelector('.main-content');
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      // Trigger initial check
+      handleScroll();
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   const handleAddGoal = (e) => {
     e.preventDefault();
@@ -38,7 +61,7 @@ const GoalsView = ({ onSelectGoal }) => {
   return (
     <>
       <div className="goals-view safe-area animate-fade-in">
-      <div className="header-row">
+      <div className={`header-row ${isScrolled ? 'scrolled' : ''}`}>
         <h1>Goal List</h1>
       </div>
 

@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask, toggleTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry } = useStore();
+  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -16,6 +16,8 @@ const GoalDetailView = ({ goal, onBack }) => {
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editTaskForm, setEditTaskForm] = useState({ title: '', value: '' });
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskValue, setNewTaskValue] = useState('');
   const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Tasks'
@@ -29,6 +31,13 @@ const GoalDetailView = ({ goal, onBack }) => {
     date: new Date().toISOString().split('T')[0],
     value: 1
   });
+  const [editingEntryId, setEditingEntryId] = useState(null);
+  const [editEntryForm, setEditEntryForm] = useState({ text: '', date: '', value: 1 });
+  const [collapsedMilestones, setCollapsedMilestones] = useState({});
+
+  const toggleMilestoneCollapse = (id) => {
+    setCollapsedMilestones(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleAddMetric = (e) => {
     e.preventDefault();
@@ -49,6 +58,16 @@ const GoalDetailView = ({ goal, onBack }) => {
     }
   };
 
+  const handleEditEntrySave = (e, metricId, entryId) => {
+    e.preventDefault();
+    updateMetricEntry(goal.id, metricId, entryId, {
+      text: editEntryForm.text,
+      date: editEntryForm.date,
+      value: Number(editEntryForm.value) || 0
+    });
+    setEditingEntryId(null);
+  };
+
   const handleAddMilestone = (e) => {
     e.preventDefault();
     if (newMilestoneTitle.trim()) {
@@ -61,11 +80,24 @@ const GoalDetailView = ({ goal, onBack }) => {
   const handleAddTask = (e, milestoneId) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
-      addTask(goal.id, milestoneId, newTaskTitle, newTaskValue);
+      const cleanNumeric = newTaskValue.toString().replace(/[^0-9]/g, '');
+      const numericValue = parseFloat(cleanNumeric) || 0;
+      addTask(goal.id, milestoneId, newTaskTitle, numericValue);
       setNewTaskTitle('');
       setNewTaskValue('');
       setActiveMilestoneId(null);
     }
+  };
+
+  const handleEditTaskSave = (e, milestoneId, taskId) => {
+    e.preventDefault();
+    const cleanNumeric = editTaskForm.value.toString().replace(/[^0-9]/g, '');
+    const numericValue = parseFloat(cleanNumeric) || 0;
+    updateTask(goal.id, milestoneId, taskId, {
+      title: editTaskForm.title,
+      value: numericValue
+    });
+    setEditingTaskId(null);
   };
 
   const handleUpdateGoal = (e) => {
@@ -93,6 +125,12 @@ const GoalDetailView = ({ goal, onBack }) => {
   const progressPercent = hasTarget 
     ? Math.min(Math.round((currentVal / targetVal) * 100), 100)
     : (allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0);
+
+  const formatNumberWithCommas = (val) => {
+    if (val === undefined || val === null || val === '') return '';
+    const clean = val.toString().replace(/[^0-9]/g, '');
+    return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
 
   return (
     <div className="goal-detail-view safe-area animate-fade-in">
@@ -161,39 +199,26 @@ const GoalDetailView = ({ goal, onBack }) => {
             <p className="empty-substate">No sub-metrics added yet.</p>
           )}
           {(goal.metrics || []).map(m => (
-            <div key={m.id} className="metric-badge-item glass-card flex-column">
-              <div className="metric-top-row">
-                <div className="metric-info">
-                  <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
-                      <path d="M3 3v18h18" />
-                      <polyline points="7 16 11 12 16 14 19 8" />
-                    </svg>
-                    {m.title}
-                  </span>
-                  <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
-                </div>
-                <div className="metric-stepper">
-                  <button onClick={() => updateMetricValue(goal.id, m.id, -1)}>-</button>
-                  <button className="plus" onClick={() => {
-                    setActiveLogMetric(m);
-                    setLogForm(prev => ({ ...prev, value: 1 }));
-                  }}>+</button>
-                </div>
+            <div 
+              key={m.id} 
+              className="metric-badge-item glass-card"
+              onClick={() => {
+                setActiveLogMetric(m);
+                setLogForm(prev => ({ ...prev, value: 1 }));
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="metric-info">
+                <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
+                    <path d="M3 3v18h18" />
+                    <polyline points="7 16 11 12 16 14 19 8" />
+                  </svg>
+                  {m.title}
+                </span>
+                <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
               </div>
-
-              {/* Log History */}
-              {(m.entries || []).length > 0 && (
-                <div className="metric-history-logs">
-                  {(m.entries).map(entry => (
-                    <div key={entry.id} className="history-log-item">
-                      <span className="log-date">{entry.date.split('-').slice(1).join('/')}</span>
-                      <span className="log-text">{entry.text}</span>
-                      <span className="log-value">+{entry.value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <button className="add-small-btn" style={{ margin: 0 }}>+</button>
             </div>
           ))}
         </div>
@@ -246,47 +271,95 @@ const GoalDetailView = ({ goal, onBack }) => {
                 <div key={ms.id} className="milestone-card glass-card">
                   <div className="ms-header">
                     <h3>{ms.title}</h3>
-                    <button className="add-task-btn" onClick={() => setActiveMilestoneId(ms.id)}>+</button>
+                    <button 
+                      className={`toggle-collapse-btn ${collapsedMilestones[ms.id] ? 'collapsed' : ''}`} 
+                      onClick={() => toggleMilestoneCollapse(ms.id)}
+                      title={collapsedMilestones[ms.id] ? "Expand" : "Collapse"}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: collapsedMilestones[ms.id] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                        <path d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
                   </div>
 
-                  <div className="tasks-list">
-                    {ms.tasks.map(task => (
-                      <div key={task.id} className="task-row">
-                        <div 
-                          className={`task-item ${task.completed ? 'completed' : ''}`}
-                          onClick={() => toggleTask(goal.id, ms.id, task.id)}
-                        >
-                          <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
-                          <span>{task.title}</span>
-                        </div>
-                        {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
-                      </div>
-                    ))}
-                    
-                    {activeMilestoneId === ms.id ? (
-                      <form className="task-input-row" onSubmit={(e) => handleAddTask(e, ms.id)}>
-                        <input 
-                          autoFocus
-                          className="task-title-input"
-                          placeholder="Add task..." 
-                          value={newTaskTitle}
-                          onChange={e => setNewTaskTitle(e.target.value)}
-                        />
-                        <input 
-                          className="task-value-input"
-                          type="number"
-                          placeholder="Value" 
-                          value={newTaskValue}
-                          onChange={e => setNewTaskValue(e.target.value)}
-                        />
-                        <button type="submit" hidden></button>
-                      </form>
-                    ) : (
-                      <button className="add-task-placeholder" onClick={() => setActiveMilestoneId(ms.id)}>
-                        + Add a task
-                      </button>
-                    )}
-                  </div>
+                  {!collapsedMilestones[ms.id] && (
+                    <div className="tasks-list">
+                      {ms.tasks.map(task => (
+                        editingTaskId === task.id ? (
+                          <form key={task.id} className="task-input-row" onSubmit={(e) => handleEditTaskSave(e, ms.id, task.id)}>
+                            <input 
+                              autoFocus
+                              className="task-title-input"
+                              value={editTaskForm.title}
+                              onChange={e => setEditTaskForm({ ...editTaskForm, title: e.target.value })}
+                            />
+                            <input 
+                              className="task-value-input"
+                              type="text"
+                              value={formatNumberWithCommas(editTaskForm.value)}
+                              onChange={e => {
+                                const clean = e.target.value.replace(/[^0-9]/g, '');
+                                setEditTaskForm({ ...editTaskForm, value: clean });
+                              }}
+                            />
+                            <button type="submit" className="save-edit-btn">✓</button>
+                            <button type="button" className="save-edit-btn cancel" onClick={() => setEditingTaskId(null)}>&times;</button>
+                          </form>
+                        ) : (
+                          <div key={task.id} className="task-row">
+                            <div 
+                              className={`task-item ${task.completed ? 'completed' : ''}`}
+                              onClick={() => toggleTask(goal.id, ms.id, task.id)}
+                            >
+                              <div className={`check-circle ${task.completed ? 'completed' : ''}`}></div>
+                              <span>{task.title}</span>
+                            </div>
+                            <div className="task-actions">
+                              <button className="edit-task-btn" onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTaskId(task.id);
+                                setEditTaskForm({ title: task.title, value: task.value.toString() });
+                              }} title="Edit Task">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(1px)' }}>
+                                  <path d="M12 20h9" />
+                                  <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg>
+                              </button>
+                              {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
+                              <button className="delete-task-btn" onClick={(e) => { e.stopPropagation(); deleteTask(goal.id, ms.id, task.id); }} title="Delete Task">&times;</button>
+                            </div>
+                          </div>
+                        )
+                      ))}
+                      
+                      {activeMilestoneId === ms.id ? (
+                        <form className="task-input-row" onSubmit={(e) => handleAddTask(e, ms.id)}>
+                          <input 
+                            autoFocus
+                            className="task-title-input"
+                            placeholder="Add task..." 
+                            value={newTaskTitle}
+                            onChange={e => setNewTaskTitle(e.target.value)}
+                          />
+                          <input 
+                            className="task-value-input"
+                            type="text"
+                            placeholder="Value" 
+                            value={formatNumberWithCommas(newTaskValue)}
+                            onChange={e => {
+                              const clean = e.target.value.replace(/[^0-9]/g, '');
+                              setNewTaskValue(clean);
+                            }}
+                          />
+                          <button type="submit" className="save-edit-btn">✓</button>
+                        </form>
+                      ) : (
+                        <button className="add-task-placeholder" onClick={() => setActiveMilestoneId(ms.id)}>
+                          + Add a task
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -361,9 +434,13 @@ const GoalDetailView = ({ goal, onBack }) => {
                 <label>Target Number (Optional)</label>
                 <input
                   type="text"
-                  value={editForm.targetNumber}
-                  onChange={e => setEditForm({ ...editForm, targetNumber: e.target.value })}
+                  value={formatNumberWithCommas(editForm.targetNumber)}
+                  onChange={e => {
+                    const cleanVal = e.target.value.replace(/[^0-9]/g, '');
+                    setEditForm({ ...editForm, targetNumber: cleanVal });
+                  }}
                   className="modal-input"
+                  placeholder="e.g. 500,000,000"
                 />
               </div>
               <div className="modal-actions">
@@ -380,10 +457,15 @@ const GoalDetailView = ({ goal, onBack }) => {
       {activeLogMetric && (
         <div className="modal-overlay glass" onClick={() => setActiveLogMetric(null)}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <h2>Log Entry: {activeLogMetric.title}</h2>
+            <div className="modal-header-with-title">
+              <h2>{activeLogMetric.title} Log</h2>
+              <button className="close-btn" onClick={() => setActiveLogMetric(null)}>&times;</button>
+            </div>
+
+            <h3>Add Entry</h3>
             <form onSubmit={handleAddMetricEntry} className="expanded-form">
               <div className="form-group">
-                <label>Description / Description</label>
+                <label>Description</label>
                 <input
                   type="text"
                   placeholder="e.g. Added 5 Organic leads"
@@ -404,7 +486,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Value / Count</label>
+                  <label>Value</label>
                   <input
                     type="number"
                     min="1"
@@ -417,9 +499,69 @@ const GoalDetailView = ({ goal, onBack }) => {
               </div>
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setActiveLogMetric(null)}>Cancel</button>
-                <button type="submit" className="btn-primary">Add Entry</button>
+                <button type="submit" className="btn-primary">Add Row</button>
               </div>
             </form>
+
+            <hr className="modal-divider" />
+
+            {/* Log History in Modal */}
+            <div className="modal-history-section">
+              <h3>History</h3>
+              {(activeLogMetric.entries || []).length === 0 ? (
+                <p className="empty-substate">No entries logged yet.</p>
+              ) : (
+                <div className="history-list-scrollbox">
+                  {(activeLogMetric.entries || []).map(entry => (
+                    editingEntryId === entry.id ? (
+                      <form key={entry.id} className="history-log-item editing-row" onSubmit={(e) => handleEditEntrySave(e, activeLogMetric.id, entry.id)}>
+                        <input 
+                          className="edit-log-date" 
+                          type="date"
+                          value={editEntryForm.date} 
+                          onChange={e => setEditEntryForm({ ...editEntryForm, date: e.target.value })} 
+                        />
+                        <input 
+                          className="edit-log-text" 
+                          value={editEntryForm.text} 
+                          onChange={e => setEditEntryForm({ ...editEntryForm, text: e.target.value })} 
+                        />
+                        <input 
+                          className="edit-log-value" 
+                          type="number" 
+                          value={editEntryForm.value} 
+                          onChange={e => setEditEntryForm({ ...editEntryForm, value: parseFloat(e.target.value) || 0 })} 
+                        />
+                        <div className="log-actions">
+                          <button type="submit" className="save-edit-btn">✓</button>
+                          <button type="button" className="save-edit-btn cancel" onClick={() => setEditingEntryId(null)}>&times;</button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div key={entry.id} className="history-log-item">
+                        <span className="log-date">{entry.date.split('-').slice(1).join('/')}</span>
+                        <span className="log-text">{entry.text}</span>
+                        <div className="log-value-group">
+                          <span className="log-value">+{entry.value}</span>
+                          <div className="log-actions">
+                            <button className="edit-task-btn" onClick={() => {
+                              setEditingEntryId(entry.id);
+                              setEditEntryForm({ text: entry.text, date: entry.date, value: entry.value });
+                            }} title="Edit Entry">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                              </svg>
+                            </button>
+                            <button className="delete-task-btn" onClick={() => deleteMetricEntry(goal.id, activeLogMetric.id, entry.id)} title="Delete Entry">&times;</button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
