@@ -80,7 +80,7 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate) => {
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID()) => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -92,10 +92,11 @@ export const StoreProvider = ({ children }) => {
                 tasks: [
                   ...ms.tasks,
                   {
-                    id: crypto.randomUUID(),
+                    id: taskId,
                     title,
                     value: Number(value) || 0,
                     scheduledDate,
+                    priority,
                     completed: false,
                     createdAt: new Date().toISOString()
                   }

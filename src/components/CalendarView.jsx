@@ -13,9 +13,9 @@ const CalendarView = () => {
     localStorage.setItem('ga_calendar_view_mode', viewMode);
   }, [viewMode]);
   const [editingTask, setEditingTask] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '' });
+  const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '', priority: 'Medium' });
   const [addingFollowUp, setAddingFollowUp] = useState(null);
-  const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '' });
+  const [followUpForm, setFollowUpForm] = useState({ title: '', value: '', scheduledDate: '', markDone: true, notes: '', priority: 'Medium' });
 
   const handleWeekChange = (offset) => {
     const newDate = new Date(selectedDate);
@@ -28,7 +28,8 @@ const CalendarView = () => {
     setEditForm({
       title: task.title,
       value: task.value ? task.value.toString() : '',
-      scheduledDate: task.scheduledDate || ''
+      scheduledDate: task.scheduledDate || '',
+      priority: task.priority || 'Medium'
     });
   };
 
@@ -40,7 +41,8 @@ const CalendarView = () => {
       updateTask(editingTask.goalId, editingTask.milestoneId, editingTask.id, {
         title: editForm.title,
         value: numericValue,
-        scheduledDate: editForm.scheduledDate
+        scheduledDate: editForm.scheduledDate,
+        priority: editForm.priority
       });
       setEditingTask(null);
     }
@@ -55,7 +57,7 @@ const CalendarView = () => {
     setAddingFollowUp(task);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const tomorrowStr = tomorrow.toISOString().split('T')[0] + 'T09:00';
     setFollowUpForm({ title: '', value: '', scheduledDate: tomorrowStr, markDone: true, notes: '' });
   };
 
@@ -64,7 +66,14 @@ const CalendarView = () => {
     if (addingFollowUp && followUpForm.title.trim()) {
       const cleanNumeric = followUpForm.value ? followUpForm.value.toString().replace(/[^0-9]/g, '') : '';
       const numericValue = parseFloat(cleanNumeric) || 0;
-      addTask(addingFollowUp.goalId, addingFollowUp.milestoneId, followUpForm.title, numericValue, followUpForm.scheduledDate);
+      
+      const newTaskId = crypto.randomUUID();
+      addTask(addingFollowUp.goalId, addingFollowUp.milestoneId, followUpForm.title, numericValue, followUpForm.scheduledDate, followUpForm.priority, newTaskId);
+
+      // Link back:
+      updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { 
+        followUpTaskId: newTaskId 
+      });
 
       if (followUpForm.notes.trim()) {
         updateTask(addingFollowUp.goalId, addingFollowUp.milestoneId, addingFollowUp.id, { notes: followUpForm.notes });
@@ -111,12 +120,29 @@ const CalendarView = () => {
   // or we just show all pending tasks for simplicity in the assistant view.
   // For now, let's show ALL tasks but highlight those with dates or just show the 'Agenda'.
 
+  const handleViewFollowUp = (task) => {
+    const followUp = allTasks.find(t => t.id === task.followUpTaskId);
+    if (followUp) {
+      handleEditClick(followUp);
+    }
+  };
+
   const renderTaskItem = (task) => (
     <div key={task.id} className={`agenda-item animate-fade-in ${task.completed ? 'completed' : ''}`} onClick={() => handleEditClick(task)}>
       <div className="agenda-item-left">
         <div className={`check-circle ${task.completed ? 'completed' : ''}`} onClick={(e) => { e.stopPropagation(); toggleTask(task.goalId, task.milestoneId, task.id); }}></div>
         <div className="agenda-item-content">
-          <span className="agenda-task-title">{task.title}</span>
+          <div className="agenda-task-header" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px', width: '100%' }}>
+            {task.scheduledDate && task.scheduledDate.includes('T') && (
+              <span className="agenda-task-time" style={{ fontSize: '0.73rem', color: 'var(--primary)', background: '#eef2ff', padding: '2px 6px', borderRadius: '4px', fontWeight: 600, flexShrink: 0 }}>
+                {new Date(task.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            <span className="agenda-task-title">{task.title}</span>
+            <span className={`priority-badge ${(task.priority || 'Medium').toLowerCase()}`}>
+              {task.priority || 'Medium'}
+            </span>
+          </div>
           <div className="agenda-meta">
             <span className="agenda-goal" onClick={(e) => { e.stopPropagation(); setPreviousTab('Calendar'); setSelectedGoalId(task.goalId); setActiveTab('Goals'); }} style={{ cursor: 'pointer' }}>
               {task.goalTitle}
@@ -126,12 +152,21 @@ const CalendarView = () => {
         </div>
       </div>
       <div className="agenda-item-actions">
-        <button className="add-followup-btn icon-btn" onClick={(e) => { e.stopPropagation(); handleFollowUpClick(task); }} title="Add Follow-up">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
+        {task.followUpTaskId ? (
+          <button className="view-followup-btn icon-btn" onClick={(e) => { e.stopPropagation(); handleViewFollowUp(task); }} title="View Follow-up" style={{ background: '#e0f2fe', color: '#0284c7' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </button>
+        ) : (
+          <button className="add-followup-btn icon-btn" onClick={(e) => { e.stopPropagation(); handleFollowUpClick(task); }} title="Add Follow-up">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -156,7 +191,8 @@ const CalendarView = () => {
       groupedTasks.unscheduled.push(task);
       return;
     }
-    const taskDate = new Date(task.scheduledDate + 'T00:00:00');
+    const dateOnly = task.scheduledDate.split('T')[0];
+    const taskDate = new Date(dateOnly + 'T00:00:00');
     const diffTime = taskDate.getTime() - today.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
@@ -165,13 +201,24 @@ const CalendarView = () => {
     else if (diffDays >= 2) groupedTasks.upcoming.push(task);
   });
 
+  // Sort grouped tasks by time ascending
+  Object.keys(groupedTasks).forEach(key => {
+    groupedTasks[key].sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return (a.scheduledDate || '').localeCompare(b.scheduledDate || '');
+    });
+  });
+
   const todayTasks = allTasks.filter(t => {
     const isToday = selectedDate.toDateString() === new Date().toDateString();
     if (!t.scheduledDate) {
-      return isToday; // Show unscheduled on Today's view
+      return isToday;
     }
-    return t.scheduledDate === selectedDate.toISOString().split('T')[0];
-  }).sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
+    return t.scheduledDate.split('T')[0] === selectedDate.toISOString().split('T')[0];
+  }).sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    return (a.scheduledDate || '').localeCompare(b.scheduledDate || '');
+  });
 
   const getHeaderTitle = () => {
     const isToday = selectedDate.toDateString() === new Date().toDateString();
@@ -282,6 +329,18 @@ const CalendarView = () => {
                   required
                 />
               </div>
+              <div className="form-group">
+                <label>Priority</label>
+                <select 
+                  value={editForm.priority} 
+                  onChange={e => setEditForm({ ...editForm, priority: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
+                >
+                  <option value="High">High 🔴</option>
+                  <option value="Medium">Medium 🟡</option>
+                  <option value="Low">Low 🔵</option>
+                </select>
+              </div>
 
               <div className="form-row task-modal-row">
                 <div className="form-group">
@@ -297,7 +356,7 @@ const CalendarView = () => {
                 <div className="form-group date-input-group">
                   <label>Schedule Date</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     value={editForm.scheduledDate}
                     onChange={e => setEditForm({ ...editForm, scheduledDate: e.target.value })}
                   />
@@ -349,6 +408,19 @@ const CalendarView = () => {
                 />
               </div>
 
+              <div className="form-group">
+                <label>Priority</label>
+                <select 
+                  value={followUpForm.priority} 
+                  onChange={e => setFollowUpForm({ ...followUpForm, priority: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
+                >
+                  <option value="High">High 🔴</option>
+                  <option value="Medium">Medium 🟡</option>
+                  <option value="Low">Low 🔵</option>
+                </select>
+              </div>
+
               <div className="form-row task-modal-row">
                 <div className="form-group">
                   <label>Value (Optional)</label>
@@ -363,7 +435,7 @@ const CalendarView = () => {
                 <div className="form-group date-input-group">
                   <label>Schedule Date</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     value={followUpForm.scheduledDate}
                     onChange={e => setFollowUpForm({ ...followUpForm, scheduledDate: e.target.value })}
                   />
