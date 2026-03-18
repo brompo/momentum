@@ -817,3 +817,11 @@ textarea.modal-input {
   color: #10b981 !important;
   background: #ecfdf5 !important;
 }
+
+.highlight-flash {
+  background-color: rgba(217, 70, 239, 0.08) !important;
+  border-color: rgba(217, 70, 239, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(217, 70, 239, 0.15) !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+}

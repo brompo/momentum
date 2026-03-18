@@ -18,6 +18,7 @@ export const StoreProvider = ({ children }) => {
 
   const [activeTab, setActiveTab] = useState('Goals'); // Default tab
   const [selectedGoalId, setSelectedGoalId] = useState(null);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
   const [previousTab, setPreviousTab] = useState(null);
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('ga_theme');
@@ -81,7 +82,7 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID(), parentTaskId = null, parentUpdates = {}) => {
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID(), parentTaskId = null, parentUpdates = {}, subtasks = []) => {
     let finalDate = scheduledDate;
     if (finalDate && !finalDate.includes('T')) {
       finalDate = finalDate + 'T09:00';
@@ -107,7 +108,8 @@ export const StoreProvider = ({ children }) => {
                     scheduledDate: finalDate,
                     priority,
                     completed: false,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    subtasks: subtasks || []
                   }
                 ]
               };
@@ -178,6 +180,111 @@ export const StoreProvider = ({ children }) => {
                 ...ms,
                 tasks: (ms.tasks || []).map(task => 
                   task.id === taskId ? { ...task, ...finalUpdates } : task
+                )
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const addSubtask = (goalId, milestoneId, taskId, title) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: (ms.tasks || []).map(task => 
+                  task.id === taskId ? { 
+                    ...task, 
+                    subtasks: [
+                      ...(task.subtasks || []), 
+                      { id: crypto.randomUUID(), title, completed: false }
+                    ] 
+                  } : task
+                )
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const updateSubtaskTitle = (goalId, milestoneId, taskId, subtaskId, newTitle) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: (ms.tasks || []).map(task => 
+                  task.id === taskId ? { 
+                    ...task, 
+                    subtasks: (task.subtasks || []).map(sub => 
+                      sub.id === subtaskId ? { ...sub, title: newTitle } : sub
+                    )
+                  } : task
+                )
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const toggleSubtask = (goalId, milestoneId, taskId, subtaskId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: (ms.tasks || []).map(task => 
+                  task.id === taskId ? { 
+                    ...task, 
+                    subtasks: (task.subtasks || []).map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s) 
+                  } : task
+                )
+              };
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const deleteSubtask = (goalId, milestoneId, taskId, subtaskId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              return {
+                ...ms,
+                tasks: (ms.tasks || []).map(task => 
+                  task.id === taskId ? { 
+                    ...task, 
+                    subtasks: (task.subtasks || []).filter(s => s.id !== subtaskId) 
+                  } : task
                 )
               };
             }
@@ -343,12 +450,18 @@ export const StoreProvider = ({ children }) => {
     setActiveTab,
     selectedGoalId,
     setSelectedGoalId,
+    selectedMilestoneId,
+    setSelectedMilestoneId,
     previousTab,
     setPreviousTab,
     addGoal,
     addMilestone,
     addTask,
     toggleTask,
+    addSubtask,
+    updateSubtaskTitle,
+    toggleSubtask,
+    deleteSubtask,
     addNote,
     theme,
     toggleTheme,

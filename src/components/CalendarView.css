@@ -57,6 +57,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding-bottom: 100px;
+  /* Buffer so tasks can scroll above the Floating Button */
 }
 
 .agenda-item {
@@ -278,7 +280,7 @@
 .task-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 5px;
   margin-top: 12px;
 }
 
@@ -486,6 +488,7 @@
   text-align: left !important;
   flex: 1 !important;
 }
+
 /* Force Close Modal to Top-Right Corner */
 .modal-content {
   position: relative !important;
@@ -526,4 +529,32 @@
   background: #e0f2fe !important;
   color: #0284c7 !important;
   border: 1px solid #bae6fd !important;
+}
+
+/* Floating Action Button */
+.fab-add-task {
+  position: fixed;
+  bottom: calc(var(--tab-bar-height) + 20px);
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #cc599c;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4) !important;
+  cursor: pointer !important;
+  z-index: 99 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fab-add-task:hover {
+  transform: scale(1.08) translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(217, 70, 239, 0.6) !important;
+}
+
+.fab-add-task:active {
+  transform: scale(0.95) !important;
 }
