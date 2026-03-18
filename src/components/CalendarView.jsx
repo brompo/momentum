@@ -58,8 +58,8 @@ const CalendarView = () => {
       setEditingTask(prev => ({
         ...prev,
         subtasks: [
-          ...(prev.subtasks || []),
-          { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }
+          { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false },
+          ...(prev.subtasks || [])
         ]
       }));
       setNewSubtaskTitle('');
@@ -471,9 +471,36 @@ const CalendarView = () => {
                 </div>
               </div>
 
-              <div className="subtasks-section" style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+              <div className="modal-actions" style={{ marginTop: '20px', marginBottom: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                <button type="button" className="secondary-btn" onClick={() => setEditingTask(null)}>Cancel</button>
+                <button type="submit" className="primary-btn">Save Changes</button>
+              </div>
+
+              <div className="subtasks-section">
                 <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Subtasks</label>
                 <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto', marginBottom: '12px' }}>
+                  {/* Continuous Empty Input Row at TOP */}
+                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
+                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
+                    <input
+                      type="text"
+                      placeholder="Add a subtask..."
+                      value={newSubtaskTitle || ''}
+                      onChange={e => setNewSubtaskTitle(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newSubtaskTitle && newSubtaskTitle.trim()) handleAddSubtask();
+                        }
+                      }}
+                      onBlur={() => {
+                        if (newSubtaskTitle && newSubtaskTitle.trim()) handleAddSubtask();
+                      }}
+                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
+                    />
+                  </div>
+
+                  {/* Rendered map items below it */}
                   {(editingTask.subtasks || []).map(sub => (
                     <div key={sub.id} className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '8px' }}>
                       <input
@@ -504,33 +531,7 @@ const CalendarView = () => {
                       <button type="button" onClick={() => handleDeleteSubtask(sub.id)} style={{ padding: '0 4px', color: '#ef4444', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1.2rem' }}>&times;</button>
                     </div>
                   ))}
-
-                  {/* Continuous Empty Input Row */}
-                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
-                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
-                    <input
-                      type="text"
-                      placeholder="Add a subtask..."
-                      value={newSubtaskTitle || ''}
-                      onChange={e => setNewSubtaskTitle(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (newSubtaskTitle && newSubtaskTitle.trim()) handleAddSubtask();
-                        }
-                      }}
-                      onBlur={() => {
-                        if (newSubtaskTitle && newSubtaskTitle.trim()) handleAddSubtask();
-                      }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
-                    />
-                  </div>
                 </div>
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="secondary-btn" onClick={() => setEditingTask(null)}>Cancel</button>
-                <button type="submit" className="primary-btn">Save Changes</button>
               </div>
             </form>
           </div>
@@ -728,9 +729,48 @@ const CalendarView = () => {
                   <option value="High">High Priority 🔴</option>
                 </select>
               </div>
-              <div className="subtasks-section" style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+              <div className="modal-actions" style={{ marginTop: '20px', marginBottom: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                <button type="button" className="secondary-btn" onClick={() => setIsAddingGlobalTask(false)}>Cancel</button>
+                <button type="submit" className="primary-btn">Create Task</button>
+              </div>
+
+              <div className="subtasks-section">
                 <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Subtasks</label>
                 <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto', marginBottom: '12px' }}>
+                  {/* Continuous Empty Input Row for Global Modal at TOP */}
+                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
+                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
+                    <input
+                      type="text"
+                      placeholder="Add a subtask..."
+                      value={newSubtaskTitle || ''}
+                      onChange={e => setNewSubtaskTitle(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newSubtaskTitle && newSubtaskTitle.trim()) {
+                            setGlobalTaskForm(prev => ({
+                              ...prev,
+                              subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
+                            }));
+                            setNewSubtaskTitle('');
+                          }
+                        }
+                      }}
+                      onBlur={() => {
+                        if (newSubtaskTitle && newSubtaskTitle.trim()) {
+                          setGlobalTaskForm(prev => ({
+                            ...prev,
+                            subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
+                          }));
+                          setNewSubtaskTitle('');
+                        }
+                      }}
+                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
+                    />
+                  </div>
+
+                  {/* Rendered map items below it */}
                   {(globalTaskForm.subtasks || []).map((sub, idx) => (
                     <div key={sub.id} className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
                       <input
@@ -764,45 +804,7 @@ const CalendarView = () => {
                       }} style={{ padding: '0 4px', color: '#ef4444', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1.2rem' }}>&times;</button>
                     </div>
                   ))}
-
-                  {/* Continuous Empty Input Row for Global Modal */}
-                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
-                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
-                    <input
-                      type="text"
-                      placeholder="Add a subtask..."
-                      value={newSubtaskTitle || ''}
-                      onChange={e => setNewSubtaskTitle(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (newSubtaskTitle && newSubtaskTitle.trim()) {
-                            setGlobalTaskForm(prev => ({
-                              ...prev,
-                              subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }]
-                            }));
-                            setNewSubtaskTitle('');
-                          }
-                        }
-                      }}
-                      onBlur={() => {
-                        if (newSubtaskTitle && newSubtaskTitle.trim()) {
-                          setGlobalTaskForm(prev => ({
-                            ...prev,
-                            subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }]
-                          }));
-                          setNewSubtaskTitle('');
-                        }
-                      }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
-                    />
-                  </div>
                 </div>
-              </div>
-
-              <div className="modal-actions" style={{ marginTop: '20px' }}>
-                <button type="button" className="secondary-btn" onClick={() => setIsAddingGlobalTask(false)}>Cancel</button>
-                <button type="submit" className="primary-btn">Create Task</button>
               </div>
             </form>
           </div>

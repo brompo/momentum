@@ -204,8 +204,8 @@ export const StoreProvider = ({ children }) => {
                   task.id === taskId ? { 
                     ...task, 
                     subtasks: [
-                      ...(task.subtasks || []), 
-                      { id: crypto.randomUUID(), title, completed: false }
+                      { id: crypto.randomUUID(), title, completed: false },
+                      ...(task.subtasks || [])
                     ] 
                   } : task
                 )

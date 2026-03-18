@@ -818,10 +818,21 @@ textarea.modal-input {
   background: #ecfdf5 !important;
 }
 
+@keyframes highlight-flash-animation {
+  0% { 
+    background-color: rgba(217, 70, 239, 0.12); 
+    box-shadow: 0 0 16px rgba(217, 70, 239, 0.2) !important;
+  }
+  75% { 
+    background-color: rgba(217, 70, 239, 0.12); 
+    box-shadow: 0 0 16px rgba(217, 70, 239, 0.2) !important;
+  }
+  100% { 
+    background-color: transparent; 
+    box-shadow: none;
+  }
+}
+
 .highlight-flash {
-  background-color: rgba(217, 70, 239, 0.08) !important;
-  border-color: rgba(217, 70, 239, 0.3) !important;
-  box-shadow: 0 4px 16px rgba(217, 70, 239, 0.15) !important;
-  border-width: 1.5px !important;
-  border-style: solid !important;
+  animation: highlight-flash-animation 4.5s ease-out;
 }

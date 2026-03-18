@@ -52,11 +52,16 @@ const GoalDetailView = ({ goal, onBack }) => {
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           element.classList.add('highlight-flash');
+          
+          // Re-add Cleanup timeout matching 4.5s CSS animation
+          setTimeout(() => {
+            element.classList.remove('highlight-flash');
+            setSelectedMilestoneId(null);
+          }, 4500);
         }
       }, 300);
     }
-  }, [selectedMilestoneId]);
-
+  }, [selectedMilestoneId, setSelectedMilestoneId]);
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -510,10 +515,48 @@ const GoalDetailView = ({ goal, onBack }) => {
                   <option value="High">High Priority 🔴</option>
                 </select>
               </div>
+              <div className="modal-actions" style={{ marginTop: '20px', marginBottom: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                <button type="button" className="btn-secondary" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>Cancel</button>
+                <button type="submit" className="btn-primary">{editingTaskId ? 'Save Changes' : 'Add Task'}</button>
+              </div>
 
-              <div className="subtasks-section" style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+              <div className="subtasks-section">
                 <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block', fontSize: '0.85rem' }}>Subtasks</label>
                 <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', marginBottom: '12px' }}>
+                  {/* Continuous Empty Input Row for Goal Modal at TOP */}
+                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
+                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
+                    <input 
+                      type="text" 
+                      placeholder="Add a subtask..." 
+                      value={newSubtaskTitle || ''}
+                      onChange={e => setNewSubtaskTitle(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newSubtaskTitle.trim()) {
+                            setTaskForm(prev => ({
+                              ...prev,
+                              subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
+                            }));
+                            setNewSubtaskTitle('');
+                          }
+                        }
+                      }}
+                      onBlur={() => {
+                        if (newSubtaskTitle.trim()) {
+                          setTaskForm(prev => ({
+                            ...prev,
+                            subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
+                          }));
+                          setNewSubtaskTitle('');
+                        }
+                      }}
+                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
+                    />
+                  </div>
+
+                  {/* Rendered map items below it */}
                   {(taskForm.subtasks || []).map((sub, idx) => (
                     <div key={sub.id} className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
                       <input 
@@ -528,7 +571,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                         style={{ cursor: 'pointer' }}
                       />
                       <input 
-                        type="text"
+                        type="text" 
                         value={sub.title}
                         onChange={(e) => {
                           const newTitle = e.target.value;
@@ -547,45 +590,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                       }} style={{ padding: '0 4px', color: '#ef4444', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1.2rem' }}>&times;</button>
                     </div>
                   ))}
-
-                  {/* Continuous Empty Input Row for Goal Modal */}
-                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
-                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
-                    <input 
-                      type="text" 
-                      placeholder="Add a subtask..." 
-                      value={newSubtaskTitle || ''}
-                      onChange={e => setNewSubtaskTitle(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (newSubtaskTitle.trim()) {
-                            setTaskForm(prev => ({
-                              ...prev,
-                              subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }]
-                            }));
-                            setNewSubtaskTitle('');
-                          }
-                        }
-                      }}
-                      onBlur={() => {
-                        if (newSubtaskTitle.trim()) {
-                          setTaskForm(prev => ({
-                            ...prev,
-                            subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }]
-                          }));
-                          setNewSubtaskTitle('');
-                        }
-                      }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
-                    />
-                  </div>
                 </div>
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>Cancel</button>
-                <button type="submit" className="btn-primary">{editingTaskId ? 'Save Changes' : 'Add Task'}</button>
               </div>
             </form>
           </div>
