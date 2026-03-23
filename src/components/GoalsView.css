@@ -173,7 +173,7 @@ textarea.modal-input {
 }
 
 .goals-view.safe-area {
-  padding-top: 65px !important;
+  padding-top: 55px !important;
   /* Push list items down below the fixed header */
 }
 
@@ -188,7 +188,7 @@ textarea.modal-input {
   margin: 0;
   display: flex;
   justify-content: center;
-  padding: 25px 0;
+  padding: 15px 0;
   background: transparent;
   /* Default transparent */
   transition: all 0.25s ease;
@@ -206,4 +206,10 @@ textarea.modal-input {
   font-size: 1.25rem !important;
   font-weight: 700 !important;
   text-align: center;
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }

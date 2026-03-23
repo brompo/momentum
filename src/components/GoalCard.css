@@ -1,9 +1,8 @@
 .goal-card {
   background: white;
-  padding: 15px;
+  padding: 12px;
   border-radius: var(--radius-lg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  margin-top: 10px;
   border: 1px solid rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -15,7 +14,7 @@
 }
 
 .goal-card-header {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .title-row {
@@ -27,7 +26,7 @@
 
 .title-row h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #0f172a;
   /* Dark text for cards */
@@ -61,15 +60,15 @@
 /* Compact Stats */
 .compact-stats {
   display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #64748b;
   font-weight: 500;
 }
@@ -86,7 +85,7 @@
 }
 
 .progress-bar-thick {
-  height: 14px;
+  height: 10px;
   background: #f3f4f6;
   border-radius: 10px;
   overflow: hidden;
@@ -105,7 +104,7 @@
 }
 
 .progress-percent {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: #0f172a;
   font-weight: 700;
 }
