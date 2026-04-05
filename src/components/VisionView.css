@@ -4,12 +4,12 @@
 
 .vision-card-v2 {
   background: white;
-  border-radius: 16px;
-  padding: 12px 14px;
+  border-radius: 14px;
+  padding: 10px 12px;
   border: 1px solid #f1f5f9;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   position: relative;
 }
 
@@ -22,7 +22,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .pillar-label-group {
@@ -32,9 +32,9 @@
 }
 
 .pillar-emoji-v2 {
-  font-size: 1rem;
-  width: 26px;
-  height: 26px;
+  font-size: 0.9rem;
+  width: 24px;
+  height: 24px;
   background: #f8fafc;
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
 }
 
 .pillar-title-v2 {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 800;
   color: #10b981;
   text-transform: uppercase;
@@ -74,13 +74,14 @@
   background: transparent;
   outline: none;
   resize: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.4;
   color: #1e293b;
   padding: 0;
-  min-height: 40px;
+  min-height: 20px;
   font-family: inherit;
+  margin-bottom: 4px;
 }
 
 .vision-textarea-v2::placeholder {
@@ -91,28 +92,28 @@
 
 /* Modal Enhancements */
 .sub-categories-rack {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px dashed #f1f5f9;
 }
 
 .sub-cat-group {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .sub-cat-group:last-child {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .sub-cat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .sub-cat-title {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #64748b;
   display: flex;
