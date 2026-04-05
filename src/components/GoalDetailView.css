@@ -219,7 +219,8 @@
 }
 
 .toggle-active-btn.is-active {
-  color: #0d9488; /* Theme Teal */
+  color: #0d9488;
+  /* Theme Teal */
 }
 
 .ms-header h3 {
@@ -233,27 +234,20 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  /* Reduced from 12px */
 }
 
 .task-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  flex: 1;
 }
 
-.check-circle {
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border-subtle);
-  border-radius: 50%;
-}
-
-.check-circle.completed {
-  background: var(--secondary);
-  border-color: var(--secondary);
+.task-item.completed {
+  opacity: 0.6;
 }
 
 .add-task-placeholder {
@@ -902,16 +896,18 @@ textarea.modal-input {
 }
 
 @keyframes highlight-flash-animation {
-  0% { 
-    background-color: rgba(217, 70, 239, 0.12); 
+  0% {
+    background-color: rgba(217, 70, 239, 0.12);
     box-shadow: 0 0 16px rgba(217, 70, 239, 0.2) !important;
   }
-  75% { 
-    background-color: rgba(217, 70, 239, 0.12); 
+
+  75% {
+    background-color: rgba(217, 70, 239, 0.12);
     box-shadow: 0 0 16px rgba(217, 70, 239, 0.2) !important;
   }
-  100% { 
-    background-color: transparent; 
+
+  100% {
+    background-color: transparent;
     box-shadow: none;
   }
 }
@@ -943,7 +939,7 @@ textarea.modal-input {
 }
 
 .title-section-v2 h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: #1e293b;
   margin: 0;
@@ -951,7 +947,7 @@ textarea.modal-input {
 }
 
 .deadline-text {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #94a3b8;
   font-weight: 600;
   margin-top: 4px;
@@ -1049,8 +1045,13 @@ textarea.modal-input {
   cursor: pointer;
 }
 
-.accent-blue { border-top: 3px solid #3b82f6; }
-.accent-purple { border-top: 3px solid #8b5cf6; }
+.accent-blue {
+  border-top: 3px solid #3b82f6;
+}
+
+.accent-purple {
+  border-top: 3px solid #8b5cf6;
+}
 
 .metric-icon-pulse {
   width: 28px;
@@ -1066,8 +1067,15 @@ textarea.modal-input {
   height: 14px !important;
 }
 
-.accent-blue .metric-icon-pulse { background: #eff6ff; color: #3b82f6; }
-.accent-purple .metric-icon-pulse { background: #f5f3ff; color: #8b5cf6; }
+.accent-blue .metric-icon-pulse {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.accent-purple .metric-icon-pulse {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
 
 .metric-card-title {
   font-size: 0.75rem;
@@ -1082,8 +1090,17 @@ textarea.modal-input {
   gap: 4px;
 }
 
-.v-current { font-size: 1rem; font-weight: 800; color: #1e293b; }
-.v-target { font-size: 0.75rem; font-weight: 600; color: #cbd5e1; }
+.v-current {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.v-target {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
 
 .metric-mini-progress {
   height: 3px;
@@ -1098,8 +1115,13 @@ textarea.modal-input {
   border-radius: 2px;
 }
 
-.accent-blue .mini-fill { background: #3b82f6; }
-.accent-purple .mini-fill { background: #8b5cf6; }
+.accent-blue .mini-fill {
+  background: #3b82f6;
+}
+
+.accent-purple .mini-fill {
+  background: #8b5cf6;
+}
 
 /* Milestones List V2 */
 .milestones-section-v2 {
@@ -1130,9 +1152,29 @@ textarea.modal-input {
 
 .ms-header-v2 h3 {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #1e293b;
   margin: 0;
+}
+
+.ms-edit-icon-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  opacity: 0.4;
+}
+
+.ms-edit-icon-btn:hover {
+  opacity: 1;
+  background: #f1f5f9;
+  color: #0d9488;
 }
 
 .chevron-btn {

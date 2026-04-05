@@ -150,6 +150,32 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const updateMilestone = (goalId, milestoneId, updates) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => 
+            ms.id === milestoneId ? { ...ms, ...updates } : ms
+          )
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const deleteMilestone = (goalId, milestoneId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).filter(ms => ms.id !== milestoneId)
+        };
+      }
+      return goal;
+    }));
+  };
+
   const toggleMilestoneActive = (goalId, milestoneId) => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
@@ -300,6 +326,8 @@ export const StoreProvider = ({ children }) => {
     toggleTask,
     updateTask,
     updateGoal,
+    updateMilestone,
+    deleteMilestone,
     deleteTask
   };
 

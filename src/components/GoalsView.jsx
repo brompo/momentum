@@ -4,31 +4,28 @@ import GoalCard from './GoalCard';
 import './GoalsView.css';
 
 const GoalsView = ({ onSelectGoal }) => {
-  const { goals, addGoal, visionStatement, setVisionStatement, pillars } = useStore();
+  const { goals, addGoal, pillars } = useStore();
   const [isAdding, setIsAdding] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: '',
     note: '',
     startDate: '',
     endDate: '',
-    targetNumber: ''
+    targetNumber: '',
+    pillarId: 'personal'
   });
 
   const [error, setError] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [collapsedPillars, setCollapsedPillars] = useState({});
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-
     window.addEventListener('scroll', handleScroll);
-    // Trigger initial check
     handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleAddGoal = (e) => {
@@ -37,10 +34,9 @@ const GoalsView = ({ onSelectGoal }) => {
       setError('Goal Name is required.');
       return;
     }
-
     addGoal(
       newGoal.title,
-      newGoal.pillarId || 'personal',
+      newGoal.pillarId,
       newGoal.note,
       newGoal.startDate,
       newGoal.endDate,
@@ -51,9 +47,12 @@ const GoalsView = ({ onSelectGoal }) => {
     setIsAdding(false);
   };
 
+  const togglePillar = (id) => {
+    setCollapsedPillars(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
-    <>
-      <div className="goals-view safe-area animate-fade-in">
+    <div className="goals-view safe-area animate-fade-in">
       <div className={`header-row ${isScrolled ? 'scrolled' : ''}`}>
         <h1>Achievements</h1>
       </div>
@@ -61,18 +60,18 @@ const GoalsView = ({ onSelectGoal }) => {
       {isAdding && (
         <div className="modal-overlay glass" onClick={() => setIsAdding(false)}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <h2>New Goal</h2>
-
+            <div className="modal-header">
+              <h2>New Goal</h2>
+              <button className="close-btn" onClick={() => setIsAdding(false)}>&times;</button>
+            </div>
             {error && <div className="form-error">{error}</div>}
-
             <form onSubmit={handleAddGoal} className="expanded-form">
               <div className="form-group">
                 <label>Pillar Category</label>
                 <select 
-                  value={newGoal.pillarId || 'personal'} 
+                  value={newGoal.pillarId} 
                   onChange={e => setNewGoal({ ...newGoal, pillarId: e.target.value })}
                   className="modal-input"
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', background: '#fff', color: '#1e293b' }}
                 >
                   {pillars.map(p => (
                     <option key={p.id} value={p.id}>{p.title}</option>
@@ -91,7 +90,6 @@ const GoalsView = ({ onSelectGoal }) => {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label>Note</label>
                 <textarea
@@ -102,7 +100,6 @@ const GoalsView = ({ onSelectGoal }) => {
                   rows="3"
                 />
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label>Start Date</label>
@@ -123,7 +120,6 @@ const GoalsView = ({ onSelectGoal }) => {
                   />
                 </div>
               </div>
-
               <div className="form-group">
                 <label>Target Number (Optional)</label>
                 <input
@@ -134,7 +130,6 @@ const GoalsView = ({ onSelectGoal }) => {
                   className="modal-input"
                 />
               </div>
-
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setIsAdding(false)}>Cancel</button>
                 <button type="submit" className="btn-primary">Create Goal</button>
@@ -144,32 +139,54 @@ const GoalsView = ({ onSelectGoal }) => {
         </div>
       )}
 
-      <div className="pillars-container" style={{ marginTop: '24px', width: '100%' }}>
+      <div className="pillars-container" style={{ marginTop: '16px', width: '100%', paddingBottom: '110px' }}>
         {pillars.map(pillar => {
           const pillarGoals = goals.filter(g => g.pillarId === pillar.id || (!g.pillarId && pillar.id === 'personal'));
+          const isCollapsed = collapsedPillars[pillar.id];
+          
           return (
-            <div key={pillar.id} className="pillar-group" style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: '1px solid rgba(0,0,0,0.03)', paddingBottom: '6px' }}>
-                <span style={{ fontSize: '1.25rem' }}>{pillar.icon}</span>
-                <h2 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{pillar.title}</h2>
+            <div key={pillar.id} className="pillar-group" style={{ marginBottom: '12px' }}>
+              <div 
+                className="pillar-group-header" 
+                onClick={() => togglePillar(pillar.id)}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  marginBottom: '8px', 
+                  borderBottom: '1px solid rgba(0,0,0,0.03)', 
+                  paddingBottom: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ fontSize: '1rem', opacity: 0.8 }}>{pillar.icon}</span>
+                <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
+                <svg 
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3" 
+                   style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                >
+                  <path d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
-              <div className="goals-list">
-                {pillarGoals.length === 0 ? (
-                  <p className="empty-state" style={{ fontSize: '0.8rem', color: 'var(--text-dim)', padding: '12px 4px', fontStyle: 'italic' }}>No achievements defined yet.</p>
-                ) : (
-                  pillarGoals.map(goal => (
-                    <GoalCard key={goal.id} goal={goal} onClick={onSelectGoal} />
-                  ))
-                )}
-              </div>
+              
+              {!isCollapsed && (
+                <div className="goals-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {pillarGoals.length === 0 ? (
+                    <p className="empty-state" style={{ fontSize: '0.7rem', color: '#94a3b8', padding: '8px 4px', fontStyle: 'italic' }}>No achievements yet.</p>
+                  ) : (
+                    pillarGoals.map(goal => (
+                      <GoalCard key={goal.id} goal={goal} onClick={onSelectGoal} compact={true} />
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-      </div>
 
       <button className="fab-btn smooth-all" onClick={() => setIsAdding(true)}>+</button>
-    </>
+    </div>
   );
 };
 
