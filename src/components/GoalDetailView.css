@@ -40,53 +40,47 @@
 }
 
 .numeric-progress {
-  padding: 12px 16px !important;
-  /* Tightened */
-  border-radius: var(--radius-lg);
-  margin-bottom: 16px;
+  padding: 24px !important;
+  border-radius: 24px;
+  margin-bottom: 24px;
   background: white;
-  /* Ensure white card looks crisp */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .progress-info {
   display: flex;
   flex-direction: column;
-  /* Stack vertically for legibility */
   align-items: flex-start;
-  gap: 4px;
-  margin-bottom: 12px !important;
+  gap: 8px;
+  margin-bottom: 20px !important;
 }
 
 .progress-info .label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: #94a3b8;
+  letter-spacing: 0.05em;
 }
 
 .progress-info .value {
-  font-size: 1.4rem !important;
-  /* Increased font-size for high visibility */
-  font-weight: 800;
-  font-family: var(--font-display);
+  font-size: 1.6rem !important;
+  font-weight: 900;
   color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
 .progress-track {
-  height: 6px;
-  /* Slightly thinner */
+  height: 8px;
   background: #f1f5f9 !important;
-  /* Visible Light Grey rail */
   border-radius: 10px;
   overflow: hidden;
   width: 100% !important;
-  /* Force full width */
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: #10b981;
   border-radius: 10px;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -199,13 +193,40 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  /* Reduced */
+}
+
+.ms-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-active-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toggle-active-btn:hover {
+  color: #64748b;
+  transform: scale(1.2);
+}
+
+.toggle-active-btn.is-active {
+  color: #0d9488; /* Theme Teal */
 }
 
 .ms-header h3 {
-  font-size: 1rem;
-  /* Slightly smaller */
-  color: var(--text-main);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
 .tasks-list {
@@ -614,38 +635,46 @@ textarea.modal-input {
 
 .metrics-list-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
   margin-top: 12px;
 }
 
 .metric-badge-item {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: white;
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s;
+}
+
+.metric-badge-item:hover {
+  transform: translateY(-2px);
 }
 
 .metric-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .metric-title {
-  font-weight: 700;
-  color: #0f172a;
   font-size: 0.85rem;
+  font-weight: 800 !important;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .metric-value {
-  font-size: 0.75rem;
-  color: #64748b;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
 }
 
 /* Modal Log History Styles */
@@ -790,6 +819,60 @@ textarea.modal-input {
   color: #475569;
 }
 
+.task-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.task-item span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.task-item.completed span {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.focus-task-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.focus-task-btn:hover {
+  transform: scale(1.3) rotate(8deg);
+}
+
+.task-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  min-width: 80px;
+  text-align: right;
+}
+
 .task-date-badge {
   font-size: 0.75rem;
   font-weight: 600;
@@ -835,4 +918,288 @@ textarea.modal-input {
 
 .highlight-flash {
   animation: highlight-flash-animation 4.5s ease-out;
+}
+
+/* Goal Detail V2 Styling (Matching Mockup) */
+.detail-header-v2 {
+  margin: 16px 0 24px 0;
+}
+
+.active-badge-row {
+  margin-bottom: 12px;
+}
+
+.active-goal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #10b981;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.title-section-v2 h1 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.deadline-text {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.numeric-progress-v2 {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  margin-bottom: 16px;
+}
+
+.progress-label-v2 {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.progress-values-v2 {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.current-val-v2 {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #1e293b;
+  letter-spacing: -0.03em;
+}
+
+.target-val-v2 {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.progress-track-v2 {
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progress-fill-v2 {
+  height: 100%;
+  background: #10b981;
+  border-radius: 10px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-summary-v2 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* Metric Cards V2 */
+.section-header-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header-v2 h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.metrics-grid-v2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.metric-card-v2 {
+  background: white;
+  border-radius: 16px;
+  padding: 10px 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.accent-blue { border-top: 3px solid #3b82f6; }
+.accent-purple { border-top: 3px solid #8b5cf6; }
+
+.metric-icon-pulse {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-icon-pulse svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.accent-blue .metric-icon-pulse { background: #eff6ff; color: #3b82f6; }
+.accent-purple .metric-icon-pulse { background: #f5f3ff; color: #8b5cf6; }
+
+.metric-card-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.metric-card-values {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.v-current { font-size: 1rem; font-weight: 800; color: #1e293b; }
+.v-target { font-size: 0.75rem; font-weight: 600; color: #cbd5e1; }
+
+.metric-mini-progress {
+  height: 3px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.mini-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.accent-blue .mini-fill { background: #3b82f6; }
+.accent-purple .mini-fill { background: #8b5cf6; }
+
+/* Milestones List V2 */
+.milestones-section-v2 {
+  margin-top: 32px;
+}
+
+.milestone-list-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ms-card-v2 {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.ms-header-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.ms-header-v2 h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.chevron-btn {
+  background: #f8fafc;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: transform 0.2s;
+}
+
+.chevron-btn.collapsed {
+  transform: rotate(180deg);
+}
+
+.ms-footer-v2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ms-mini-bar {
+  flex: 1;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ms-bar-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 10px;
+}
+
+.ms-results-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.ms-title-group-v2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.toggle-active-btn-v2 {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toggle-active-btn-v2.is-active {
+  color: #10b981;
 }

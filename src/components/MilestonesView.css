@@ -81,6 +81,130 @@
   color: #10b981;
 }
 
+.milestones-view-modern {
+  padding: 24px;
+  background: #fdfdfd;
+  min-height: 100vh;
+}
+
+.milestones-modern-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+.milestones-modern-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 100px;
+}
+
+.milestone-modern-card {
+  background: white;
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.milestone-modern-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.milestone-goal-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.milestone-title-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.milestone-modern-status {
+  display: flex;
+  gap: 10px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-badge.done {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.status-badge.priority {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.fab-btn-modern {
+  position: fixed;
+  bottom: 110px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #0d9488;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(13, 148, 136, 0.3);
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s;
+}
+
+.fab-btn-modern:active {
+  transform: scale(0.9);
+}
+
+.progress-mini-rail {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #f1f5f9;
+}
+
+.progress-mini-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.6s ease;
+}
+
+.empty-state-modern {
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+}
+
+.empty-state-modern p {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 .milestone-badge.priority {
   background: #fffbeb;
   color: #d97706;
@@ -117,13 +241,26 @@
   align-items: center;
   gap: 12px;
   padding: 8px 0;
+  position: relative;
 }
 
-.milestone-task-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--primary);
+.milestone-task-item:hover .focus-task-btn {
+  opacity: 1;
+}
+
+.focus-task-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
   cursor: pointer;
+  opacity: 0.2;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.focus-task-btn:hover {
+  transform: scale(1.2);
 }
 
 .milestone-task-title {

@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab } = useStore();
+  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, pillars } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -11,7 +11,8 @@ const GoalDetailView = ({ goal, onBack }) => {
     note: goal.note || '',
     startDate: goal.startDate || '',
     endDate: goal.endDate || '',
-    targetNumber: goal.targetNumber || ''
+    targetNumber: goal.targetNumber || '',
+    pillarId: goal.pillarId || 'personal'
   });
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   const [newMilestonePriority, setNewMilestonePriority] = useState('Low');
@@ -29,7 +30,7 @@ const GoalDetailView = ({ goal, onBack }) => {
       onBack();
     }
   };
-  const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Tasks'
+  const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Results'
   const [isAddingMetric, setIsAddingMetric] = useState(false);
   const [newMetricTitle, setNewMetricTitle] = useState('');
   const [newMetricTarget, setNewMetricTarget] = useState('');
@@ -239,28 +240,37 @@ const GoalDetailView = ({ goal, onBack }) => {
         </div>
       </div>
       
-      <div className="detail-header">
-        <div className="title-with-accent">
-          <div className="accent-bar"></div>
+      <div className="detail-header-v2">
+        <div className="active-badge-row">
+          <div className="active-goal-badge">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+             Active goal
+          </div>
+        </div>
+        <div className="title-section-v2">
           <h1>{goal.title}</h1>
+          <span className="deadline-text">Deadline: {goal.endDate || '30 September 2026'}</span>
         </div>
       </div>
+
       {goal.targetNumber && (
-        <div className="numeric-progress glass">
-          <div className="progress-info">
-            <span className="label">Overall Progress</span>
-            <span className="value">{currentVal.toLocaleString()} / {targetVal.toLocaleString()}</span>
+        <div className="numeric-progress-v2">
+          <div className="progress-label-v2">OVERALL PROGRESS</div>
+          <div className="progress-values-v2">
+            <span className="current-val-v2">{(currentVal / 1000000).toLocaleString()}M</span>
+            <span className="target-val-v2">/ {(targetVal / 1000000).toLocaleString()}M TZS</span>
           </div>
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+          <div className="progress-track-v2">
+            <div className="progress-fill-v2" style={{ width: `${progressPercent}%` }}></div>
           </div>
+          <div className="progress-summary-v2">{progressPercent}% complete</div>
         </div>
       )}
 
       {/* Sub-Metrics Section */}
-      <div className="metrics-rack">
-        <div className="section-header">
-          <h2>Sub-Metrics</h2>
+      <div className="metrics-rack-v2">
+        <div className="section-header-v2">
+          <h2>Tracking metrics</h2>
           <button className="add-small-btn" onClick={() => setIsAddingMetric(!isAddingMetric)}>+</button>
         </div>
 
@@ -288,28 +298,32 @@ const GoalDetailView = ({ goal, onBack }) => {
         )}
 
         {(goal.metrics || []).length > 0 && (
-          <div className="metrics-list-row">
-            {(goal.metrics || []).map(m => (
+          <div className="metrics-grid-v2">
+            {(goal.metrics || []).map((m, idx) => (
               <div 
                 key={m.id} 
-                className="metric-badge-item glass-card"
+                className={`metric-card-v2 ${idx % 2 === 0 ? 'accent-blue' : 'accent-purple'}`}
                 onClick={() => {
                   setActiveLogMetric(m);
                   setLogForm(prev => ({ ...prev, value: 1 }));
                 }}
-                style={{ cursor: 'pointer' }}
               >
-                <div className="metric-info">
-                  <span className="metric-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}>
-                      <path d="M3 3v18h18" />
-                      <polyline points="7 16 11 12 16 14 19 8" />
-                    </svg>
-                    {m.title}
-                  </span>
-                  <span className="metric-value">{m.currentValue.toLocaleString()} / {m.targetValue.toLocaleString()}</span>
+                <div className="metric-icon-pulse">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 3v18h18" />
+                    <polyline points="7 16 11 12 16 14 19 8" />
+                  </svg>
                 </div>
-                <button className="add-small-btn" style={{ margin: 0 }}>+</button>
+                <div className="metric-card-info">
+                  <span className="metric-card-title">{m.title}</span>
+                  <div className="metric-card-values">
+                    <span className="v-current">{m.currentValue.toLocaleString()}</span>
+                    <span className="v-target"> / {m.targetValue.toLocaleString()}</span>
+                  </div>
+                </div>
+                <div className="metric-mini-progress">
+                   <div className="mini-fill" style={{ width: `${Math.min((m.currentValue / m.targetValue) * 100, 100)}%` }}></div>
+                </div>
               </div>
             ))}
           </div>
@@ -324,19 +338,17 @@ const GoalDetailView = ({ goal, onBack }) => {
           Milestones
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'Tasks' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Tasks')}
+          className={`tab-btn ${activeTab === 'Results' ? 'active' : ''}`}
+          onClick={() => setActiveTab('Results')}
         >
-          Tasks
+          Results
         </button>
       </div>
 
       {activeTab === 'Milestones' ? (
-        <div className="milestones-section">
-          {goal.note && <p className="goal-note">{goal.note}</p>}
-
-          <div className="section-header">
-            <h2>Milestones</h2>
+        <div className="milestones-section-v2">
+          <div className="section-header-v2">
+            <h2>{goal.milestones.length} milestones</h2>
             <button className="add-small-btn" onClick={() => setIsAddingMilestone(true)}>+</button>
           </div>
 
@@ -367,24 +379,39 @@ const GoalDetailView = ({ goal, onBack }) => {
             </form>
           )}
 
-          <div className="milestone-list">
+          <div className="milestone-list-v2">
             {goal.milestones.length === 0 ? (
               <p className="empty-substate">No milestones yet. Break down your goal!</p>
             ) : (
-              goal.milestones.map(ms => (
-                <div key={ms.id} id={`milestone-${ms.id}`} className="milestone-card glass-card">
-                  <div className="ms-header">
-                    <h3>{ms.title}</h3>
-                    <button 
-                      className={`toggle-collapse-btn ${collapsedMilestones[ms.id] ? 'collapsed' : ''}`} 
-                      onClick={() => toggleMilestoneCollapse(ms.id)}
-                      title={collapsedMilestones[ms.id] ? "Expand" : "Collapse"}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: collapsedMilestones[ms.id] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-                        <path d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
+              goal.milestones.map(ms => {
+                const totalR = ms.tasks.length;
+                const doneR = ms.tasks.filter(t => t.completed).length;
+                const msProgress = totalR > 0 ? (doneR / totalR) * 100 : 0;
+                
+                return (
+                  <div key={ms.id} id={`milestone-${ms.id}`} className="ms-card-v2">
+                    <div className="ms-header-v2">
+                      <div className="ms-title-group-v2" onClick={() => toggleMilestoneCollapse(ms.id)}>
+                        <button 
+                          className={`toggle-active-btn-v2 ${ms.active ? 'is-active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleMilestoneActive(goal.id, ms.id); }}
+                          title={ms.active ? "Hide from Milestones view" : "Show in Milestones view"}
+                        >
+                           <svg width="18" height="18" viewBox="0 0 24 24" fill={ms.active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </button>
+                        <h3>{ms.title}</h3>
+                      </div>
+                      <button className={`chevron-btn ${collapsedMilestones[ms.id] ? 'collapsed' : ''}`} onClick={() => toggleMilestoneCollapse(ms.id)}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 9l-7 7-7-7" /></svg>
+                      </button>
+                    </div>
+                    
+                    <div className="ms-footer-v2">
+                      <div className="ms-mini-bar">
+                        <div className="ms-bar-fill" style={{ width: `${msProgress}%` }}></div>
+                      </div>
+                      <span className="ms-results-count">{doneR}/{totalR} results</span>
+                    </div>
 
                   {!collapsedMilestones[ms.id] && (
                     <div className="tasks-list">
@@ -409,39 +436,53 @@ const GoalDetailView = ({ goal, onBack }) => {
                             )}
                           </div>
                           <div className="task-actions">
+                            <button 
+                              className="focus-task-btn" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const today = new Date().toISOString().split('T')[0] + 'T09:00';
+                                updateTask(goal.id, ms.id, task.id, { scheduledDate: today });
+                                setActiveActionsSubTab('Weekly Commitments');
+                                setGlobalActiveTab('Actions');
+                              }}
+                              title="Focus for This Week"
+                            >
+                              🎯
+                            </button>
                             <button className="edit-task-btn" onClick={(e) => {
                               e.stopPropagation();
                               setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '', priority: task.priority || 'Low', subtasks: task.subtasks || [] });
                               setEditingTaskId(task.id);
                               setActiveMilestoneId(null);
-                            }} title="Edit Task">
+                            }} title="Edit Result">
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(1px)' }}>
                                 <path d="M12 20h9" />
                                 <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                               </svg>
                             </button>
                             {task.value > 0 && <span className="task-value">{task.value.toLocaleString()}</span>}
-                            <button className="delete-task-btn" onClick={(e) => { e.stopPropagation(); deleteTask(goal.id, ms.id, task.id); }} title="Delete Task">&times;</button>
+                            <button className="delete-task-btn" onClick={(e) => { e.stopPropagation(); deleteTask(goal.id, ms.id, task.id); }} title="Delete Result">&times;</button>
                           </div>
                         </div>
                       ))}
                       
                       <button className="add-task-placeholder" onClick={() => { setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low' }); setActiveMilestoneId(ms.id); setEditingTaskId(null); }}>
-                        + Add a task
+                        + Add a result
                       </button>
                     </div>
                   )}
                 </div>
-              ))
-            )}
-          </div>
+              );
+            })
+          )}
         </div>
-      ) : (
+      </div>
+    ) : (
         <div className="tasks-section">
-          <h2>All Tasks</h2>
+          <h2>All Results</h2>
           <div className="tasks-list-flat">
             {allTasks.length === 0 ? (
-              <p className="empty-substate">No tasks created yet.</p>
+              <p className="empty-substate">No results created yet.</p>
             ) : (
               allTasks.map(task => (
                 <div key={task.id} className="task-row card-style">
@@ -461,12 +502,12 @@ const GoalDetailView = ({ goal, onBack }) => {
         <div className="modal-overlay glass" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
             <div className="modal-header-with-title">
-              <h2>{editingTaskId ? 'Edit Task' : 'Add Task'}</h2>
+              <h2>{editingTaskId ? 'Edit Result' : 'Add Result'}</h2>
               <button className="close-btn" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>&times;</button>
             </div>
             <form onSubmit={handleTaskSubmit} className="expanded-form">
               <div className="form-group">
-                <label>Task Title</label>
+                <label>Result Title</label>
                 <input 
                   autoFocus
                   type="text"
@@ -517,48 +558,42 @@ const GoalDetailView = ({ goal, onBack }) => {
               </div>
               <div className="modal-actions" style={{ marginTop: '20px', marginBottom: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
                 <button type="button" className="btn-secondary" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>Cancel</button>
-                <button type="submit" className="btn-primary">{editingTaskId ? 'Save Changes' : 'Add Task'}</button>
+                <button type="submit" className="btn-primary">{editingTaskId ? 'Save Changes' : 'Add Result'}</button>
               </div>
 
               <div className="subtasks-section">
-                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block', fontSize: '0.85rem' }}>Subtasks</label>
-                <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', marginBottom: '12px' }}>
+                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block', fontSize: '0.85rem' }}>Daily Tasks (shows in Today's Focus)</label>
+                <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto', marginBottom: '12px' }}>
                   {/* Continuous Empty Input Row for Goal Modal at TOP */}
-                  <div className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
-                    <div style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '3px', background: 'white' }}></div>
+                  <div className="subtask-item-form" style={{ display: 'grid', gridTemplateColumns: '1fr 140px auto', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
                     <input 
                       type="text" 
-                      placeholder="Add a subtask..." 
+                      placeholder="Add a daily task..." 
                       value={newSubtaskTitle || ''}
                       onChange={e => setNewSubtaskTitle(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (newSubtaskTitle.trim()) {
+                      style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem' }}
+                    />
+                    <input 
+                      type="date"
+                      className="subtask-date-input"
+                      style={{ border: 'none', background: 'transparent', fontSize: '0.8rem', color: '#64748b' }}
+                      onBlur={(e) => {
+                         const dateVal = e.target.value;
+                         if (newSubtaskTitle.trim()) {
                             setTaskForm(prev => ({
                               ...prev,
-                              subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
+                              subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false, scheduledDate: dateVal }]
                             }));
                             setNewSubtaskTitle('');
-                          }
-                        }
+                            e.target.value = '';
+                         }
                       }}
-                      onBlur={() => {
-                        if (newSubtaskTitle.trim()) {
-                          setTaskForm(prev => ({
-                            ...prev,
-                            subtasks: [{ id: crypto.randomUUID(), title: newSubtaskTitle, completed: false }, ...(prev.subtasks || [])]
-                          }));
-                          setNewSubtaskTitle('');
-                        }
-                      }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
                     />
                   </div>
 
                   {/* Rendered map items below it */}
                   {(taskForm.subtasks || []).map((sub, idx) => (
-                    <div key={sub.id} className="subtask-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
+                    <div key={sub.id} className="subtask-item" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 120px auto', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
                       <input 
                         type="checkbox" 
                         checked={sub.completed}
@@ -582,6 +617,18 @@ const GoalDetailView = ({ goal, onBack }) => {
                         }}
                         style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b' }}
                       />
+                      <input 
+                        type="date"
+                        value={sub.scheduledDate || ''}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          setTaskForm(prev => ({
+                            ...prev,
+                            subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, scheduledDate: newDate } : s)
+                          }));
+                        }}
+                        style={{ border: 'none', background: 'transparent', fontSize: '0.75rem', color: '#64748b' }}
+                      />
                       <button type="button" onClick={() => {
                         setTaskForm(prev => ({
                           ...prev,
@@ -602,6 +649,19 @@ const GoalDetailView = ({ goal, onBack }) => {
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
             <h2>Edit Goal</h2>
             <form onSubmit={handleUpdateGoal} className="expanded-form">
+              <div className="form-group">
+                <label>Achievement Pillar</label>
+                <select 
+                  value={editForm.pillarId || 'personal'} 
+                  onChange={e => setEditForm({ ...editForm, pillarId: e.target.value })}
+                  className="modal-input"
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b' }}
+                >
+                  {pillars.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </select>
+              </div>
               <div className="form-group">
                 <label>Goal Name</label>
                 <input

@@ -28,8 +28,16 @@
   font-size: 0.9rem;
 }
 
+.app-container {
+  min-height: 100vh;
+  padding-bottom: 120px;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+}
+
 .main-content {
-  display: contents; /* Let window scroll naturally to fix elastic height buffers */
+  flex: 1;
 }
 
 .setting-item {

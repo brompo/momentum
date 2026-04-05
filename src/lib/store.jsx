@@ -14,80 +14,110 @@ export const StoreProvider = ({ children }) => {
   const [visionStatements, setVisionStatements] = useState(() => {
     const saved = localStorage.getItem('ga_vision_statements');
     if (saved) return JSON.parse(saved);
-    const legacy = localStorage.getItem('ga_vision_statement');
-    return {
-      personal: legacy || '',
-      wealth: '',
-      growth: ''
-    };
+    return { personal: '', wealth: '', growth: '' };
   });
-
-  const updateVisionStatement = (pillarId, text) => {
-    setVisionStatements(prev => ({
-      ...prev,
-      [pillarId]: text
-    }));
-  };
 
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('ga_notes');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [activeTab, setActiveTab] = useState('Goals'); // Default tab
+  const [activeTab, setActiveTab] = useState('Goals');
+  const [activeActionsSubTab, setActiveActionsSubTab] = useState(() => {
+    return localStorage.getItem('ga_actions_subtab') || 'Weekly Commitments';
+  });
   const [selectedGoalId, setSelectedGoalId] = useState(null);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
   const [previousTab, setPreviousTab] = useState(null);
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('ga_theme');
-    return saved || 'dark';
-  });
+  const [theme, setTheme] = useState(() => localStorage.getItem('ga_theme') || 'dark');
 
   const [pillars, setPillars] = useState(() => {
     const saved = localStorage.getItem('ga_pillars');
     return saved ? JSON.parse(saved) : [
-      { id: 'personal', title: 'Personal & Health', icon: '🌱' },
-      { id: 'wealth', title: 'Wealth & Career', icon: '💼' },
-      { id: 'growth', title: 'Growth & Learning', icon: '🧠' }
+      { id: 'personal', title: 'Personal & Health', icon: '🌱', subcategories: [] },
+      { id: 'wealth', title: 'Wealth & Career', icon: '💼', subcategories: [] },
+      { id: 'growth', title: 'Growth & Learning', icon: '🧠', subcategories: [] }
     ];
   });
 
-  const addPillar = (title, icon = '📌') => {
-    setPillars(prev => [...prev, { id: crypto.randomUUID(), title, icon }]);
-  };
-
-  // Persistence effects
-  useEffect(() => {
-    localStorage.setItem('ga_goals', JSON.stringify(goals));
-  }, [goals]);
-
-  useEffect(() => {
-    localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements));
-  }, [visionStatements]);
-
-  useEffect(() => {
-    localStorage.setItem('ga_pillars', JSON.stringify(pillars));
-  }, [pillars]);
-
-  useEffect(() => {
-    localStorage.setItem('ga_notes', JSON.stringify(notes));
-  }, [notes]);
-
-  useEffect(() => {
+  useEffect(() => { localStorage.setItem('ga_goals', JSON.stringify(goals)); }, [goals]);
+  useEffect(() => { localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements)); }, [visionStatements]);
+  useEffect(() => { localStorage.setItem('ga_pillars', JSON.stringify(pillars)); }, [pillars]);
+  useEffect(() => { localStorage.setItem('ga_notes', JSON.stringify(notes)); }, [notes]);
+  useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
+  useEffect(() => { 
     localStorage.setItem('ga_theme', theme);
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
+    if (theme === 'light') document.body.classList.add('light-theme');
+    else document.body.classList.remove('light-theme');
   }, [theme]);
 
   // Actions
-  const addGoal = (title, pillarId = 'personal', note = '', startDate = '', endDate = '', targetNumber = '') => {
+  const updateVisionStatement = (pillarId, text) => {
+    setVisionStatements(prev => ({ ...prev, [pillarId]: text }));
+  };
+
+  const addPillar = (title, icon = '📌') => {
+    setPillars(prev => [...prev, { id: crypto.randomUUID(), title, icon, subcategories: [] }]);
+  };
+
+  const addSubcategory = (pillarId, title, icon = '🔹') => {
+    setPillars(prev => prev.map(p => {
+      if (p.id === pillarId) {
+        return {
+          ...p,
+          subcategories: [...(p.subcategories || []), { id: crypto.randomUUID(), title, icon }]
+        };
+      }
+      return p;
+    }));
+  };
+
+  const updateSubcategory = (pillarId, subId, updates) => {
+    setPillars(prev => prev.map(p => {
+      if (p.id === pillarId) {
+        return {
+          ...p,
+          subcategories: (p.subcategories || []).map(s => s.id === subId ? { ...s, ...updates } : s)
+        };
+      }
+      return p;
+    }));
+  };
+
+  const deleteSubcategory = (pillarId, subId) => {
+    setPillars(prev => prev.map(p => {
+      if (p.id === pillarId) {
+        return {
+          ...p,
+          subcategories: (p.subcategories || []).filter(s => s.id !== subId)
+        };
+      }
+      return p;
+    }));
+    // Re-assign goals in this subcategory to the main pillar
+    setGoals(prev => prev.map(g => g.subcategoryId === subId ? { ...g, subcategoryId: null } : g));
+  };
+
+  const updatePillar = (pillarId, updates) => {
+    setPillars(prev => prev.map(p => p.id === pillarId ? { ...p, ...updates } : p));
+  };
+
+  const deletePillar = (pillarId) => {
+    if (pillarId === 'personal' || pillarId === 'wealth' || pillarId === 'growth') return; // Protect defaults
+    setPillars(prev => prev.filter(p => p.id !== pillarId));
+    setGoals(prev => prev.map(g => g.pillarId === pillarId ? { ...g, pillarId: 'personal' } : g));
+    setVisionStatements(prev => {
+      const { [pillarId]: removed, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const addGoal = (title, pillarId = 'personal', note = '', startDate = '', endDate = '', targetNumber = '', subcategoryId = null) => {
     const newGoal = {
       id: crypto.randomUUID(),
       title,
       pillarId: pillarId || 'personal',
+      subcategoryId,
       note,
       startDate,
       endDate,
@@ -106,52 +136,56 @@ export const StoreProvider = ({ children }) => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: [
-            ...goal.milestones,
-            {
-              id: crypto.randomUUID(),
-              title,
-              priority,
-              tasks: [],
-              createdAt: new Date().toISOString()
-            }
-          ]
+          milestones: [...(goal.milestones || []), {
+            id: crypto.randomUUID(),
+            title,
+            priority,
+            tasks: [],
+            active: true,
+            createdAt: new Date().toISOString()
+          }]
         };
       }
       return goal;
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID(), parentTaskId = null, parentUpdates = {}, subtasks = []) => {
+  const toggleMilestoneActive = (goalId, milestoneId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => 
+            ms.id === milestoneId ? { ...ms, active: !ms.active } : ms
+          )
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID()) => {
     let finalDate = scheduledDate;
-    if (finalDate && !finalDate.includes('T')) {
-      finalDate = finalDate + 'T09:00';
-    }
+    if (finalDate && !finalDate.includes('T')) finalDate = finalDate + 'T09:00';
 
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: goal.milestones.map(ms => {
+          milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
-              const updatedTasks = (ms.tasks || []).map(t => 
-                t.id === parentTaskId ? { ...t, followUpTaskId: taskId, ...parentUpdates } : t
-              );
               return {
                 ...ms,
-                tasks: [
-                  ...updatedTasks,
-                  {
-                    id: taskId,
-                    title,
-                    value: Number(value) || 0,
-                    scheduledDate: finalDate,
-                    priority,
-                    completed: false,
-                    createdAt: new Date().toISOString(),
-                    subtasks: subtasks || []
-                  }
-                ]
+                tasks: [...(ms.tasks || []), {
+                  id: taskId,
+                  title,
+                  value: Number(value) || 0,
+                  scheduledDate: finalDate,
+                  priority,
+                  completed: false,
+                  createdAt: new Date().toISOString(),
+                  subtasks: []
+                }]
               };
             }
             return ms;
@@ -167,11 +201,11 @@ export const StoreProvider = ({ children }) => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: goal.milestones.map(ms => {
+          milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
               return {
                 ...ms,
-                tasks: ms.tasks.map(task => 
+                tasks: (ms.tasks || []).map(task => 
                   task.id === taskId ? { ...task, completed: !task.completed } : task
                 )
               };
@@ -184,24 +218,10 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const deleteTask = (goalId, milestoneId, taskId) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          milestones: goal.milestones.map(ms => {
-            if (ms.id === milestoneId) {
-              return {
-                ...ms,
-                tasks: ms.tasks.filter(task => task.id !== taskId)
-              };
-            }
-            return ms;
-          })
-        };
-      }
-      return goal;
-    }));
+  const updateGoal = (goalId, updates) => {
+    setGoals(prev => prev.map(goal => 
+      goal.id === goalId ? { ...goal, ...updates } : goal
+    ));
   };
 
   const updateTask = (goalId, milestoneId, taskId, updates) => {
@@ -209,7 +229,6 @@ export const StoreProvider = ({ children }) => {
     if (finalUpdates.scheduledDate && !finalUpdates.scheduledDate.includes('T')) {
       finalUpdates.scheduledDate = finalUpdates.scheduledDate + 'T09:00';
     }
-
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
@@ -231,25 +250,14 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addSubtask = (goalId, milestoneId, taskId, title) => {
+  const deleteTask = (goalId, milestoneId, taskId) => {
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
           ...goal,
           milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
-              return {
-                ...ms,
-                tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { 
-                    ...task, 
-                    subtasks: [
-                      { id: crypto.randomUUID(), title, completed: false },
-                      ...(task.subtasks || [])
-                    ] 
-                  } : task
-                )
-              };
+              return { ...ms, tasks: ms.tasks.filter(t => t.id !== taskId) };
             }
             return ms;
           })
@@ -259,229 +267,7 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const updateSubtaskTitle = (goalId, milestoneId, taskId, subtaskId, newTitle) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          milestones: (goal.milestones || []).map(ms => {
-            if (ms.id === milestoneId) {
-              return {
-                ...ms,
-                tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { 
-                    ...task, 
-                    subtasks: (task.subtasks || []).map(sub => 
-                      sub.id === subtaskId ? { ...sub, title: newTitle } : sub
-                    )
-                  } : task
-                )
-              };
-            }
-            return ms;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const toggleSubtask = (goalId, milestoneId, taskId, subtaskId) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          milestones: (goal.milestones || []).map(ms => {
-            if (ms.id === milestoneId) {
-              return {
-                ...ms,
-                tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { 
-                    ...task, 
-                    subtasks: (task.subtasks || []).map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s) 
-                  } : task
-                )
-              };
-            }
-            return ms;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const deleteSubtask = (goalId, milestoneId, taskId, subtaskId) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          milestones: (goal.milestones || []).map(ms => {
-            if (ms.id === milestoneId) {
-              return {
-                ...ms,
-                tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { 
-                    ...task, 
-                    subtasks: (task.subtasks || []).filter(s => s.id !== subtaskId) 
-                  } : task
-                )
-              };
-            }
-            return ms;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const addNote = (milestoneId, content) => {
-    const newNote = {
-      id: crypto.randomUUID(),
-      milestoneId,
-      content,
-      timestamp: new Date().toISOString()
-    };
-    setNotes(prev => [newNote, ...prev]);
-  };
-
-  const updateGoal = (goalId, updates) => {
-    setGoals(prev => prev.map(goal => 
-      goal.id === goalId ? { ...goal, ...updates } : goal
-    ));
-  };
-
-  const deleteGoal = (goalId) => {
-    setGoals(prev => prev.filter(goal => goal.id !== goalId));
-  };
-
-  const addMetric = (goalId, title, targetValue) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          metrics: [
-            ...(goal.metrics || []),
-            {
-              id: crypto.randomUUID(),
-              title,
-              currentValue: 0,
-              targetValue: Number(targetValue) || 0,
-              entries: [],
-              createdAt: new Date().toISOString()
-            }
-          ]
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const updateMetricValue = (goalId, metricId, valueDelta) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          metrics: (goal.metrics || []).map(m => {
-            if (m.id === metricId) {
-              const newVal = Math.max(0, (m.currentValue || 0) + valueDelta);
-              return { ...m, currentValue: m.targetValue ? Math.min(newVal, m.targetValue) : newVal };
-            }
-            return m;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const addMetricEntry = (goalId, metricId, { text, date, value }) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          metrics: (goal.metrics || []).map(m => {
-            if (m.id === metricId) {
-              const numericValue = Number(value) || 0;
-              const newEntries = [
-                ...(m.entries || []),
-                {
-                  id: crypto.randomUUID(),
-                  text: text || '',
-                  date: date || new Date().toISOString().split('T')[0],
-                  value: numericValue,
-                  createdAt: new Date().toISOString()
-                }
-              ];
-              const newVal = (m.currentValue || 0) + numericValue;
-              return {
-                ...m,
-                entries: newEntries,
-                currentValue: m.targetValue ? Math.min(newVal, m.targetValue) : newVal
-              };
-            }
-            return m;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const deleteMetricEntry = (goalId, metricId, entryId) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          metrics: goal.metrics.map(m => {
-            if (m.id === metricId) {
-              const entry = m.entries.find(e => e.id === entryId);
-              const decrementValue = entry ? Number(entry.value) : 0;
-              return {
-                ...m,
-                currentValue: Math.max(0, (m.currentValue || 0) - decrementValue),
-                entries: m.entries.filter(e => e.id !== entryId)
-              };
-            }
-            return m;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const updateMetricEntry = (goalId, metricId, entryId, updates) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        return {
-          ...goal,
-          metrics: goal.metrics.map(m => {
-            if (m.id === metricId) {
-              const entry = m.entries.find(e => e.id === entryId);
-              const oldValue = entry ? Number(entry.value) : 0;
-              const newValue = updates.value !== undefined ? Number(updates.value) : oldValue;
-              const valueDelta = newValue - oldValue;
-              const newVal = (m.currentValue || 0) + valueDelta;
-              
-              return {
-                ...m,
-                currentValue: Math.max(0, m.targetValue ? Math.min(newVal, m.targetValue) : newVal),
-                entries: (m.entries || []).map(e => e.id === entryId ? { ...e, ...updates, value: newValue } : e)
-              };
-            }
-            return m;
-          })
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
   const value = {
     goals,
@@ -490,34 +276,31 @@ export const StoreProvider = ({ children }) => {
     updateVisionStatement,
     pillars,
     addPillar,
+    updatePillar,
+    deletePillar,
+    addSubcategory,
+    updateSubcategory,
+    deleteSubcategory,
     activeTab,
     setActiveTab,
+    activeActionsSubTab,
+    setActiveActionsSubTab,
     selectedGoalId,
     setSelectedGoalId,
     selectedMilestoneId,
     setSelectedMilestoneId,
     previousTab,
     setPreviousTab,
-    addGoal,
-    addMilestone,
-    addTask,
-    toggleTask,
-    addSubtask,
-    updateSubtaskTitle,
-    toggleSubtask,
-    deleteSubtask,
-    addNote,
     theme,
     toggleTheme,
-    updateGoal,
-    deleteGoal,
-    addMetric,
-    updateMetricValue,
-    addMetricEntry,
-    deleteTask,
+    addGoal,
+    addMilestone,
+    toggleMilestoneActive,
+    addTask,
+    toggleTask,
     updateTask,
-    deleteMetricEntry,
-    updateMetricEntry
+    updateGoal,
+    deleteTask
   };
 
   return (
