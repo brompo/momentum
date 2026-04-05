@@ -481,9 +481,32 @@ const GoalDetailView = ({ goal, onBack }) => {
                         </div>
                       ))}
                       
-                      <button className="add-task-placeholder" onClick={() => { setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low' }); setActiveMilestoneId(ms.id); setEditingTaskId(null); }}>
-                        + Add a result
-                      </button>
+                      {activeMilestoneId === ms.id ? (
+                        <form className="inline-add-task glass-card" onSubmit={(e) => handleAddTask(e, ms.id)} style={{ marginTop: '8px' }}>
+                          <input 
+                            autoFocus
+                            placeholder="Enter result..." 
+                            value={taskForm.title}
+                            onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                            onKeyDown={(e) => {
+                               if (e.key === 'Escape') setActiveMilestoneId(null);
+                            }}
+                            style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white' }}
+                          />
+                          <div className="inline-actions" style={{ padding: '0 4px' }}>
+                            <button type="button" onClick={() => setActiveMilestoneId(null)}>Cancel</button>
+                            <button type="submit" className="active" style={{ color: '#2563eb', fontWeight: 800 }}>Add</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <button className="add-task-placeholder" onClick={() => { 
+                          setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] }); 
+                          setActiveMilestoneId(ms.id); 
+                          setEditingTaskId(null); 
+                        }}>
+                          + Add a result
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -529,7 +552,7 @@ const GoalDetailView = ({ goal, onBack }) => {
         </div>
       )}
 
-      {(activeMilestoneId || editingTaskId) && (
+      {editingTaskId && (
         <div className="modal-overlay glass" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
             <div className="modal-header-with-title">

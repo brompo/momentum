@@ -893,6 +893,7 @@ textarea.modal-input {
 .task-date-badge.future {
   color: #10b981 !important;
   background: #ecfdf5 !important;
+  font-size: 0.8rem;
 }
 
 @keyframes highlight-flash-animation {
