@@ -898,20 +898,18 @@ textarea.modal-input {
 /* We use a specific ID to isolate it from standard highlight scrolls if needed */
 [id^="milestone-"].highlight-pulse {
   animation: highlight-flash-animation 3.5s ease-out forwards;
-  border: 1px solid #10b981 !important;
+  border: 1.5px solid #0d9488 !important;
 }
 
 @keyframes highlight-flash-animation {
   0% {
-    background-color: #f0fdfa;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    background-color: rgba(13, 148, 136, 0.2);
+    box-shadow: 0 0 25px rgba(13, 148, 136, 0.4);
   }
-
   15% {
-    background-color: #ccfbf1;
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+    background-color: rgba(13, 148, 136, 0.1);
+    box-shadow: 0 0 40px rgba(13, 148, 136, 0.5);
   }
-
   100% {
     background-color: transparent;
     box-shadow: none;
@@ -994,6 +992,80 @@ textarea.modal-input {
   color: #1e293b;
   margin: 0;
   letter-spacing: -0.02em;
+}
+
+/* Milestone Completion Checkbox */
+.ms-completion-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  flex-shrink: 0;
+}
+
+.ms-completion-checkbox.checked {
+  background: #10b981;
+  border-color: #10b981;
+}
+
+.ms-title-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.ms-priority-tag {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.ms-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Completed Results Collapsible */
+.completed-results-collapsible {
+  margin-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
+.view-completed-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.view-completed-btn:hover {
+  color: #10b981;
+}
+
+.ms-card-v2.ms-completed {
+  opacity: 0.7;
+}
+
+.ms-card-v2.ms-completed h3 {
+  text-decoration: line-through;
+  color: #94a3b8;
 }
 
 .deadline-text {
