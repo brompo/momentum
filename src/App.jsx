@@ -69,7 +69,7 @@ function App() {
       case 'Milestones': return <MilestonesView />;
       case 'Notes': return <NotesView />;
       case 'Settings': return <SettingsView />;
-      default: return <GoalsView />;
+      default: return <GoalsView onSelectGoal={(goal) => setSelectedGoalId(goal.id)} />;
     }
   };
 

@@ -295,6 +295,20 @@ export const StoreProvider = ({ children }) => {
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
+  const toggleMilestoneCompleted = (goalId, milestoneId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => 
+            ms.id === milestoneId ? { ...ms, completed: !ms.completed } : ms
+          )
+        };
+      }
+      return goal;
+    }));
+  };
+
   const value = {
     goals,
     notes,
@@ -322,6 +336,7 @@ export const StoreProvider = ({ children }) => {
     addGoal,
     addMilestone,
     toggleMilestoneActive,
+    toggleMilestoneCompleted,
     addTask,
     toggleTask,
     updateTask,

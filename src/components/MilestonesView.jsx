@@ -9,7 +9,7 @@ const MilestonesView = () => {
   const handleMilestoneClick = (goalId, milestoneId) => {
     setSelectedGoalId(goalId);
     setSelectedMilestoneId(milestoneId);
-    setActiveTab('GoalDetail');
+    setActiveTab('Goals');
   };
 
   const togglePillar = (id) => {
@@ -19,7 +19,7 @@ const MilestonesView = () => {
   const getActiveMilestones = () => {
     return (goals || []).flatMap(goal => 
       (goal.milestones || [])
-        .filter(ms => ms.active === true)
+        .filter(ms => ms.active === true && ms.completed !== true)
         .map(ms => ({
           ...ms,
           goalTitle: goal.title,

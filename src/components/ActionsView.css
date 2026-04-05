@@ -1,7 +1,7 @@
 .actions-view {
   background: #fcfdfe;
   min-height: 100vh;
-  padding: 20px;
+  padding: 12px 16px;
   position: relative;
 }
 
@@ -59,18 +59,18 @@
 .week-strip-modern {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin: 20px 0 32px 0;
+  gap: 8px;
+  margin: 12px 0 20px 0;
 }
 
 .day-node {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: #94a3b8;
   cursor: pointer;
@@ -103,19 +103,19 @@
 .sub-tab-capsule {
   display: flex;
   background: #f1f5f9;
-  padding: 4px;
-  border-radius: 14px;
-  gap: 4px;
-  margin-bottom: 32px;
+  padding: 3px;
+  border-radius: 12px;
+  gap: 3px;
+  margin-bottom: 24px;
 }
 
 .sub-tab-capsule button {
   flex: 1;
-  padding: 12px;
+  padding: 8px;
   border: none;
   background: transparent;
-  border-radius: 10px;
-  font-size: 0.85rem;
+  border-radius: 9px;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #94a3b8;
   cursor: pointer;
@@ -130,11 +130,11 @@
 
 /* Category Sections */
 .category-title {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 800;
   color: #94a3b8;
-  margin-bottom: 12px;
-  letter-spacing: 1px;
+  margin-bottom: 8px;
+  letter-spacing: 0.8px;
 }
 
 .empty-category {
@@ -145,10 +145,10 @@
 }
 
 .result-card-container {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -160,7 +160,7 @@
 /* Task Action Cards */
 .task-action-card {
   background: white;
-  padding: 12px 14px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -209,10 +209,10 @@
 }
 
 .task-card-title {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #1e293b;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .completed .task-card-title {
@@ -343,13 +343,13 @@
 
 /* Summary Progress Card - Matching Mockup */
 .actions-summary-card {
-  margin-top: 24px;
-  padding: 12px 16px;
+  margin-top: 16px;
+  padding: 10px 14px;
   background: white;
-  border-radius: 16px;
-  border: 1px solid #edf2f7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  margin-bottom: 60px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  margin-bottom: 40px;
   position: relative;
 }
 

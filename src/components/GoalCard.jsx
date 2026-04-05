@@ -38,7 +38,7 @@ const GoalCard = ({ goal, onClick }) => {
   }
 
   return (
-    <div className="goal-card smooth-all animate-fade-in" onClick={() => onClick(goal)}>
+    <div className="goal-card smooth-all animate-fade-in" onClick={() => onClick && onClick(goal)}>
       <div className="goal-card-header">
         <div className="title-row">
           <h3>{goal.title}</h3>
