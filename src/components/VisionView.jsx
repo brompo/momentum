@@ -63,6 +63,8 @@ const VisionView = () => {
     }
   };
 
+  const isDefaultPillar = (id) => ['personal', 'wealth', 'growth'].includes(id);
+
   return (
     <div className="vision-view safe-area animate-fade-in">
       <div className="header-row">
