@@ -1,26 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
 
 :root {
-  /* Dynamic Color Palette - Indigo & Emerald mix for a premium look */
-  --bg-main: #bacdf3;
-  --bg-card: #0F1117;
-  --bg-card-hover: #161922;
+  /* Clean & Airy Teal Palette */
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
 
-  --primary: #6366f1;
-  /* Indigo */
-  --primary-glow: rgba(99, 102, 241, 0.2);
-  --secondary: #10b981;
-  /* Emerald */
+  --primary: #0d9488; /* Deep Teal */
+  --primary-glow: rgba(13, 148, 136, 0.08);
+  --secondary: #14b8a6; /* Teal 500 */
   --accent: #f43f5e;
-  /* Rose for alerts/delete */
 
-  --text-main: #F9FAFB;
-  --text-muted: #9CA3AF;
-  --text-dim: #6B7280;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
 
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(15, 17, 23, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 0.05);
   --glass-blur: blur(12px);
 
   --font-body: 'Inter', sans-serif;
@@ -28,33 +25,32 @@
 
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-xl: 40px;
 
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.04);
 
   --tab-bar-height: 84px;
 }
 
 /* Light Theme Overrides */
 .light-theme {
-  --bg-main: #f3f7ff;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #F9FAFB;
+  --bg-main: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
 
-  --text-main: #111827;
-  --text-muted: #4B5563;
-  --text-dim: #9CA3AF;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
 
-  --border-subtle: rgba(0, 0, 0, 0.05);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.03);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.04);
 
-  --primary: #4f46e5;
-  /* Slightly darker indigo for better contrast on light */
-  --primary-glow: rgba(79, 70, 229, 0.1);
+  --primary: #0d9488;
+  --primary-glow: rgba(13, 148, 136, 0.06);
 }
 
 * {
@@ -101,10 +97,15 @@ h4 {
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(10px);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 /* Smooth Transitions */

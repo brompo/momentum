@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../lib/store';
-import './CalendarView.css';
+import './ActionsView.css';
 
-const CalendarView = () => {
+const ActionsView = () => {
   const { goals, toggleTask, updateTask, addTask, addSubtask, toggleSubtask, deleteSubtask, updateSubtaskTitle, setSelectedGoalId, setSelectedMilestoneId, setActiveTab, setPreviousTab } = useStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [activeSubTab, setActiveSubTab] = useState('Weekly Commitments');
   const [viewMode, setViewMode] = useState(() => {
-    return localStorage.getItem('ga_calendar_view_mode') || 'calendar';
+    return localStorage.getItem('ga_actions_view_mode') || 'calendar';
   });
 
   useEffect(() => {
-    localStorage.setItem('ga_calendar_view_mode', viewMode);
+    localStorage.setItem('ga_actions_view_mode', viewMode);
   }, [viewMode]);
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', value: '', scheduledDate: '', priority: 'Low' });
@@ -162,18 +163,32 @@ const CalendarView = () => {
   // Helper to get formatted dates for the week
   const getWeekDays = (baseDate) => {
     const days = [];
+    // Adjust to start on Monday instead of Sunday
+    // day + 6 % 7: Mon(1)->0, Tue(2)->1, ..., Sun(0)->6
+    const day = baseDate.getDay();
+    const diff = (day + 6) % 7;
     const startOfWeek = new Date(baseDate);
-    startOfWeek.setDate(baseDate.getDate() - baseDate.getDay());
+    startOfWeek.setDate(baseDate.getDate() - diff);
 
     for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      days.push(d);
     }
     return days;
   };
 
+  const getWeekNumber = (date) => {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return weekNo;
+  };
+
   const weekDays = getWeekDays(selectedDate);
+  const currentWeekNumber = getWeekNumber(selectedDate);
 
   // Extract all tasks across all goals
   const allTasks = goals.flatMap(g =>
@@ -206,7 +221,7 @@ const CalendarView = () => {
         <div className="agenda-item-left">
           <div className={`check-circle ${task.completed ? 'completed' : ''}`} onClick={(e) => { e.stopPropagation(); toggleTask(task.goalId, task.milestoneId, task.id); }}></div>
           <div className="agenda-item-content">
-            <div className="agenda-task-header" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
               {(task.subtasks || []).length > 0 && (
                 <button className="collapse-btn" onClick={(e) => { e.stopPropagation(); setCollapsedTasks(prev => ({ ...prev, [task.id]: !prev[task.id] })); }} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '-4px' }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.2s', transform: !collapsedTasks[task.id] ? 'rotate(90deg)' : 'rotate(0deg)' }}>
@@ -215,26 +230,33 @@ const CalendarView = () => {
                 </button>
               )}
               {task.scheduledDate && task.scheduledDate.includes('T') && (
-                <span className="agenda-task-time" style={{ fontSize: '0.73rem', color: 'var(--primary)', background: '#eef2ff', padding: '2px 6px', borderRadius: '4px', fontWeight: 600, flexShrink: 0 }}>
+                <span 
+                  className="agenda-task-time" 
+                  style={{ fontSize: '0.73rem', color: 'var(--primary)', background: '#eef2ff', padding: '2px 6px', borderRadius: '4px', fontWeight: 600, flexShrink: 0, cursor: 'default' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {new Date(task.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
-              <span className="agenda-task-title">{task.title}</span>
-            </div>
-            <div className="agenda-meta">
-              <span 
-                className="agenda-ms" 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setPreviousTab('Calendar');
-                  setSelectedGoalId(task.goalId); 
-                  setSelectedMilestoneId(task.milestoneId); 
-                  setActiveTab('Goals'); 
-                }} 
-                style={{ cursor: 'pointer', textDecoration: 'underline', color: '#64748b' }}
-              >
-                {task.milestoneTitle}
-              </span>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
+                <span className="agenda-task-title">{task.title}</span>
+                <div className="agenda-meta">
+                  <span 
+                    className="agenda-ms" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setPreviousTab('Actions');
+                      setSelectedGoalId(task.goalId); 
+                      setSelectedMilestoneId(task.milestoneId); 
+                      setActiveTab('Goals'); 
+                    }} 
+                    style={{ cursor: 'pointer', textDecoration: 'underline', color: '#64748b' }}
+                  >
+                    {task.milestoneTitle}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -334,88 +356,167 @@ const CalendarView = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const isTomorrow = selectedDate.toDateString() === tomorrow.toDateString();
 
-    if (isToday) return "Today's Tasks";
-    if (isTomorrow) return "Tomorrow's Tasks";
-    return `${selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}'s Tasks`;
+    if (isToday) return "Today's Actions";
+    if (isTomorrow) return "Tomorrow's Actions";
+    return `${selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}'s Actions`;
   };
 
+  const getWeeklyTasks = () => {
+    const days = getWeekDays(selectedDate);
+    const start = new Date(days[0]);
+    start.setHours(0,0,0,0);
+    const end = new Date(days[6]);
+    end.setHours(23,59,59,999);
+
+    return allTasks.filter(t => {
+      if (!t.scheduledDate) return false;
+      const d = new Date(t.scheduledDate);
+      return d >= start && d <= end;
+    });
+  };
+
+  const weeklyTasks = getWeeklyTasks();
+  const mustDoWeekly = weeklyTasks.filter(t => t.priority === 'High');
+  const shouldDoWeekly = weeklyTasks.filter(t => t.priority !== 'High');
+  const completedWeekly = weeklyTasks.filter(t => t.completed).length;
+  const totalWeekly = weeklyTasks.length;
+
   return (
-    <div className="calendar-view safe-area animate-fade-in">
-      <div className="calendar-header">
-        <div className="header-top">
-          <h1>{selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h1>
-          <div className="view-toggle">
-            <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}>Calendar</button>
-            <button className={viewMode === 'agenda' ? 'active' : ''} onClick={() => setViewMode('agenda')}>Agenda</button>
+    <div className="actions-view safe-area animate-fade-in">
+      {/* Persistent Week Header */}
+      <div className="week-range-header">
+        <span className="week-label">Week {currentWeekNumber}/52</span>
+        <div className="week-dates">
+          <span>
+            {weekDays[0].getDate()} - {weekDays[6].toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+          <div className="week-nav">
+            <button onClick={() => handleWeekChange(-7)}>&lt;</button>
+            <button onClick={() => handleWeekChange(7)}>&gt;</button>
           </div>
         </div>
-
-        {viewMode === 'calendar' && (
-          <div className="date-strip-row">
-            <button className="nav-btn" onClick={() => handleWeekChange(-7)}>&lt;</button>
-            <div className="date-strip">
-              {weekDays.map(day => {
-                const isToday = day.toDateString() === new Date().toDateString();
-                const isSelected = day.toDateString() === selectedDate.toDateString();
-                return (
-                  <div
-                    key={day.toISOString()}
-                    className={`date-item smooth-all ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
-                    onClick={() => setSelectedDate(day)}
-                  >
-                    <span className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</span>
-                    <span className="day-num">{day.getDate()}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <button className="nav-btn" onClick={() => handleWeekChange(7)}>&gt;</button>
-          </div>
-        )}
       </div>
 
-      <div className="agenda-section">
-        <h2>{viewMode === 'calendar' ? getHeaderTitle() : 'Agenda'}</h2>
-        <div className="agenda-list">
-          {viewMode === 'calendar' ? (
-            todayTasks.length === 0 ? (
-              <p className="empty-state">No pending tasks. You're all caught up!</p>
-            ) : (
-              todayTasks.map(task => renderTaskItem(task))
-            )
-          ) : (
-            Object.values(groupedTasks).every(arr => arr.length === 0) ? (
-              <p className="empty-state">No pending tasks. You're all caught up!</p>
-            ) : (
-              <>
-                {groupedTasks.today.length > 0 && (
-                  <div className="agenda-group">
-                    <h3>Today</h3>
-                    {groupedTasks.today.map(task => renderTaskItem(task))}
+      <div className="week-day-strip">
+        {weekDays.map(day => {
+          const dayTasks = allTasks.filter(t => t.scheduledDate && t.scheduledDate.split('T')[0] === day.toISOString().split('T')[0]);
+          const isToday = day.toDateString() === new Date().toDateString();
+          const isSelected = day.toDateString() === selectedDate.toDateString();
+          return (
+            <div 
+              key={day.toISOString()} 
+              className={`week-day-dot ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${dayTasks.length > 0 ? 'has-tasks' : ''}`}
+              onClick={() => setSelectedDate(day)}
+            >
+              {day.toLocaleDateString('en-US', { weekday: 'narrow' })}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="sub-tab-switcher">
+        <button 
+          className={activeSubTab === 'Weekly' ? 'active' : ''} 
+          onClick={() => setActiveSubTab('Weekly')}
+        >
+          This week
+        </button>
+        <button 
+          className={activeSubTab === 'Daily' ? 'active' : ''} 
+          onClick={() => setActiveSubTab('Daily')}
+        >
+          Today's focus
+        </button>
+      </div>
+
+      <div className="tab-viewport">
+        {activeSubTab === 'Weekly' ? (
+          <div className="weekly-container animate-fade-in">
+            <div className="commitment-section">
+              <h3>MUST DO</h3>
+              {mustDoWeekly.length === 0 ? (
+                <p className="empty-state">No high priority tasks.</p>
+              ) : (
+                mustDoWeekly.map((task, idx) => (
+                  <div key={task.id} className={`commitment-card ${task.completed ? 'completed' : ''}`} onClick={() => handleEditClick(task)}>
+                    <div className={`check-circle ${task.completed ? 'completed' : ''}`} onClick={(e) => { e.stopPropagation(); toggleTask(task.goalId, task.milestoneId, task.id); }}></div>
+                    <div className="commitment-info">
+                      <span className="commitment-title">{task.title}</span>
+                      <span className="commitment-link">{task.goalTitle}</span>
+                    </div>
+                    <span className="commitment-badge must">Must</span>
                   </div>
-                )}
-                {groupedTasks.tomorrow.length > 0 && (
-                  <div className="agenda-group">
-                    <h3>Tomorrow</h3>
-                    {groupedTasks.tomorrow.map(task => renderTaskItem(task))}
+                ))
+              )}
+            </div>
+
+            <div className="commitment-section" style={{ marginTop: '24px' }}>
+              <h3>SHOULD DO</h3>
+              {shouldDoWeekly.length === 0 ? (
+                <p className="empty-state">No other tasks scheduled.</p>
+              ) : (
+                shouldDoWeekly.map(task => (
+                  <div key={task.id} className={`commitment-card ${task.completed ? 'completed' : ''}`} onClick={() => handleEditClick(task)}>
+                    <div className={`check-circle ${task.completed ? 'completed' : ''}`} onClick={(e) => { e.stopPropagation(); toggleTask(task.goalId, task.milestoneId, task.id); }}></div>
+                    <div className="commitment-info">
+                      <span className="commitment-title">{task.title}</span>
+                      <span className="commitment-link">{task.goalTitle}</span>
+                    </div>
+                    <span className="commitment-badge should">Should</span>
                   </div>
-                )}
-                {groupedTasks.upcoming.length > 0 && (
-                  <div className="agenda-group">
-                    <h3>Upcoming</h3>
-                    {groupedTasks.upcoming.map(task => renderTaskItem(task))}
+                ))
+              )}
+            </div>
+
+            <div className="weekly-progress-footer">
+              <div className="progress-labels">
+                <span>{weeklyTasks.length - completedWeekly} of {weeklyTasks.length} {activeSubTab === 'Weekly' ? 'actions remaining' : 'completed'}</span>
+                <span>{totalWeekly > 0 ? Math.round((completedWeekly / totalWeekly) * 100) : 0}%</span>
+              </div>
+              <div className="progress-bar-container">
+                <div className="progress-bar-fill" style={{ width: `${(completedWeekly / totalWeekly) * 100}%` }}></div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="daily-view animate-fade-in">
+            <div className="daily-focus-intro">
+              <p>Pick 1-3 actions from your week.</p>
+              <p>First pick = your #1.</p>
+            </div>
+
+            <div className="focus-items-list">
+              {todayTasks.filter(t => t.priority === 'High').map((task, idx) => (
+                <div key={task.id} className="focus-item-card" onClick={() => toggleTask(task.goalId, task.milestoneId, task.id)}>
+                   <div className={`focus-check ${task.completed ? 'completed' : ''}`}>
+                      {task.completed && <div className="focus-check-inner"></div>}
+                   </div>
+                   <div className="focus-item-info">
+                      <span className="focus-item-title">{task.title}</span>
+                      <span className="focus-item-rank">Today's #{idx + 1}</span>
+                   </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="remaining-section">
+              <h3>REMAINING THIS WEEK</h3>
+              <div className="remaining-list">
+                {weeklyTasks.filter(t => !todayTasks.find(tt => tt.id === t.id)).map(task => (
+                  <div key={task.id} className="remaining-card-dashed" onClick={() => handleEditClick(task)}>
+                    <div className="check-circle-dashed"></div>
+                    <span className="remaining-title">{task.title}</span>
                   </div>
-                )}
-                {groupedTasks.unscheduled.length > 0 && (
-                  <div className="agenda-group">
-                    <h3>Unscheduled</h3>
-                    {groupedTasks.unscheduled.map(task => renderTaskItem(task))}
-                  </div>
-                )}
-              </>
-            )
-          )}
-        </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="check-in-actions">
+              <button className="check-in-btn primary">Done for today</button>
+              <button className="check-in-btn secondary" onClick={() => handleWeekChange(1)}>Carry forward</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Modal */}
@@ -814,4 +915,4 @@ const CalendarView = () => {
   );
 };
 
-export default CalendarView;
+export default ActionsView;

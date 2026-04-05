@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import TabBar from './components/TabBar';
 import GoalsView from './components/GoalsView';
 import GoalDetailView from './components/GoalDetailView';
-import CalendarView from './components/CalendarView';
+import ActionsView from './components/ActionsView';
 import NotesView from './components/NotesView';
+import MilestonesView from './components/MilestonesView';
+import VisionView from './components/VisionView';
 import ReloadPrompt from './components/ReloadPrompt';
 import { useStore } from './lib/store';
 import './App.css';
@@ -47,7 +49,8 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'Calendar': return <CalendarView />;
+      case 'Actions': return <ActionsView />;
+      case 'Vision': return <VisionView />;
       case 'Goals': 
         return selectedGoal ? (
           <GoalDetailView 
@@ -63,6 +66,7 @@ function App() {
         ) : (
           <GoalsView onSelectGoal={(goal) => setSelectedGoalId(goal.id)} />
         );
+      case 'Milestones': return <MilestonesView />;
       case 'Notes': return <NotesView />;
       case 'Settings': return <SettingsView />;
       default: return <GoalsView />;

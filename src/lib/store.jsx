@@ -11,6 +11,24 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [visionStatements, setVisionStatements] = useState(() => {
+    const saved = localStorage.getItem('ga_vision_statements');
+    if (saved) return JSON.parse(saved);
+    const legacy = localStorage.getItem('ga_vision_statement');
+    return {
+      personal: legacy || '',
+      wealth: '',
+      growth: ''
+    };
+  });
+
+  const updateVisionStatement = (pillarId, text) => {
+    setVisionStatements(prev => ({
+      ...prev,
+      [pillarId]: text
+    }));
+  };
+
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('ga_notes');
     return saved ? JSON.parse(saved) : [];
@@ -25,10 +43,31 @@ export const StoreProvider = ({ children }) => {
     return saved || 'dark';
   });
 
+  const [pillars, setPillars] = useState(() => {
+    const saved = localStorage.getItem('ga_pillars');
+    return saved ? JSON.parse(saved) : [
+      { id: 'personal', title: 'Personal & Health', icon: '🌱' },
+      { id: 'wealth', title: 'Wealth & Career', icon: '💼' },
+      { id: 'growth', title: 'Growth & Learning', icon: '🧠' }
+    ];
+  });
+
+  const addPillar = (title, icon = '📌') => {
+    setPillars(prev => [...prev, { id: crypto.randomUUID(), title, icon }]);
+  };
+
   // Persistence effects
   useEffect(() => {
     localStorage.setItem('ga_goals', JSON.stringify(goals));
   }, [goals]);
+
+  useEffect(() => {
+    localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements));
+  }, [visionStatements]);
+
+  useEffect(() => {
+    localStorage.setItem('ga_pillars', JSON.stringify(pillars));
+  }, [pillars]);
 
   useEffect(() => {
     localStorage.setItem('ga_notes', JSON.stringify(notes));
@@ -44,10 +83,11 @@ export const StoreProvider = ({ children }) => {
   }, [theme]);
 
   // Actions
-  const addGoal = (title, note = '', startDate = '', endDate = '', targetNumber = '') => {
+  const addGoal = (title, pillarId = 'personal', note = '', startDate = '', endDate = '', targetNumber = '') => {
     const newGoal = {
       id: crypto.randomUUID(),
       title,
+      pillarId: pillarId || 'personal',
       note,
       startDate,
       endDate,
@@ -446,6 +486,10 @@ export const StoreProvider = ({ children }) => {
   const value = {
     goals,
     notes,
+    visionStatements,
+    updateVisionStatement,
+    pillars,
+    addPillar,
     activeTab,
     setActiveTab,
     selectedGoalId,

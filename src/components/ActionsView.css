@@ -1,0 +1,377 @@
+.week-range-header {
+  margin-bottom: 8px;
+}
+
+.week-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.week-dates {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.week-dates span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.week-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.week-nav button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.week-day-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.week-day-dot {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.week-day-dot.has-tasks {
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+.week-day-dot.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Switcher Stylings */
+.sub-tab-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+
+.sub-tab-switcher button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sub-tab-switcher button.active {
+  background: white;
+  color: #1e293b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Commitments View */
+.commitment-section h3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.commitment-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.02);
+}
+
+.commitment-card.completed {
+  opacity: 0.5;
+}
+
+.check-circle {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.check-circle.completed {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.check-circle.completed::after {
+  content: '✓';
+  color: white;
+  font-size: 11px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.commitment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commitment-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.commitment-link {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.commitment-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.commitment-badge.must {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.commitment-badge.should {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.weekly-progress-footer {
+  margin-top: 32px;
+  padding-bottom: 40px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.progress-bar-container {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.4s ease;
+}
+
+/* Daily/Focus View */
+.daily-focus-intro {
+  margin-bottom: 24px;
+}
+
+.daily-focus-intro p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.focus-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.focus-item-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  border: 1px solid #f1f5f9;
+}
+
+.focus-check {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-check-inner {
+  width: 14px;
+  height: 14px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+
+.focus-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.focus-item-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.focus-item-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.remaining-section h3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.remaining-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.remaining-card-dashed {
+  background: #f8fafc;
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.7;
+}
+
+.check-circle-dashed {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+}
+
+.remaining-title {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.check-in-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 40px;
+  padding-bottom: 60px;
+}
+
+.check-in-btn {
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.check-in-btn.primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.check-in-btn.secondary {
+  background: white;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Modal and FAB */
+.actions-view .modal-content {
+  padding-bottom: 80px;
+}
+
+.fab-add-task {
+  position: fixed;
+  bottom: 110px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 15px var(--primary-glow) !important;
+  cursor: pointer !important;
+  z-index: 99 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}

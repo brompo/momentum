@@ -4,7 +4,7 @@ import GoalCard from './GoalCard';
 import './GoalsView.css';
 
 const GoalsView = ({ onSelectGoal }) => {
-  const { goals, addGoal } = useStore();
+  const { goals, addGoal, visionStatement, setVisionStatement, pillars } = useStore();
   const [isAdding, setIsAdding] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: '',
@@ -40,12 +40,13 @@ const GoalsView = ({ onSelectGoal }) => {
 
     addGoal(
       newGoal.title,
+      newGoal.pillarId || 'personal',
       newGoal.note,
       newGoal.startDate,
       newGoal.endDate,
       newGoal.targetNumber
     );
-    setNewGoal({ title: '', note: '', startDate: '', endDate: '', targetNumber: '' });
+    setNewGoal({ title: '', note: '', startDate: '', endDate: '', targetNumber: '', pillarId: 'personal' });
     setError('');
     setIsAdding(false);
   };
@@ -54,7 +55,7 @@ const GoalsView = ({ onSelectGoal }) => {
     <>
       <div className="goals-view safe-area animate-fade-in">
       <div className={`header-row ${isScrolled ? 'scrolled' : ''}`}>
-        <h1>Goal List</h1>
+        <h1>Achievements</h1>
       </div>
 
       {isAdding && (
@@ -65,6 +66,19 @@ const GoalsView = ({ onSelectGoal }) => {
             {error && <div className="form-error">{error}</div>}
 
             <form onSubmit={handleAddGoal} className="expanded-form">
+              <div className="form-group">
+                <label>Pillar Category</label>
+                <select 
+                  value={newGoal.pillarId || 'personal'} 
+                  onChange={e => setNewGoal({ ...newGoal, pillarId: e.target.value })}
+                  className="modal-input"
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', background: '#fff', color: '#1e293b' }}
+                >
+                  {pillars.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </select>
+              </div>
               <div className="form-group">
                 <label>Goal Name</label>
                 <input
@@ -130,14 +144,27 @@ const GoalsView = ({ onSelectGoal }) => {
         </div>
       )}
 
-      <div className="goals-list">
-        {goals.length === 0 ? (
-          <p className="empty-state">No goals yet. Pulse the + to start your journey.</p>
-        ) : (
-          goals.map(goal => (
-            <GoalCard key={goal.id} goal={goal} onClick={onSelectGoal} />
-          ))
-        )}
+      <div className="pillars-container" style={{ marginTop: '24px', width: '100%' }}>
+        {pillars.map(pillar => {
+          const pillarGoals = goals.filter(g => g.pillarId === pillar.id || (!g.pillarId && pillar.id === 'personal'));
+          return (
+            <div key={pillar.id} className="pillar-group" style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: '1px solid rgba(0,0,0,0.03)', paddingBottom: '6px' }}>
+                <span style={{ fontSize: '1.25rem' }}>{pillar.icon}</span>
+                <h2 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{pillar.title}</h2>
+              </div>
+              <div className="goals-list">
+                {pillarGoals.length === 0 ? (
+                  <p className="empty-state" style={{ fontSize: '0.8rem', color: 'var(--text-dim)', padding: '12px 4px', fontStyle: 'italic' }}>No achievements defined yet.</p>
+                ) : (
+                  pillarGoals.map(goal => (
+                    <GoalCard key={goal.id} goal={goal} onClick={onSelectGoal} />
+                  ))
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
       </div>
 
