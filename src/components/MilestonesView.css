@@ -104,10 +104,10 @@
 
 .milestone-modern-card {
   background: white;
-  padding: 14px 18px;
-  border-radius: 18px;
+  padding: 10px 14px;
+  border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.03);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -128,11 +128,11 @@
 }
 
 .milestone-title-text {
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: 1.0rem;
+  font-weight: 700;
   color: #1e293b;
-  margin: 0 0 12px 0;
-  line-height: 1.25;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
 }
 
 .milestone-modern-status {
@@ -408,4 +408,26 @@
     margin-top: -10px;
     border: none;
   }
+}
+.milestone-goal-group-header {
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+
+.milestone-goal-group-header:hover {
+  background: rgba(13, 148, 136, 0.05);
+  transform: translateX(2px);
+}
+
+.milestone-goal-group-header svg {
+  opacity: 0.7;
+}
+
+.pillar-group {
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

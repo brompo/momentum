@@ -582,18 +582,26 @@ const GoalDetailView = ({ goal, onBack }) => {
                                 />
                                 <div
                                   className="inline-date-trigger-v2"
-                                  style={{ position: 'absolute', right: '10px', top: '10px', color: '#0d9488', cursor: 'pointer' }}
-                                  onClick={() => document.getElementById(`inline-date-picker-${ms.id}`).showPicker()}
+                                  style={{ position: 'absolute', right: '10px', top: '10px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
                                 >
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2.5" style={{ pointerEvents: 'none' }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                  <input
+                                    id={`inline-date-picker-${ms.id}`}
+                                    type="date"
+                                    style={{ 
+                                      position: 'absolute', 
+                                      top: 0, 
+                                      left: 0, 
+                                      width: '100%', 
+                                      height: '100%', 
+                                      opacity: 0, 
+                                      cursor: 'pointer',
+                                      fontSize: '16px' // Prevents zoom on iOS
+                                    }}
+                                    value={taskForm.scheduledDate?.split('T')[0] || ''}
+                                    onChange={(e) => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })}
+                                  />
                                 </div>
-                                <input
-                                  id={`inline-date-picker-${ms.id}`}
-                                  type="date"
-                                  style={{ visibility: 'hidden', position: 'absolute', right: 0, bottom: 0, width: 0, height: 0 }}
-                                  value={taskForm.scheduledDate?.split('T')[0] || ''}
-                                  onChange={(e) => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })}
-                                />
                               </div>
                               {taskForm.scheduledDate && taskForm.scheduledDate.split('T')[0] !== new Date().toISOString().split('T')[0] && (
                                 <div style={{ fontSize: '0.65rem', color: '#0d9488', fontWeight: 800, marginTop: '-6px', marginBottom: '8px', paddingLeft: '4px' }}>
