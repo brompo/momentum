@@ -1005,7 +1005,7 @@ textarea.modal-input {
 }
 
 .title-section-v2 h1 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   /* Bold, primary strategic anchor */
   font-weight: 600;
   color: #1e293b;
@@ -1162,8 +1162,8 @@ textarea.modal-input {
 }
 
 .section-header-v2 h2 {
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.0rem;
+  font-weight: 600;
   color: #1e293b;
   margin: 0;
 }
@@ -1402,7 +1402,6 @@ textarea.modal-input {
   background: #f1f5f9;
   padding: 4px;
   border-radius: 12px;
-  gap: 2px;
   margin: 0 12px;
   border: 1px solid rgba(0, 0, 0, 0.02);
 }
