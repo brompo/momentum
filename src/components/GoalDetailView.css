@@ -906,10 +906,12 @@ textarea.modal-input {
     background-color: rgba(13, 148, 136, 0.2);
     box-shadow: 0 0 25px rgba(13, 148, 136, 0.4);
   }
+
   15% {
     background-color: rgba(13, 148, 136, 0.1);
     box-shadow: 0 0 40px rgba(13, 148, 136, 0.5);
   }
+
   100% {
     background-color: transparent;
     box-shadow: none;
@@ -987,7 +989,7 @@ textarea.modal-input {
 }
 
 .title-section-v2 h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 900;
   color: #1e293b;
   margin: 0;
@@ -1258,25 +1260,34 @@ textarea.modal-input {
 
 .ms-card-v2 {
   background: white;
-  border-radius: 20px;
-  padding: 16px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  border-radius: 18px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s;
 }
 
 .ms-header-v2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  cursor: pointer;
+  margin-bottom: 6px;
+  gap: 10px;
 }
 
-.ms-header-v2 h3 {
+.ms-title-group-v2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.ms-title-meta h3 {
   font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
   margin: 0;
+  line-height: 1.2;
 }
 
 .ms-edit-icon-btn {

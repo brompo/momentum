@@ -129,7 +129,7 @@
 
 .milestone-title-text {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #1e293b;
   margin: 0 0 12px 0;
   line-height: 1.25;
@@ -305,6 +305,33 @@
   cursor: pointer;
 }
 
+.milestones-tab-capsule {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-top: 12px;
+  width: fit-content;
+}
+
+.milestone-subtab {
+  border: none;
+  background: none;
+  padding: 6px 20px;
+  border-radius: 9px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.milestone-subtab.active {
+  background: white;
+  color: #0d9488;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.1);
+}
+
 .fab-btn {
   position: fixed;
   bottom: calc(var(--tab-bar-height) + 24px);
@@ -326,6 +353,59 @@
   transition: transform 0.2s;
 }
 
-.fab-btn:active {
-  transform: scale(0.9);
+.show-completed-v2 {
+  background: #f1f5f9;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.show-completed-v2:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.milestone-modern-card.is-completed .milestone-title-text {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.milestone-modern-card.is-completed {
+  opacity: 0.7;
+  pointer-events: auto;
+  /* Still allow clicking the checkbox to undo */
+}
+
+.milestone-modern-card.graduating {
+  animation: graduating-fade 5s forwards;
+}
+
+@keyframes graduating-fade {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  92% {
+    transform: scale(0.98);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: -10px;
+    border: none;
+  }
 }
