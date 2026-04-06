@@ -27,7 +27,7 @@ const GoalCard = ({ goal, onClick }) => {
   // Milestone Calculations
   const milestoneCount = goal.milestones.length;
   const completedMilestonesCount = goal.milestones.filter(ms => 
-    ms.tasks.length > 0 && ms.tasks.every(t => t.completed)
+    ms.completed || (ms.tasks && ms.tasks.length > 0 && ms.tasks.every(t => t.completed))
   ).length;
 
   let progress = 0;

@@ -243,7 +243,6 @@ const ActionsView = () => {
             
             <div className="inline-add-row-modern">
                <input 
-                 autoFocus
                  type="text" 
                  placeholder="Add dated daily action..." 
                  value={newSubtaskTitle}

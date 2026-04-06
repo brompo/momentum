@@ -3,27 +3,42 @@ import { useStore } from '../lib/store';
 import './MilestonesView.css';
 
 const MilestonesView = () => {
-  const { goals, pillars, setSelectedGoalId, setSelectedMilestoneId, setActiveTab, toggleMilestoneCompleted } = useStore();
+  const { goals, pillars, setSelectedGoalId, setSelectedMilestoneId, setActiveTab, toggleMilestoneCompleted, addTask, toggleTask } = useStore();
   const [collapsedPillars, setCollapsedPillars] = useState({});
+  const [collapsedMilestones, setCollapsedMilestones] = useState({});
   const [pendingRemovalIds, setPendingRemovalIds] = useState([]);
   const [activeSubTab, setActiveSubTab] = useState('Active'); // 'Active' or 'Completed'
+  
+  const [activeMilestoneId, setActiveMilestoneId] = useState(null);
+  const [taskForm, setTaskForm] = useState({ title: '', value: '1', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
 
   const handleToggleCompletion = (goalId, milestoneId) => {
     toggleMilestoneCompleted(goalId, milestoneId);
-
-    // Grace period for accidental clicks
     if (activeSubTab === 'Active') {
       setPendingRemovalIds(prev => [...prev, milestoneId]);
       setTimeout(() => {
         setPendingRemovalIds(prev => prev.filter(id => id !== milestoneId));
-      }, 3000);
+      }, 5000); // 5s grace
     }
   };
 
+  const toggleMilestoneCollapse = (id, e) => {
+    if (e) e.stopPropagation();
+    setCollapsedMilestones(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleAddTask = (e, goalId, milestoneId) => {
+    e.preventDefault();
+    if (!taskForm.title.trim()) return;
+    addTask(goalId, milestoneId, taskForm.title, taskForm.value || '1', taskForm.scheduledDate, taskForm.priority);
+    setTaskForm({ title: '', value: '1', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+    setActiveMilestoneId(null);
+  };
+
   const handleMilestoneClick = (goalId, milestoneId) => {
-    setSelectedGoalId(goalId);
-    setSelectedMilestoneId(milestoneId);
-    setActiveTab('Goals');
+    // If it's the checkbox or +/- button, we handled it.
+    // Otherwise, we navigate. 
+    // Actually, let's just use the chevron for collapse.
   };
 
   const togglePillar = (id) => {
@@ -50,8 +65,6 @@ const MilestonesView = () => {
     );
   };
 
-  const allActiveMilestones = (goals || []).flatMap(g => (g.milestones || []).filter(ms => ms.active === true));
-  const completedCount = allActiveMilestones.filter(ms => ms.completed).length;
   const activeMilestones = getActiveMilestones();
 
   return (
@@ -91,14 +104,14 @@ const MilestonesView = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  marginBottom: '8px',
+                  marginBottom: '12px',
                   borderBottom: '1px solid rgba(0,0,0,0.03)',
-                  paddingBottom: '4px',
+                  paddingBottom: '8px',
                   cursor: 'pointer'
                 }}
               >
                 <span style={{ fontSize: '1rem', opacity: 0.8 }}>{pillar.icon}</span>
-                <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
+                <h2 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
                 <svg
                   width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3"
                   style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
@@ -108,60 +121,152 @@ const MilestonesView = () => {
               </div>
 
               {!isCollapsed && (
-                <div className="milestones-modern-grid" style={{ gap: '8px' }}>
+                <div className="milestones-modern-grid" style={{ gap: '10px' }}>
                   {pillarMilestones.map(ms => {
-                    const completedCount = (ms.tasks || []).filter(t => t.completed).length;
+                    const completedTasks = (ms.tasks || []).filter(t => t.completed);
+                    const pendingTasks = (ms.tasks || []).filter(t => !t.completed);
                     const totalCount = (ms.tasks || []).length;
+                    const isMsCollapsed = collapsedMilestones[ms.id] !== false; // Default to collapsed
 
                     return (
                       <div
                         key={ms.id}
                         className={`milestone-modern-card glass-card ${ms.completed ? 'is-completed' : ''} ${ms.completed && pendingRemovalIds.includes(ms.id) ? 'graduating' : ''}`}
-                        onClick={() => handleMilestoneClick(ms.goalId, ms.id)}
-                        style={{ padding: '12px 16px', borderRadius: '16px', position: 'relative' }}
+                        style={{ padding: '14px 16px', borderRadius: '18px', position: 'relative' }}
                       >
                         <div
                           className={`milestone-active-check ${ms.completed ? 'checked' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleCompletion(ms.goalId, ms.id);
-                          }}
+                          onClick={(e) => handleToggleCompletion(ms.goalId, ms.id)}
                           style={{
                             position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            width: '20px',
-                            height: '20px',
-                            border: '2px solid #cbd5e1',
-                            borderRadius: '6px',
+                            top: '14px',
+                            right: '14px',
+                            width: '22px',
+                            height: '22px',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '50%',
                             background: ms.completed ? '#0d9488' : 'white',
                             borderColor: ms.completed ? '#0d9488' : '#cbd5e1',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'pointer',
-                            zIndex: 10
+                            zIndex: 10,
+                            transition: 'all 0.2s'
                           }}
                         >
-                          {ms.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
+                          {ms.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
                         </div>
-                        <div className="milestone-goal-pill" style={{ fontSize: '0.6rem', marginBottom: '2px' }}>{ms.goalTitle.toUpperCase()}</div>
-                        <h3 className="milestone-title-text" style={{ fontSize: '1rem', marginBottom: '10px' }}>{ms.title}</h3>
+                        
+                        <div className="milestone-content-header" onClick={(e) => toggleMilestoneCollapse(ms.id, e)} style={{ cursor: 'pointer' }}>
+                        <div 
+                          className="milestone-goal-pill" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedGoalId(ms.goalId);
+                            setActiveTab('Goals');
+                          }}
+                          style={{ 
+                            fontSize: '0.65rem', 
+                            marginBottom: '4px', 
+                            color: '#0d9488', 
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            opacity: 0.8
+                          }}
+                        >
+                          {ms.goalTitle.toUpperCase()}
+                        </div>
+                          <h3 className="milestone-title-text" style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px', paddingRight: '30px' }}>{ms.title}</h3>
 
-                        <div className="milestone-modern-status">
-                          <span className="status-badge done" style={{ padding: '3px 8px', fontSize: '0.65rem' }}>
-                            {completedCount}/{totalCount} Done
-                          </span>
-                          <span className={`status-badge priority ${(ms.priority || 'Low').toLowerCase()}`} style={{ padding: '3px 8px', fontSize: '0.65rem' }}>
-                            {ms.priority || 'Low'}
-                          </span>
+                          <div className="milestone-modern-status" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                            <span className="status-badge done" style={{ background: '#f0fdf4', color: '#10b981', padding: '4px 10px', fontSize: '0.7rem', fontWeight: 800, borderRadius: '99px' }}>
+                              {completedTasks.length}/{totalCount} Done
+                            </span>
+                            <span className={`status-badge priority ${(ms.priority || 'Low').toLowerCase()}`} style={{ padding: '4px 10px', fontSize: '0.7rem', fontWeight: 800, borderRadius: '99px' }}>
+                              {(ms.priority || 'Low').toUpperCase()}
+                            </span>
+                            <div style={{ flex: 1 }} />
+                            <svg 
+                               width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5"
+                               style={{ transform: isMsCollapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }}
+                            >
+                               <path d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
                         </div>
 
-                        {totalCount > 0 && (
-                          <div className="progress-mini-rail" style={{ height: '3px' }}>
+                        {!isMsCollapsed && (
+                          <div className="milestone-tasks-tray animate-fade-in" style={{ borderTop: '1px solid rgba(0,0,0,0.03)', paddingTop: '12px', marginTop: '4px' }}>
+                            <div className="milestone-tasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                              {pendingTasks.map(task => (
+                                <div key={task.id} className="ms-task-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', background: 'rgba(0,0,0,0.02)', borderRadius: '10px' }}>
+                                  <div 
+                                    onClick={() => toggleTask(ms.goalId, ms.id, task.id)}
+                                    style={{ width: '16px', height: '16px', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
+                                  />
+                                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', flex: 1 }}>{task.title}</span>
+                                </div>
+                              ))}
+                              {completedTasks.map(task => (
+                                <div key={task.id} className="ms-task-item completed" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', opacity: 0.5 }}>
+                                  <div 
+                                    onClick={() => toggleTask(ms.goalId, ms.id, task.id)}
+                                    style={{ width: '16px', height: '16px', border: '1px solid #0d9488', background: '#0d9488', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  >
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+                                  </div>
+                                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b', flex: 1, textDecoration: 'line-through' }}>{task.title}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {activeMilestoneId === ms.id ? (
+                               <form onSubmit={(e) => handleAddTask(e, ms.goalId, ms.id)} style={{ marginBottom: '8px' }}>
+                                 <div style={{ position: 'relative' }}>
+                                   <input 
+                                     autoFocus
+                                     placeholder="Enter result..."
+                                     value={taskForm.title}
+                                     onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                                     style={{ width: '100%', padding: '10px 40px 10px 12px', border: '1.5px solid #0d9488', borderRadius: '12px', fontSize: '0.85rem', outline: 'none' }}
+                                   />
+                                   <div 
+                                     style={{ position: 'absolute', right: '12px', top: '10px', color: '#0d9488', cursor: 'pointer' }}
+                                     onClick={() => document.getElementById(`ms-date-${ms.id}`).showPicker()}
+                                   >
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                   </div>
+                                   <input 
+                                     id={`ms-date-${ms.id}`}
+                                     type="date" 
+                                     style={{ visibility: 'hidden', position: 'absolute', right: 0, bottom: 0, width: 0, height: 0 }}
+                                     value={taskForm.scheduledDate?.split('T')[0] || ''}
+                                     onChange={(e) => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })}
+                                   />
+                                 </div>
+                                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px', justifyContent: 'flex-end' }}>
+                                   <button type="button" onClick={() => setActiveMilestoneId(null)} style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', background: 'none', border: 'none' }}>Cancel</button>
+                                   <button type="submit" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0d9488', background: 'none', border: 'none' }}>Add Result</button>
+                                 </div>
+                               </form>
+                            ) : (
+                               <button 
+                                 className="add-task-btn-v2" 
+                                 onClick={() => setActiveMilestoneId(ms.id)}
+                                 style={{ width: '100%', padding: '10px', border: '1px dashed #cbd5e1', borderRadius: '12px', background: 'none', color: '#64748b', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                               >
+                                 + Add a result
+                               </button>
+                            )}
+                          </div>
+                        )}
+
+                        {isMsCollapsed && totalCount > 0 && (
+                          <div className="progress-mini-rail" style={{ height: '3px', marginTop: '4px' }}>
                             <div
                               className="progress-mini-fill"
-                              style={{ width: `${(completedCount / totalCount) * 100}%` }}
+                              style={{ width: `${(completedTasks.length / totalCount) * 100}%` }}
                             />
                           </div>
                         )}

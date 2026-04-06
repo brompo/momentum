@@ -47,8 +47,10 @@ const GoalsView = ({ onSelectGoal }) => {
     setIsAdding(false);
   };
 
-  const togglePillar = (id) => {
-    setCollapsedPillars(prev => ({ ...prev, [id]: !prev[id] }));
+  const handleAddForPillar = (e, pillarId) => {
+    e.stopPropagation();
+    setNewGoal({ ...newGoal, pillarId: pillarId });
+    setIsAdding(true);
   };
 
   return (
@@ -161,6 +163,12 @@ const GoalsView = ({ onSelectGoal }) => {
               >
                 <span style={{ fontSize: '1rem', opacity: 0.8 }}>{pillar.icon}</span>
                 <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
+                <button 
+                  className="add-goal-mini-btn-v2"
+                  onClick={(e) => handleAddForPillar(e, pillar.id)}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
                 <svg 
                   width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3" 
                    style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
@@ -184,8 +192,6 @@ const GoalsView = ({ onSelectGoal }) => {
           );
         })}
       </div>
-
-      <button className="fab-btn smooth-all" onClick={() => setIsAdding(true)}>+</button>
     </div>
   );
 };
