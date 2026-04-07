@@ -112,7 +112,7 @@ const MilestonesView = () => {
         </div>
       </div>
 
-      <div className="pillars-container" style={{ paddingBottom: '110px', paddingTop: '10px' }}>
+      <div className="pillars-container" style={{ paddingTop: '10px' }}>
         {pillars.map(pillar => {
           const pillarMilestones = activeMilestones.filter(ms => ms.pillarId === pillar.id);
           const isCollapsed = collapsedPillars[pillar.id];

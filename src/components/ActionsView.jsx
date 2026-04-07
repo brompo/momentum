@@ -13,6 +13,30 @@ const ActionsView = () => {
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [newSubtaskDate, setNewSubtaskDate] = useState(new Date().toISOString().split('T')[0]);
 
+  const formatDateMMM = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[date.getMonth()]} ${date.getDate()}`;
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  const getDateStatusClass = (dateString) => {
+    if (!dateString) return '';
+    const taskDate = new Date(dateString.split('T')[0]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    const taskDateStr = taskDate.toISOString().split('T')[0];
+
+    if (taskDateStr < todayStr) return 'past';
+    if (taskDateStr > todayStr) return 'future';
+    return 'today';
+  };
+
   const handleWeekChange = (offset) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(selectedDate.getDate() + offset);
@@ -220,7 +244,14 @@ const ActionsView = () => {
               {item.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
             </div>
             <div className="task-card-content">
-              <span className="task-card-title">{item.title}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                <span className="task-card-title">{item.title}</span>
+                {item.scheduledDate && (
+                  <span className={`task-date-badge ${item.completed ? 'past' : getDateStatusClass(item.scheduledDate)}`}>
+                    {formatDateMMM(item.scheduledDate)}
+                  </span>
+                )}
+              </div>
               {!hideMilestone && (
                 <span className="task-card-subtext">● {item.type === 'result' ? item.milestoneTitle : item.resultTitle}</span>
               )}
@@ -259,7 +290,11 @@ const ActionsView = () => {
                    {sub.completed && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="5"><path d="M20 6L9 17l-5-5"></path></svg>}
                  </div>
                  <span className="sub-title">{sub.title}</span>
-                 <span className="sub-date">{sub.scheduledDate ? sub.scheduledDate.split('-').slice(1).join('/') : ''}</span>
+                 {sub.scheduledDate && (
+                   <span className={`task-date-badge ${sub.completed ? 'past' : getDateStatusClass(sub.scheduledDate)}`} style={{ fontSize: '0.6rem', padding: '1px 5px' }}>
+                     {formatDateMMM(sub.scheduledDate)}
+                   </span>
+                 )}
               </div>
             ))}
             

@@ -221,6 +221,29 @@
   color: #94a3b8;
 }
 
+.task-date-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.task-date-badge.past {
+  background: #fff1f2;
+  color: #f43f5e;
+}
+
+.task-date-badge.future {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.task-date-badge.today {
+  background: #f0fdfa;
+  color: #0d9488;
+}
+
 .task-card-subtext {
   font-size: 0.7rem;
   color: #94a3b8;
@@ -294,15 +317,6 @@
   flex: 1;
   font-size: 0.85rem;
   color: #1e293b;
-}
-
-.sub-date {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
-  background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 4px;
 }
 
 .inline-add-row-modern {

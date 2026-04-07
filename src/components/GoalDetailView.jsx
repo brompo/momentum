@@ -53,6 +53,7 @@ const GoalDetailView = ({ goal, onBack }) => {
   const [expandedCompletedResults, setExpandedCompletedResults] = useState({});
   const [isMetricsCollapsed, setIsMetricsCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [sortBy, setSortBy] = useState('date'); // 'date' or 'manual'
 
   useEffect(() => {
     if (selectedMilestoneId) {
@@ -258,8 +259,17 @@ const GoalDetailView = ({ goal, onBack }) => {
     });
 
     // Progress Calculations
-    const allTasks = goal.milestones.flatMap(ms => ms.tasks);
-    const completedTasks = allTasks.filter(t => t.completed);
+    const allTasksRaw = (goal.milestones || []).flatMap(ms => ms.tasks || []);
+    const completedTasks = allTasksRaw.filter(t => t.completed);
+
+    const allTasks = [...allTasksRaw].sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = new Date(a.scheduledDate || 0);
+        const dateB = new Date(b.scheduledDate || 0);
+        return dateB - dateA; // Descending order (newest first)
+      }
+      return 0; // Manual/default order
+    });
 
     const targetVal = parseFloat((goal.targetNumber || '').toString().replace(/[^0-9.]/g, '')) || 0;
     const currentVal = completedTasks.reduce((acc, t) => acc + (t.value || 0), 0);
@@ -632,17 +642,39 @@ const GoalDetailView = ({ goal, onBack }) => {
           </div>
         ) : (
           <div className="tasks-section">
-            <h2>All Results</h2>
+            <div className="section-header-v2" style={{ alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ margin: 0 }}>All Results</h2>
+              <button 
+                className="ms-filter-btn active" 
+                onClick={() => setSortBy(sortBy === 'date' ? 'manual' : 'date')}
+                style={{ marginLeft: 'auto', background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}
+              >
+                {sortBy === 'date' ? '📅 Sorted by Date' : '🔄 Manual Order'}
+              </button>
+            </div>
+            
             <div className="tasks-list-flat">
               {allTasks.length === 0 ? (
                 <p className="empty-substate">No results created yet.</p>
               ) : (
-                allTasks.map(task => {
+                allTasks.reduce((acc, task, idx, arr) => {
+                  const currentDate = task.scheduledDate ? task.scheduledDate.split('T')[0] : 'No Date';
+                  const prevDate = idx > 0 && arr[idx - 1].scheduledDate ? arr[idx - 1].scheduledDate.split('T')[0] : (idx > 0 ? 'No Date' : null);
+                  
+                  if (sortBy === 'date' && currentDate !== prevDate) {
+                    acc.push(
+                      <div key={`date-header-${currentDate}`} style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', padding: '12px 0 4px 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {currentDate === 'No Date' ? 'No Date Set' : new Date(currentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                    );
+                  }
+
                   const milestone = goal.milestones.find(m => m.tasks.some(t => t.id === task.id));
-                  return (
+                  acc.push(
                     <div
                       key={task.id}
                       className="task-row card-style"
+                      style={{ marginBottom: '8px' }}
                       onClick={() => {
                         if (milestone) {
                           setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '', priority: task.priority || 'Low', subtasks: task.subtasks || [] });
@@ -653,7 +685,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                     >
                       <div className={`task-item ${task.completed ? 'completed' : ''}`}>
                         <span style={{ fontWeight: 600, flex: 1 }}>{task.title}</span>
-                        {task.scheduledDate && (
+                        {task.scheduledDate && sortBy !== 'date' && (
                           <span className={`task-date-badge ${getDateStatusClass(task.scheduledDate)}`}>
                             {formatDateMMM(task.scheduledDate)}
                           </span>
@@ -661,7 +693,8 @@ const GoalDetailView = ({ goal, onBack }) => {
                       </div>
                     </div>
                   );
-                })
+                  return acc;
+                }, [])
               )}
             </div>
           </div>

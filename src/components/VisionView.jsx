@@ -14,6 +14,12 @@ const VisionView = () => {
   const [editingPillar, setEditingPillar] = useState(null);
   const [pillarForm, setPillarForm] = useState({ title: '', icon: '📌' });
 
+  const [collapsedPillars, setCollapsedPillars] = useState({});
+  const [collapsedSubcats, setCollapsedSubcats] = useState({});
+
+  const togglePillar = (id) => setCollapsedPillars(p => ({ ...p, [id]: !p[id] }));
+  const toggleSubcat = (id) => setCollapsedSubcats(p => ({ ...p, [id]: !p[id] }));
+
   const handleOpenAdd = () => {
     setPillarForm({ title: '', icon: '📌' });
     setIsAdding(true);
@@ -77,78 +83,101 @@ const VisionView = () => {
           
           return (
             <div key={pillar.id} className="vision-card-v2">
-              <div className="pillar-header-v2">
+              <div className="pillar-header-v2" onClick={() => togglePillar(pillar.id)} style={{ cursor: 'pointer' }}>
                 <div className="pillar-label-group">
                   <div className="pillar-emoji-v2">{pillar.icon}</div>
                   <span className="pillar-title-v2">{pillar.title}</span>
                 </div>
-                <button className="pillar-edit-btn" onClick={() => handleOpenEdit(pillar)}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                </button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button className="pillar-edit-btn" onClick={(e) => { e.stopPropagation(); handleOpenEdit(pillar); }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  </button>
+                  <svg 
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3" 
+                    style={{ transform: collapsedPillars[pillar.id] ? 'rotate(-90deg)' : 'rotate(0deg)', transition: '0.2s' }}
+                  >
+                    <path d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
               
-              <textarea 
-                className="vision-textarea-v2"
-                value={visionStatements[pillar.id] || ''} 
-                onChange={(e) => updateVisionStatement(pillar.id, e.target.value)} 
-                placeholder={`What is your long-term success state for ${pillar.title.toLowerCase()}?`} 
-                rows="2"
-              />
+              {!collapsedPillars[pillar.id] && (
+                <>
+                  <textarea 
+                    className="vision-textarea-v2"
+                    value={visionStatements[pillar.id] || ''} 
+                    onChange={(e) => updateVisionStatement(pillar.id, e.target.value)} 
+                    placeholder={`What is your long-term success state for ${pillar.title.toLowerCase()}?`} 
+                    rows="2"
+                  />
 
-              <div className="sub-categories-rack">
-                {(pillar.subcategories || []).map(sub => {
-                  const subGoals = goals.filter(g => g.subcategoryId === sub.id);
-                  const isAddingGoal = addingGoalToSub?.subId === sub.id;
+                  <div className="sub-categories-rack">
+                    {(pillar.subcategories || []).map(sub => {
+                      const subGoals = goals.filter(g => g.subcategoryId === sub.id);
+                      const isAddingGoal = addingGoalToSub?.subId === sub.id;
+                      const isCollapsed = collapsedSubcats[sub.id];
 
-                  return (
-                    <div key={sub.id} className="sub-cat-group">
-                       <div className="sub-cat-header">
-                         <span className="sub-cat-title">{sub.icon} {sub.title}</span>
-                         <button className="add-goal-sub-btn" onClick={() => setAddingGoalToSub(isAddingGoal ? null : { pillarId: pillar.id, subId: sub.id })}>
-                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                         </button>
-                       </div>
-                       
-                       <div className="sub-goals-list">
-                         {subGoals.map(g => (
-                           <div key={g.id} className="sub-goal-tag">
-                             {g.title}
+                      return (
+                        <div key={sub.id} className="sub-cat-group">
+                           <div className="sub-cat-header" onClick={() => toggleSubcat(sub.id)} style={{ cursor: 'pointer' }}>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                               <svg 
+                                 width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3.5" 
+                                 style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: '0.2s' }}
+                               >
+                                 <path d="M19 9l-7 7-7-7" />
+                               </svg>
+                               <span className="sub-cat-title">{sub.icon} {sub.title}</span>
+                             </div>
+                             <button className="add-goal-sub-btn" onClick={(e) => { e.stopPropagation(); setAddingGoalToSub(isAddingGoal ? null : { pillarId: pillar.id, subId: sub.id }); }}>
+                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                             </button>
                            </div>
-                         ))}
-                         
-                         {isAddingGoal && (
-                           <div className="inline-add-goal">
-                             <input 
-                               autoFocus
-                               placeholder="Goal name..." 
-                               value={newGoalTitle}
-                               onChange={e => setNewGoalTitle(e.target.value)}
-                               onKeyDown={e => e.key === 'Enter' && handleAddGoalShortcut(pillar.id, sub.id)}
-                             />
-                           </div>
-                         )}
-                       </div>
-                    </div>
-                  );
-                })}
+                           
+                           {!isCollapsed && (
+                             <div className="sub-goals-list">
+                               {subGoals.map(g => (
+                                 <div key={g.id} className="sub-goal-tag">
+                                   {g.title}
+                                 </div>
+                               ))}
+                               
+                               {isAddingGoal && (
+                                 <div className="inline-add-goal">
+                                   <input 
+                                     autoFocus
+                                     placeholder="Goal name..." 
+                                     value={newGoalTitle}
+                                     onChange={e => setNewGoalTitle(e.target.value)}
+                                     onKeyDown={e => e.key === 'Enter' && handleAddGoalShortcut(pillar.id, sub.id)}
+                                   />
+                                 </div>
+                               )}
+                             </div>
+                           )}
+                        </div>
+                      );
+                    })}
 
-                {addingSubToPillar === pillar.id ? (
-                  <div className="inline-add-sub">
-                    <input 
-                      autoFocus
-                      placeholder="Sub-category name..." 
-                      value={newSubTitle}
-                      onChange={e => setNewSubTitle(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleAddSub(pillar.id)}
-                      onBlur={() => !newSubTitle && setAddingSubToPillar(null)}
-                    />
+                    {addingSubToPillar === pillar.id ? (
+                      <div className="inline-add-sub">
+                        <input 
+                          autoFocus
+                          placeholder="Sub-category name..." 
+                          value={newSubTitle}
+                          onChange={e => setNewSubTitle(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && handleAddSub(pillar.id)}
+                          onBlur={() => !newSubTitle && setAddingSubToPillar(null)}
+                        />
+                      </div>
+                    ) : (
+                      <button className="add-sub-trigger" onClick={() => setAddingSubToPillar(pillar.id)}>
+                        + Add sub-category
+                      </button>
+                    )}
                   </div>
-                ) : (
-                  <button className="add-sub-trigger" onClick={() => setAddingSubToPillar(pillar.id)}>
-                    + Add sub-category
-                  </button>
-                )}
-              </div>
+                </>
+              )}
             </div>
           );
         })}
