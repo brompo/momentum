@@ -12,6 +12,30 @@ const MilestonesView = () => {
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [taskForm, setTaskForm] = useState({ title: '', value: '1', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
 
+  const formatDateMMM = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[date.getMonth()]} ${date.getDate()}`;
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  const getDateStatusClass = (dateString) => {
+    if (!dateString) return '';
+    const taskDate = new Date(dateString.split('T')[0]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    const taskDateStr = taskDate.toISOString().split('T')[0];
+
+    if (taskDateStr < todayStr) return 'past';
+    if (taskDateStr > todayStr) return 'future';
+    return 'today';
+  };
+
   const handleToggleCompletion = (goalId, milestoneId) => {
     toggleMilestoneCompleted(goalId, milestoneId);
     if (activeSubTab === 'Active') {
@@ -215,6 +239,11 @@ const MilestonesView = () => {
                                           style={{ width: '14px', height: '14px', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
                                         />
                                         <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155', flex: 1 }}>{task.title}</span>
+                                        {task.scheduledDate && (
+                                          <span className={`task-date-badge ${getDateStatusClass(task.scheduledDate)}`} style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px' }}>
+                                            {formatDateMMM(task.scheduledDate)}
+                                          </span>
+                                        )}
                                       </div>
                                     ))}
                                     {completedTasks.map(task => (
@@ -226,6 +255,11 @@ const MilestonesView = () => {
                                           <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
                                         </div>
                                         <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155', flex: 1, textDecoration: 'line-through' }}>{task.title}</span>
+                                        {task.scheduledDate && (
+                                          <span className="task-date-badge past" style={{ fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px', opacity: 0.5 }}>
+                                            {formatDateMMM(task.scheduledDate)}
+                                          </span>
+                                        )}
                                       </div>
                                     ))}
                                   </div>

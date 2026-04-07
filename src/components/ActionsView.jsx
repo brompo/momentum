@@ -139,8 +139,28 @@ const ActionsView = () => {
   };
 
   const weeklyResults = getWeeklyResults();
-  const mustDoWeekly = weeklyResults.filter(t => t.priority === 'High');
-  const shouldDoWeekly = weeklyResults.filter(t => t.priority !== 'High');
+  
+  // Helper to group tasks by milestone
+  const groupByMilestone = (tasks) => {
+    const groups = tasks.reduce((acc, task) => {
+      const key = task.milestoneId;
+      if (!acc[key]) {
+        acc[key] = {
+          milestoneId: task.milestoneId,
+          milestoneTitle: task.milestoneTitle,
+          goalTitle: task.goalTitle,
+          tasks: []
+        };
+      }
+      acc[key].tasks.push(task);
+      return acc;
+    }, {});
+    return Object.values(groups).sort((a, b) => a.milestoneTitle.localeCompare(b.milestoneTitle));
+  };
+
+  const mustDoWeeklyGroups = groupByMilestone(weeklyResults.filter(t => t.priority === 'High'));
+  const shouldDoWeeklyGroups = groupByMilestone(weeklyResults.filter(t => t.priority !== 'High'));
+
   const completedWeeklyCount = weeklyResults.filter(t => t.completed).length;
   const totalWeeklyCount = weeklyResults.length;
 
@@ -164,7 +184,7 @@ const ActionsView = () => {
     }
   };
 
-  const renderTaskCard = (item) => {
+  const renderTaskCard = (item, hideMilestone = false) => {
     const isExpanded = expandedResultId === item.id;
     
     return (
@@ -201,7 +221,9 @@ const ActionsView = () => {
             </div>
             <div className="task-card-content">
               <span className="task-card-title">{item.title}</span>
-              <span className="task-card-subtext">● {item.type === 'result' ? item.milestoneTitle : item.resultTitle}</span>
+              {!hideMilestone && (
+                <span className="task-card-subtext">● {item.type === 'result' ? item.milestoneTitle : item.resultTitle}</span>
+              )}
             </div>
           </div>
           <div className="task-card-right-group">
@@ -299,11 +321,36 @@ const ActionsView = () => {
           <div className="weekly-tasks-list">
             <div className="task-category-group">
               <h4 className="category-title">MUST DO</h4>
-              {mustDoWeekly.length === 0 ? <p className="empty-category">No high priority tasks.</p> : mustDoWeekly.map(task => renderTaskCard(task))}
+              {mustDoWeeklyGroups.length === 0 ? (
+                <p className="empty-category">No high priority tasks.</p>
+              ) : (
+                mustDoWeeklyGroups.map(group => (
+                  <div key={`must-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
+                    <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#0d9488', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
+                      <span>{group.milestoneTitle.toUpperCase()}</span>
+                      <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
+                    </div>
+                    {group.tasks.map(task => renderTaskCard(task, true))}
+                  </div>
+                ))
+              )}
             </div>
+
             <div className="task-category-group" style={{ marginTop: '24px' }}>
               <h4 className="category-title">SHOULD DO</h4>
-              {shouldDoWeekly.length === 0 ? <p className="empty-category">No secondary tasks scheduled.</p> : shouldDoWeekly.map(task => renderTaskCard(task))}
+              {shouldDoWeeklyGroups.length === 0 ? (
+                <p className="empty-category">No secondary tasks scheduled.</p>
+              ) : (
+                shouldDoWeeklyGroups.map(group => (
+                  <div key={`should-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
+                    <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
+                      <span>{group.milestoneTitle.toUpperCase()}</span>
+                      <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
+                    </div>
+                    {group.tasks.map(task => renderTaskCard(task, true))}
+                  </div>
+                ))
+              )}
             </div>
             {totalWeeklyCount > 0 && (
               <div className="actions-summary-card glass-card">
