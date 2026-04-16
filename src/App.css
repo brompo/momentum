@@ -2,7 +2,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.header-row h1 {
+  font-size: 1.5rem;
+  margin: 0;
 }
 
 .add-btn {
@@ -74,4 +79,316 @@
 
 .toggle.active::after {
   transform: translateX(20px);
+}
+
+/* Settings Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+/* Feature Map Styles - Compact High-Density */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.version-card {
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.version-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.version-number {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.version-date {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.version-desc {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: var(--text-main);
+}
+
+.change-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.change-item {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.change-item::before {
+  content: '•';
+  color: var(--primary);
+}
+
+.status-badge {
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.status-in-progress {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-planned {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.version-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.version-card:hover .version-actions {
+  opacity: 1;
+}
+
+.action-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.action-icon:hover {
+  background: var(--bg-card-hover);
+  transform: translateY(-1px);
+}
+
+.action-icon.delete:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Inline Editing Styles */
+.editable-input {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+  width: 100%;
+  padding: 0;
+  font-size: 14px;
+  outline: none;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.editable-input:focus {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+}
+
+.version-number.editable-input {
+  width: 60px;
+}
+
+.version-desc.editable-input {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.change-item .editable-input {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Status Badge Interactive */
+.status-badge.interactive {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s;
+}
+
+.status-badge.interactive:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* High-Visibility Save Button */
+.save-btn-active {
+  background: #f59e0b !important;
+  /* Vibrant Amber/Orange */
+  color: #060608 !important;
+  /* Dark background color for high contrast */
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4) !important;
+  animation: pulse-glow 2s infinite;
+  transform: scale(1.1);
+  border: none !important;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+  }
+
+  100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: 600;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-card-hover);
+}
+
+.app-version-footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-dim);
 }

@@ -6,9 +6,11 @@
   --bg-card: #ffffff;
   --bg-card-hover: #f1f5f9;
 
-  --primary: #0d9488; /* Deep Teal */
+  --primary: #0d9488;
+  /* Deep Teal */
   --primary-glow: rgba(13, 148, 136, 0.08);
-  --secondary: #14b8a6; /* Teal 500 */
+  --secondary: #14b8a6;
+  /* Teal 500 */
   --accent: #f43f5e;
 
   --text-main: #0f172a;
@@ -64,7 +66,7 @@
 input,
 select,
 textarea {
-  font-size: 16px !important;
+  font-size: 16px;
 }
 
 body {

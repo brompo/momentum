@@ -1,0 +1,37 @@
+{
+  "achieved": [
+    {
+      "version": "0.1.0",
+      "date": "2026-04-15",
+      "description": "Initial Foundation",
+      "changes": [
+        "Core React 19 + Vite setup for light/dark modes",
+        "Implementation of Goals, Vision, and Notes views",
+        "Custom StoreProvider with LocalStorage persistence",
+        "Glassmorphism UI design system established"
+      ]
+    }
+  ],
+  "pipeline": [
+    {
+      "version": "0.2.0",
+      "date": "2026-04-16",
+      "description": "",
+      "changes": [],
+      "title": "Data Sharing between Devices",
+      "status": "In Progress",
+      "features": [
+        "I want to have data cross compatibility between different devices"
+      ]
+    },
+    {
+      "title": "Cloud Sync & Backup",
+      "status": "Planned",
+      "features": [
+        "Google Drive integration for automatic backups",
+        "Encrypted data export and recovery tools",
+        "Multi-device state synchronization"
+      ]
+    }
+  ]
+}

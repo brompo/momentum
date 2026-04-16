@@ -1,11 +1,12 @@
 {
   "name": "momentum",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run sync-version && vite",
+    "build": "npm run sync-version && vite build",
+    "sync-version": "node scripts/sync-version.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

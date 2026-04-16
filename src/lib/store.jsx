@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import initialFeatureMap from '../data/featuremap.json';
 
 const StoreContext = createContext();
 
@@ -40,10 +41,23 @@ export const StoreProvider = ({ children }) => {
     ];
   });
 
+  const [featureMap, setFeatureMap] = useState(() => {
+    const saved = localStorage.getItem('ga_feature_map');
+    if (saved) return JSON.parse(saved);
+    
+    // Inject IDs into static json for dynamic store usage
+    const withIds = {
+      achieved: (initialFeatureMap.achieved || []).map(item => ({ ...item, id: item.id || crypto.randomUUID() })),
+      pipeline: (initialFeatureMap.pipeline || []).map(item => ({ ...item, id: item.id || crypto.randomUUID() }))
+    };
+    return withIds;
+  });
+
   useEffect(() => { localStorage.setItem('ga_goals', JSON.stringify(goals)); }, [goals]);
   useEffect(() => { localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements)); }, [visionStatements]);
   useEffect(() => { localStorage.setItem('ga_pillars', JSON.stringify(pillars)); }, [pillars]);
   useEffect(() => { localStorage.setItem('ga_notes', JSON.stringify(notes)); }, [notes]);
+  useEffect(() => { localStorage.setItem('ga_feature_map', JSON.stringify(featureMap)); }, [featureMap]);
   useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
   useEffect(() => { 
     localStorage.setItem('ga_theme', theme);
@@ -309,6 +323,45 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const addFeatureMapItem = (section, item) => {
+    setFeatureMap(prev => ({
+      ...prev,
+      [section]: [{ ...item, id: crypto.randomUUID() }, ...prev[section]]
+    }));
+  };
+
+  const updateFeatureMapItem = (section, itemId, updates) => {
+    setFeatureMap(prev => ({
+      ...prev,
+      [section]: prev[section].map(item => item.id === itemId ? { ...item, ...updates } : item)
+    }));
+  };
+
+  const deleteFeatureMapItem = (section, itemId) => {
+    setFeatureMap(prev => ({
+      ...prev,
+      [section]: prev[section].filter(item => item.id !== itemId)
+    }));
+  };
+
+  const releaseFeature = (pipelineId, version, date, description, changes) => {
+    const item = featureMap.pipeline.find(i => i.id === pipelineId);
+    if (!item) return;
+
+    const achievedItem = {
+      id: crypto.randomUUID(),
+      version,
+      date,
+      description: description || item.title,
+      changes: changes || item.features
+    };
+
+    setFeatureMap(prev => ({
+      achieved: [achievedItem, ...prev.achieved],
+      pipeline: prev.pipeline.filter(i => i.id !== pipelineId)
+    }));
+  };
+
   const value = {
     goals,
     notes,
@@ -343,7 +396,12 @@ export const StoreProvider = ({ children }) => {
     updateGoal,
     updateMilestone,
     deleteMilestone,
-    deleteTask
+    deleteTask,
+    featureMap,
+    addFeatureMapItem,
+    updateFeatureMapItem,
+    deleteFeatureMapItem,
+    releaseFeature
   };
 
   return (

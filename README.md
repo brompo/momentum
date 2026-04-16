@@ -1,17 +1,43 @@
-# React + Vite
+# ✨ Momentum Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Momentum** is a premium Personal Daily Assistant and Goal Tracker designed to help you maintain focus, track progress, and achieve your long-term visions with a sleek, modern interface.
 
-Currently, two official plugins are available:
+![Momentum Logo](logo.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 Key Features
 
-## React Compiler
+-   **🎯 Goal Management**: Define and track high-level goals across life pillars (Personal, Wealth, Growth).
+-   **📈 Milestone Tracking**: Break down ambitious goals into manageable, prioritizable milestones.
+-   **✅ Actionable Tasks**: Manage daily and weekly commitments with integrated task lists.
+-   **👁️ Vision Board**: maintain crystal-clear long-term vision statements for every area of your life.
+-   **📝 Smart Notes**: A dedicated space for quick capture and organized thoughts.
+-   **🎨 Premium Aesthetics**: A stunning "Glassmorphism" UI with support for both Dark and Light modes.
+-   **📱 PWA Ready**: Fully installable on mobile and desktop with offline support for on-the-go productivity.
+-   **🔒 Privacy First**: All data is stored locally on your device via `localStorage`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+-   **Framework**: [React 19](https://react.dev/)
+-   **Build Tool**: [Vite 6](https://vitejs.dev/)
+-   **Styling**: Vanilla CSS (Modern CSS variables & glassmorphism)
+-   **Persistence**: LocalStorage with Custom Hook-based Store
+-   **Deployment**: Optimized for PWA with `vite-plugin-pwa`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# momentum
+## 🚀 Getting Started
+
+### Prerequisites
+
+-   [Node.js](https://nodejs.org/) (Latest LTS recommended)
+-   npm or yarn
+
+## 📱 Mobile Installation
+
+Momentum is a Progressive Web App (PWA). To install it:
+
+-   **iOS**: Open in Safari, tap the 'Share' icon, and select 'Add to Home Screen'.
+-   **Android**: Open in Chrome and tap the 'Install' prompt or 'Add to Home Screen' in the menu.
+
+---
+
+Built with ❤️ for focused high-achievers.
+
