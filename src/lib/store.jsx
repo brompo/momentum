@@ -429,6 +429,48 @@ export const StoreProvider = ({ children }) => {
     return false;
   };
 
+  const exportToJSON = () => {
+    const data = {
+      goals,
+      visionStatements,
+      pillars,
+      notes,
+      featureMap,
+      theme,
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `momentum_backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFromJSON = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const cloudData = JSON.parse(e.target.result);
+          if (cloudData.goals) setGoals(cloudData.goals);
+          if (cloudData.visionStatements) setVisionStatements(cloudData.visionStatements);
+          if (cloudData.pillars) setPillars(cloudData.pillars);
+          if (cloudData.notes) setNotes(cloudData.notes);
+          if (cloudData.featureMap) setFeatureMap(cloudData.featureMap);
+          if (cloudData.theme) setTheme(cloudData.theme);
+          setLastLocalUpdate(new Date().toISOString());
+          resolve(true);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
   const value = {
     goals,
     notes,
@@ -472,7 +514,9 @@ export const StoreProvider = ({ children }) => {
     // Sync
     sync,
     syncLocalToCloud,
-    syncCloudToLocal
+    syncCloudToLocal,
+    exportToJSON,
+    importFromJSON
   };
 
   return (

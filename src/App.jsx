@@ -16,7 +16,8 @@ const SettingsView = () => {
   const {
     theme, toggleTheme, featureMap, addFeatureMapItem,
     updateFeatureMapItem, deleteFeatureMapItem,
-    sync, syncLocalToCloud, syncCloudToLocal
+    sync, syncLocalToCloud, syncCloudToLocal,
+    exportToJSON, importFromJSON
   } = useStore();
   const [activeTab, setActiveTab] = useState('general'); // 'general' or 'featuremap'
   const [featureSubTab, setFeatureSubTab] = useState('achieved'); // 'achieved' or 'pipeline'
@@ -166,6 +167,45 @@ const SettingsView = () => {
                 Last synced: {new Date(sync.lastSync).toLocaleString()}
               </div>
             )}
+          </div>
+
+          <div className="glass-card" style={{ padding: '16px', marginTop: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontWeight: 600 }}>Local Backup (Offline)</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className="btn"
+                style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
+                onClick={exportToJSON}
+              >
+                Download File 💾
+              </button>
+              <button 
+                className="btn"
+                style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
+                onClick={() => document.getElementById('local-restore-input').click()}
+              >
+                Restore File 📂
+              </button>
+              <input 
+                id="local-restore-input"
+                type="file" 
+                accept=".json" 
+                style={{ display: 'none' }} 
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (file && confirm('Replace all local data with this file?')) {
+                    try {
+                      await importFromJSON(file);
+                      alert('Restored successfully!');
+                    } catch (err) {
+                      alert('Error restoring file: ' + err.message);
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div className="app-version-footer">

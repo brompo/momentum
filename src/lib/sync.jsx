@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 
 const DRIVE_FOLDER_NAME = 'Momentum Backups';
@@ -10,6 +10,8 @@ export const useGoogleSync = (onSuccess) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState(null);
 
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+
   const login = useGoogleLogin({
     onSuccess: (response) => {
       setToken(response.access_token);
@@ -17,8 +19,24 @@ export const useGoogleSync = (onSuccess) => {
       if (onSuccess) onSuccess(response.access_token);
     },
     scope: 'https://www.googleapis.com/auth/drive.file',
+    ux_mode: 'redirect',
+    redirect_uri: REDIRECT_URI,
     flow: 'implicit'
   });
+
+  // Handle Redirect Callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const accessToken = params.get('access_token');
+    
+    if (accessToken) {
+      setToken(accessToken);
+      fetchUserInfo(accessToken);
+      
+      // Clean up the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const fetchUserInfo = async (accessToken) => {
     try {
