@@ -319,13 +319,18 @@ const MilestonesView = () => {
                               )}
 
                               {isMsCollapsed && totalCount > 0 && (
-                                <div className="progress-mini-rail" style={{ height: '3px', marginTop: '6px' }}>
+                                <div className="progress-mini-rail" style={{ height: '2px', marginTop: '4px', background: '#f8fafc', opacity: 0.8 }}>
                                   <div
                                     className="progress-mini-fill"
-                                    style={{ width: `${(completedTasks.length / totalCount) * 100}%` }}
+                                    style={{ 
+                                      width: `${(completedTasks.length / totalCount) * 100}%`,
+                                      background: '#10b981',
+                                      opacity: 0.4
+                                    }}
                                   />
                                 </div>
                               )}
+
                             </div>
                           );
                         })}

@@ -99,7 +99,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
 }
 
 .milestone-modern-card {
@@ -128,7 +128,7 @@
 }
 
 .milestone-title-text {
-  font-size: 1.0rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 8px 0;
@@ -409,6 +409,7 @@
     border: none;
   }
 }
+
 .milestone-goal-group-header {
   transition: all 0.2s;
   border-radius: 8px;
@@ -428,6 +429,13 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
