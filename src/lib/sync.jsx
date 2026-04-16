@@ -5,7 +5,7 @@ const DRIVE_FOLDER_NAME = 'Momentum Backups';
 const DRIVE_FILE_NAME = 'momentum_backup.json';
 
 export const useGoogleSync = (onSuccess) => {
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem('ga_google_token'));
   const [user, setUser] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState(null);
@@ -24,17 +24,29 @@ export const useGoogleSync = (onSuccess) => {
     flow: 'implicit'
   });
 
-  // Handle Redirect Callback
+  // Handle Redirect Callback & Boot
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.replace('#', '?'));
-    const accessToken = params.get('access_token');
+    // 1. Check URL Hash (Standard OAuth Impicit)
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const hashToken = hashParams.get('access_token');
     
-    if (accessToken) {
-      setToken(accessToken);
-      fetchUserInfo(accessToken);
+    // 2. Check URL Query (Fallback if transformed)
+    const queryParams = new URLSearchParams(window.location.search);
+    const queryToken = queryParams.get('access_token');
+
+    const foundToken = hashToken || queryToken;
+    
+    if (foundToken) {
+      console.log('Google Auth: Found token in URL');
+      setToken(foundToken);
+      localStorage.setItem('ga_google_token', foundToken);
+      fetchUserInfo(foundToken);
       
-      // Clean up the URL
+      // Clean up the URL to prevent re-processing and keep it clean
       window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (token && !user) {
+      // 3. Boot: If we have a token but no user, fetch info
+      fetchUserInfo(token);
     }
   }, []);
 
@@ -43,10 +55,15 @@ export const useGoogleSync = (onSuccess) => {
       const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
+      if (!res.ok) throw new Error('Auth failed');
       const data = await res.json();
       setUser(data);
     } catch (err) {
       console.error('Failed to fetch user info:', err);
+      // If auth fails (likely expired), clear it so user can re-log
+      setToken(null);
+      localStorage.removeItem('ga_google_token');
+      setUser(null);
     }
   };
 
