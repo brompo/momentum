@@ -135,7 +135,7 @@ const MilestonesView = () => {
                 }}
               >
                 <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>{pillar.icon}</span>
-                <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
+                <h2 style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em', flex: 1 }}>{pillar.title}</h2>
                 <svg
                   width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3"
                   style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
@@ -168,8 +168,7 @@ const MilestonesView = () => {
                           padding: '0 4px'
                         }}
                       >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                        <h3 style={{ fontSize: '0.75rem', fontWeight: 800, margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>{goalGroup.title}</h3>
+                        <h3 style={{ fontSize: '0.7rem', fontWeight: 600, margin: 0, letterSpacing: '0.01em', color: '#64748b' }}>{goalGroup.title}</h3>
                       </div>
 
                       <div className="milestones-modern-grid" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -209,19 +208,27 @@ const MilestonesView = () => {
                                 {ms.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
                               </div>
 
-                              <div className="milestone-content-header" onClick={(e) => toggleMilestoneCollapse(ms.id, e)} style={{ cursor: 'pointer' }}>
-                                <h3 className="milestone-title-text" style={{ fontSize: '0.95rem', fontWeight: 500, marginBottom: '8px', paddingRight: '24px', color: ms.completed ? '#94a3b8' : '#1e293b' }}>{ms.title}</h3>
+                              <div className="milestone-content-header" onClick={(e) => toggleMilestoneCollapse(ms.id, e)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <h3 className="milestone-title-text" style={{ fontWeight: 500, margin: 0, paddingRight: '8px', color: ms.completed ? '#94a3b8' : '#1e293b' }}>{ms.title}</h3>
+                                </div>
 
-                                <div className="milestone-modern-status" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <span className="status-badge done" style={{ background: '#f0fdf4', color: '#10b981', padding: '3px 8px', fontSize: '0.65rem', fontWeight: 800, borderRadius: '99px' }}>
-                                    {completedTasks.length}/{totalCount} Done
+                                <div className="milestone-inline-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginTop: '2px' }}>
+                                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>
+                                    {completedTasks.length}/{totalCount}
                                   </span>
-                                  <span className={`status-badge priority ${(ms.priority || 'Low').toLowerCase()}`} style={{ padding: '3px 8px', fontSize: '0.65rem', fontWeight: 800, borderRadius: '99px' }}>
-                                    {(ms.priority || 'Low').toUpperCase()}
-                                  </span>
-                                  <div style={{ flex: 1 }} />
+                                  <div
+                                    className={`priority-dot ${(ms.priority || 'Low').toLowerCase()}`}
+                                    style={{
+                                      width: '6px',
+                                      height: '6px',
+                                      borderRadius: '50%',
+                                      background: ms.priority === 'High' ? '#ef4444' : ms.priority === 'Medium' ? '#f59e0b' : '#3b82f6'
+                                    }}
+                                    title={`${ms.priority} Priority`}
+                                  />
                                   <svg
-                                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5"
+                                    width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5"
                                     style={{ transform: isMsCollapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }}
                                   >
                                     <path d="M19 9l-7 7-7-7" />
