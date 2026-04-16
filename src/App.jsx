@@ -5,6 +5,7 @@ import GoalDetailView from './components/GoalDetailView';
 import ActionsView from './components/ActionsView';
 import NotesView from './components/NotesView';
 import MilestonesView from './components/MilestonesView';
+import MilestoneDetailView from './components/MilestoneDetailView';
 import VisionView from './components/VisionView';
 import ReloadPrompt from './components/ReloadPrompt';
 import { useStore } from './lib/store';
@@ -363,7 +364,11 @@ const SettingsView = () => {
 };
 
 function App() {
-  const { activeTab, selectedGoalId, setSelectedGoalId, goals, previousTab, setPreviousTab, setActiveTab } = useStore();
+  const { 
+    activeTab, selectedGoalId, setSelectedGoalId, 
+    selectedMilestoneId, setSelectedMilestoneId,
+    goals, previousTab, setPreviousTab, setActiveTab 
+  } = useStore();
 
   const selectedGoal = goals.find(g => g.id === selectedGoalId);
 
@@ -372,6 +377,15 @@ function App() {
       case 'Actions': return <ActionsView />;
       case 'Vision': return <VisionView />;
       case 'Goals':
+        if (selectedGoalId && selectedMilestoneId) {
+          return (
+            <MilestoneDetailView 
+              goalId={selectedGoalId} 
+              milestoneId={selectedMilestoneId} 
+              onBack={() => setSelectedMilestoneId(null)} 
+            />
+          );
+        }
         return selectedGoal ? (
           <GoalDetailView
             goal={selectedGoal}

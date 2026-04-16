@@ -493,10 +493,41 @@
 }
 
 .task-row.card-style {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   background: white;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #80808029;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.task-row.card-style:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.result-delete-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.result-delete-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
 }
 
 /* Modal and Edit Form Styles */
@@ -526,7 +557,6 @@
 }
 
 .modal-content h2 {
-  margin-bottom: 24px;
   font-size: 1.5rem;
   color: #0f172a;
 }
@@ -1104,12 +1134,39 @@ textarea.modal-input {
   margin-bottom: 12px;
 }
 
+.numeric-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
 .progress-label-v2 {
   font-size: 0.6rem;
   font-weight: 800;
   color: #94a3b8;
   letter-spacing: 0.08em;
-  margin-bottom: 2px;
+}
+
+.quick-log-btn-v2 {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1.5px solid var(--primary);
+  background: var(--primary-glow);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.quick-log-btn-v2:hover {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.05);
 }
 
 .progress-values-v2 {
@@ -1424,4 +1481,106 @@ textarea.modal-input {
 .ms-filter-btn:hover:not(.active) {
   color: #1e293b;
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* Detail Quick Log Form */
+.detail-quick-log-form {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-log-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-log-grid input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  background: white;
+  color: #1e293b;
+  transition: all 0.2s;
+}
+
+.quick-log-grid input:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+}
+
+.quick-log-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.quick-log-date-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-log-date-wrapper input[type="date"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.quick-log-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.quick-log-footer button {
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.quick-log-footer button:first-child {
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+}
+
+.quick-log-footer .save-btn {
+  background: #0d9488;
+  color: white;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2);
+}
+
+.quick-log-footer .save-btn:hover {
+  background: #0b7a6f;
+  transform: translateY(-1px);
 }

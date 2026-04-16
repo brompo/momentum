@@ -208,7 +208,11 @@ const MilestonesView = () => {
                                 {ms.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
                               </div>
 
-                              <div className="milestone-content-header" onClick={(e) => toggleMilestoneCollapse(ms.id, e)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                              <div className="milestone-content-header" onClick={() => {
+                                setSelectedGoalId(ms.goalId);
+                                setSelectedMilestoneId(ms.id);
+                                setActiveTab('Goals');
+                              }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                 <div style={{ flex: 1 }}>
                                   <h3 className="milestone-title-text" style={{ fontWeight: 500, margin: 0, paddingRight: '8px', color: ms.completed ? '#94a3b8' : '#1e293b' }}>{ms.title}</h3>
                                 </div>

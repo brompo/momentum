@@ -62,79 +62,98 @@ const GoalsView = ({ onSelectGoal }) => {
       {isAdding && (
         <div className="modal-overlay glass" onClick={() => setIsAdding(false)}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>New Goal</h2>
-              <button className="close-btn" onClick={() => setIsAdding(false)}>&times;</button>
+            <div className="modal-header-modern">
+              <div className="header-title-group">
+                <div className="header-icon">🚀</div>
+                <h2>New Achievement</h2>
+              </div>
+              <button className="modal-close-icon" onClick={() => setIsAdding(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
             </div>
+            
             {error && <div className="form-error">{error}</div>}
-            <form onSubmit={handleAddGoal} className="expanded-form">
-              <div className="form-group">
-                <label>Pillar Category</label>
-                <select 
-                  value={newGoal.pillarId} 
-                  onChange={e => setNewGoal({ ...newGoal, pillarId: e.target.value })}
-                  className="modal-input"
-                >
-                  {pillars.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Goal Name</label>
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="What do you want to achieve?"
-                  value={newGoal.title}
-                  onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
-                  className="modal-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Note</label>
-                <textarea
-                  placeholder="Add some details..."
-                  value={newGoal.note}
-                  onChange={e => setNewGoal({ ...newGoal, note: e.target.value })}
-                  className="modal-input"
-                  rows="3"
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date</label>
-                  <input
-                    type="date"
-                    value={newGoal.startDate}
-                    onChange={e => setNewGoal({ ...newGoal, startDate: e.target.value })}
-                    className="modal-input"
-                  />
+            
+            <form onSubmit={handleAddGoal} className="modal-form-v2">
+              <div className="form-section">
+                <div className="form-group-v2">
+                  <label>Pillar Category</label>
+                  <select 
+                    value={newGoal.pillarId} 
+                    onChange={e => setNewGoal({ ...newGoal, pillarId: e.target.value })}
+                    className="modal-select-v2"
+                  >
+                    {pillars.map(p => (
+                      <option key={p.id} value={p.id}>{p.icon} {p.title}</option>
+                    ))}
+                  </select>
                 </div>
-                <div className="form-group">
-                  <label>End Date</label>
+
+                <div className="form-group-v2">
+                  <label>Goal Name</label>
                   <input
-                    type="date"
-                    value={newGoal.endDate}
-                    onChange={e => setNewGoal({ ...newGoal, endDate: e.target.value })}
-                    className="modal-input"
+                    autoFocus
+                    type="text"
+                    placeholder="e.g. Launch Studio 19 Assistant"
+                    value={newGoal.title}
+                    onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
+                    className="modal-input-v2"
+                    required
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <label>Target Number (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. $10,000 or 50 lbs"
-                  value={newGoal.targetNumber}
-                  onChange={e => setNewGoal({ ...newGoal, targetNumber: e.target.value })}
-                  className="modal-input"
-                />
+
+              <div className="form-section">
+                <div className="form-group-v2">
+                  <label>Detailed Note (Optional)</label>
+                  <textarea
+                    placeholder="Capture the purpose and motivation behind this goal..."
+                    value={newGoal.note}
+                    onChange={e => setNewGoal({ ...newGoal, note: e.target.value })}
+                    className="modal-textarea-v2"
+                    rows="3"
+                  />
+                </div>
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setIsAdding(false)}>Cancel</button>
-                <button type="submit" className="btn-primary">Create Goal</button>
+
+              <div className="form-section-timeline">
+                <label className="section-label">Timeline & Target</label>
+                <div className="timeline-grid">
+                  <div className="form-group-v2">
+                    <label>Start Date</label>
+                    <input
+                      type="date"
+                      value={newGoal.startDate}
+                      onChange={e => setNewGoal({ ...newGoal, startDate: e.target.value })}
+                      className="modal-input-v2"
+                    />
+                  </div>
+                  <div className="form-group-v2">
+                    <label>Target Date</label>
+                    <input
+                      type="date"
+                      value={newGoal.endDate}
+                      onChange={e => setNewGoal({ ...newGoal, endDate: e.target.value })}
+                      className="modal-input-v2"
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-group-v2" style={{ marginTop: '12px' }}>
+                  <label>Metric Goal (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 500M TZS or 100 Leads"
+                    value={newGoal.targetNumber}
+                    onChange={e => setNewGoal({ ...newGoal, targetNumber: e.target.value })}
+                    className="modal-input-v2"
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer-v2">
+                <button type="button" className="btn-cancel-v2" onClick={() => setIsAdding(false)}>Cancel</button>
+                <button type="submit" className="btn-create-v2">Create Achievement</button>
               </div>
             </form>
           </div>

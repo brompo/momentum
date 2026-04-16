@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './GoalDetailView.css';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, toggleMilestoneCompleted, pillars } = useStore();
+  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, toggleMilestoneCompleted, logGoalProgress, pillars } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -12,7 +12,8 @@ const GoalDetailView = ({ goal, onBack }) => {
     startDate: goal.startDate || '',
     endDate: goal.endDate || '',
     targetNumber: goal.targetNumber || '',
-    pillarId: goal.pillarId || 'personal'
+    pillarId: goal.pillarId || 'personal',
+    defaultMilestoneId: goal.defaultMilestoneId || ''
   });
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   const [newMilestonePriority, setNewMilestonePriority] = useState('Low');
@@ -54,24 +55,14 @@ const GoalDetailView = ({ goal, onBack }) => {
   const [isMetricsCollapsed, setIsMetricsCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [sortBy, setSortBy] = useState('date'); // 'date' or 'manual'
+  const [isQuickLog, setIsQuickLog] = useState(false);
+  const [quickLogForm, setQuickLogForm] = useState({ 
+    amount: '', 
+    note: '',
+    date: new Date().toISOString().split('T')[0]
+  });
 
-  useEffect(() => {
-    if (selectedMilestoneId) {
-      setTimeout(() => {
-        const element = document.getElementById(`milestone-${selectedMilestoneId}`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.classList.add('highlight-flash');
-
-          // Re-add Cleanup timeout matching 4.5s CSS animation
-          setTimeout(() => {
-            element.classList.remove('highlight-flash');
-            setSelectedMilestoneId(null);
-          }, 4500);
-        }
-      }, 300);
-    }
-  }, [selectedMilestoneId, setSelectedMilestoneId]);
+  // Milestone highlight flash logic removed to support dedicated Milestone Detail pages
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -318,15 +309,65 @@ const GoalDetailView = ({ goal, onBack }) => {
 
       {goal.targetNumber && (
         <div className="numeric-progress-v2">
-          <div className="progress-label-v2">OVERALL PROGRESS</div>
+          <div className="numeric-header-row">
+            <div className="progress-label-v2">OVERALL PROGRESS</div>
+            <button className="quick-log-btn-v2" onClick={() => setIsQuickLog(!isQuickLog)} title="Quick log progress">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          
           <div className="progress-values-v2">
-            <span className="current-val-v2">{(currentVal / 1000000).toLocaleString()}M</span>
-            <span className="target-val-v2">/ {(targetVal / 1000000).toLocaleString()}M TZS</span>
+            <span className="current-val-v2">{currentVal.toLocaleString()}</span>
+            <span className="target-val-v2">/ {targetVal.toLocaleString()} TZS</span>
           </div>
-          <div className="progress-track-v2">
-            <div className="progress-fill-v2" style={{ width: `${progressPercent}%` }}></div>
-          </div>
+
+          {!isQuickLog && (
+            <div className="progress-track-v2">
+              <div className="progress-fill-v2" style={{ width: `${progressPercent}%` }}></div>
+            </div>
+          )}
+
           <div className="progress-summary-v2">{progressPercent}% complete</div>
+
+          {isQuickLog && (
+            <form className="detail-quick-log-form animate-fade-in" onSubmit={(e) => {
+              e.preventDefault();
+              if (quickLogForm.amount) {
+                logGoalProgress(goal.id, quickLogForm.amount, quickLogForm.note, quickLogForm.date);
+                setIsQuickLog(false);
+                setQuickLogForm({ amount: '', note: '', date: new Date().toISOString().split('T')[0] });
+              }
+            }}>
+              <div className="quick-log-grid">
+                <input 
+                  autoFocus
+                  type="number"
+                  placeholder="Amount"
+                  value={quickLogForm.amount}
+                  onChange={e => setQuickLogForm({...quickLogForm, amount: e.target.value})}
+                />
+                <input 
+                  placeholder="What happened?"
+                  value={quickLogForm.note}
+                  onChange={e => setQuickLogForm({...quickLogForm, note: e.target.value})}
+                />
+                <div className="quick-log-date-wrapper">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <input 
+                    type="date" 
+                    value={quickLogForm.date} 
+                    onChange={e => setQuickLogForm({...quickLogForm, date: e.target.value})}
+                  />
+                  <span>{quickLogForm.date === new Date().toISOString().split('T')[0] ? 'Today' : quickLogForm.date}</span>
+                </div>
+              </div>
+
+              <div className="quick-log-footer">
+                <button type="button" onClick={() => setIsQuickLog(false)}>Cancel</button>
+                <button type="submit" className="save-btn">Log Progress</button>
+              </div>
+            </form>
+          )}
         </div>
       )}
 
@@ -485,7 +526,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                         >
                           {ms.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
                         </div>
-                        <div className="ms-title-meta" onClick={() => toggleMilestoneCollapse(ms.id)} style={{ cursor: 'pointer' }}>
+                        <div className="ms-title-meta" onClick={() => setSelectedMilestoneId(ms.id)} style={{ cursor: 'pointer' }}>
                           <span className="ms-priority-tag">{(ms.priority || 'Low').toUpperCase()}</span>
                           <h3>{ms.title}</h3>
                         </div>
@@ -501,7 +542,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill={ms.active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                         </button>
-                        <button className={`chevron-btn ${collapsedMilestones[ms.id] ? 'collapsed' : ''}`} onClick={() => toggleMilestoneCollapse(ms.id)}>
+                        <button className={`chevron-btn ${collapsedMilestones[ms.id] !== false ? 'collapsed' : ''}`} onClick={() => toggleMilestoneCollapse(ms.id)}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 9l-7 7-7-7" /></svg>
                         </button>
                       </div>
@@ -514,7 +555,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                       <span className="ms-results-count">{doneR}/{totalR} results</span>
                     </div>
 
-                    {!collapsedMilestones[ms.id] && (
+                    {collapsedMilestones[ms.id] === false && (
                       <div className="tasks-list">
                         {/* Pending Results */}
                         {ms.tasks.filter(t => !t.completed).sort((a, b) => {
@@ -538,6 +579,17 @@ const GoalDetailView = ({ goal, onBack }) => {
                                 </span>
                               )}
                             </div>
+                            <button 
+                              className="result-delete-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm('Delete this result?')) {
+                                  deleteTask(goal.id, ms.id, task.id);
+                                }
+                              }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                            </button>
                           </div>
                         ))}
 
@@ -570,6 +622,17 @@ const GoalDetailView = ({ goal, onBack }) => {
                                         </span>
                                       )}
                                     </div>
+                                    <button 
+                                      className="result-delete-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('Delete this result?')) {
+                                          deleteTask(goal.id, ms.id, task.id);
+                                        }
+                                      }}
+                                    >
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                                    </button>
                                   </div>
                                 ))}
                               </div>
@@ -879,6 +942,22 @@ const GoalDetailView = ({ goal, onBack }) => {
                   className="modal-input"
                   placeholder="e.g. 500,000,000"
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Quick Update Destination</label>
+                <div className="form-helper" style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px' }}>Where should '+' button updates go?</div>
+                <select
+                  value={editForm.defaultMilestoneId}
+                  onChange={e => setEditForm({...editForm, defaultMilestoneId: e.target.value})}
+                  className="modal-input"
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b' }}
+                >
+                  <option value="">Automatic (General Progress)</option>
+                  {(goal.milestones || []).map(ms => (
+                    <option key={ms.id} value={ms.id}>{ms.title}</option>
+                  ))}
+                </select>
               </div>
               <div className="modal-actions">
                 <button type="button" className="btn-danger" onClick={handleDeleteGoal}>Delete Goal</button>

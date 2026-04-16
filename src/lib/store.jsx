@@ -191,6 +191,7 @@ export const StoreProvider = ({ children }) => {
             title,
             priority,
             tasks: [],
+            note: '',
             active: true,
             createdAt: new Date().toISOString()
           }]
@@ -220,6 +221,56 @@ export const StoreProvider = ({ children }) => {
         return {
           ...goal,
           milestones: (goal.milestones || []).filter(ms => ms.id !== milestoneId)
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const logGoalProgress = (goalId, amount, description, date = new Date().toISOString().split('T')[0]) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        let milestones = [...(goal.milestones || [])];
+        // 1. Try to find the user-designated default milestone
+        let targetMs = goal.defaultMilestoneId 
+          ? milestones.find(m => m.id === goal.defaultMilestoneId)
+          : null;
+        
+        // 2. Fallback to existing "General Progress" if no default or default not found
+        if (!targetMs) {
+          targetMs = milestones.find(m => m.title === 'General Progress');
+        }
+        
+        // 3. Create "General Progress" if nothing found at all
+        if (!targetMs) {
+          targetMs = {
+            id: crypto.randomUUID(),
+            title: 'General Progress',
+            priority: 'Low',
+            tasks: [],
+            note: 'Automatically created for quick progress updates.',
+            active: true,
+            createdAt: new Date().toISOString()
+          };
+          milestones.push(targetMs);
+        }
+
+        const newTask = {
+          id: crypto.randomUUID(),
+          title: description || 'Progress Update',
+          value: parseFloat(amount) || 0,
+          completed: true, // Automatically completed for quick log
+          completedAt: date,
+          createdAt: new Date().toISOString()
+        };
+
+        return {
+          ...goal,
+          milestones: milestones.map(m => 
+            m.id === targetMs.id 
+              ? { ...m, tasks: [...(m.tasks || []), newTask] }
+              : m
+          )
         };
       }
       return goal;
@@ -498,6 +549,7 @@ export const StoreProvider = ({ children }) => {
     toggleTheme,
     addGoal,
     addMilestone,
+    logGoalProgress,
     toggleMilestoneActive,
     toggleMilestoneCompleted,
     addTask,
