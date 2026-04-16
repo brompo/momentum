@@ -347,7 +347,7 @@
   border: 1px solid var(--border-subtle);
   background: var(--bg-card);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 16px; /* Prevents mobile zoom on iOS */
   outline: none;
 }
 

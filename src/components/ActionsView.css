@@ -378,14 +378,15 @@
 .inline-add-row-modern input {
   border: none;
   background: none;
-  font-size: 0.85rem;
+  font-size: 16px; /* Prevents mobile zoom */
   padding: 6px 8px;
   outline: none;
+  width: 100%;
 }
 
 .inline-date-input {
   max-width: 100px;
-  font-size: 0.75rem !important;
+  font-size: 16px !important; /* Prevents mobile zoom */
   color: #64748b;
   border-left: 1px solid #f1f5f9 !important;
 }
