@@ -26,7 +26,7 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [activeTab, setActiveTab] = useState('Goals');
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ga_active_tab') || 'Goals');
   const [activeActionsSubTab, setActiveActionsSubTab] = useState(() => {
     return localStorage.getItem('ga_actions_subtab') || 'Weekly Commitments';
   });
@@ -68,6 +68,7 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
   useEffect(() => { localStorage.setItem('ga_theme', theme); }, [theme]);
   useEffect(() => { localStorage.setItem('ga_last_update', lastLocalUpdate); }, [lastLocalUpdate]);
+  useEffect(() => { localStorage.setItem('ga_active_tab', activeTab); }, [activeTab]);
 
   // Auto-Pull on Boot/Auth
   useEffect(() => {

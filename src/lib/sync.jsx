@@ -14,7 +14,9 @@ export const useGoogleSync = (onSuccess) => {
 
   const login = useGoogleLogin({
     onSuccess: (response) => {
+      console.log('Google Auth: Popup/Success flow');
       setToken(response.access_token);
+      localStorage.setItem('ga_google_token', response.access_token);
       fetchUserInfo(response.access_token);
       if (onSuccess) onSuccess(response.access_token);
     },
@@ -55,15 +57,30 @@ export const useGoogleSync = (onSuccess) => {
       const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
-      if (!res.ok) throw new Error('Auth failed');
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Auth check failed:', res.status, errorData);
+        
+        // ONLY clear if it's a 401/403 (invalid token)
+        if (res.status === 401 || res.status === 403) {
+          alert('Google Connection Expired or Invalid. Please re-connect. (' + res.status + ')');
+          setToken(null);
+          localStorage.removeItem('ga_google_token');
+          setUser(null);
+        } else {
+          // Likely a temporary network issue, keep the token but notify
+          console.warn('Temporary Google API error:', res.status);
+        }
+        return;
+      }
+
       const data = await res.json();
       setUser(data);
     } catch (err) {
       console.error('Failed to fetch user info:', err);
-      // If auth fails (likely expired), clear it so user can re-log
-      setToken(null);
-      localStorage.removeItem('ga_google_token');
-      setUser(null);
+      // For generic network errors, don't clear the token!
+      // This allows the user to stay "logged in" even if offline for a bit
     }
   };
 

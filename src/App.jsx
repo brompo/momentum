@@ -117,16 +117,8 @@ const SettingsView = () => {
           </div>
           <div className="glass-card" style={{ padding: '16px', marginTop: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: sync.user ? '12px' : '0' }}>
-              <span style={{ fontWeight: 600 }}>Cloud Sync -1</span>
-              {!sync.user ? (
-                <button
-                  className="btn btn-primary"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                  onClick={() => sync.login()}
-                >
-                  Connect Google
-                </button>
-              ) : (
+              <span style={{ fontWeight: 600 }}>Cloud Sync</span>
+              {sync.user ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <img
                     src={sync.user.picture}
@@ -135,6 +127,19 @@ const SettingsView = () => {
                   />
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sync.user.name}</span>
                 </div>
+              ) : sync.token ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="shimmer" style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--border-subtle)' }}></div>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Connecting...</span>
+                </div>
+              ) : (
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                  onClick={() => sync.login()}
+                >
+                  Connect Google
+                </button>
               )}
             </div>
 
