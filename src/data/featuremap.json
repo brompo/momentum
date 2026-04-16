@@ -1,6 +1,14 @@
 {
   "achieved": [
     {
+      "version": "0.2.0",
+      "date": "2026-04-16",
+      "description": "Data Sharing between Devices",
+      "changes": [
+        "I want to have data cross compatibility between different devices"
+      ]
+    },
+    {
       "version": "0.1.0",
       "date": "2026-04-15",
       "description": "Initial Foundation",
@@ -13,17 +21,6 @@
     }
   ],
   "pipeline": [
-    {
-      "version": "0.2.0",
-      "date": "2026-04-16",
-      "description": "",
-      "changes": [],
-      "title": "Data Sharing between Devices",
-      "status": "In Progress",
-      "features": [
-        "I want to have data cross compatibility between different devices"
-      ]
-    },
     {
       "title": "Cloud Sync & Backup",
       "status": "Planned",
