@@ -117,10 +117,10 @@ const SettingsView = () => {
           </div>
           <div className="glass-card" style={{ padding: '16px', marginTop: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: sync.user ? '12px' : '0' }}>
-              <span style={{ fontWeight: 600 }}>Cloud Sync</span>
+              <span style={{ fontWeight: 600 }}>Cloud Sync -1</span>
               {!sync.user ? (
-                <button 
-                  className="btn btn-primary" 
+                <button
+                  className="btn btn-primary"
                   style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                   onClick={() => sync.login()}
                 >
@@ -128,19 +128,19 @@ const SettingsView = () => {
                 </button>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <img 
-                    src={sync.user.picture} 
-                    alt="profile" 
-                    style={{ width: '24px', height: '24px', borderRadius: '50%' }} 
+                  <img
+                    src={sync.user.picture}
+                    alt="profile"
+                    style={{ width: '24px', height: '24px', borderRadius: '50%' }}
                   />
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sync.user.name}</span>
                 </div>
               )}
             </div>
-            
+
             {sync.user && (
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button 
+                <button
                   className={`btn ${sync.isSyncing ? 'loading' : ''}`}
                   style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
                   onClick={syncLocalToCloud}
@@ -148,7 +148,7 @@ const SettingsView = () => {
                 >
                   {sync.isSyncing ? 'Syncing...' : 'Backup Now 💾'}
                 </button>
-                <button 
+                <button
                   className="btn"
                   style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
                   onClick={async () => {
@@ -174,25 +174,25 @@ const SettingsView = () => {
               <span style={{ fontWeight: 600 }}>Local Backup (Offline)</span>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button 
+              <button
                 className="btn"
                 style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
                 onClick={exportToJSON}
               >
                 Download File 💾
               </button>
-              <button 
+              <button
                 className="btn"
                 style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
                 onClick={() => document.getElementById('local-restore-input').click()}
               >
                 Restore File 📂
               </button>
-              <input 
+              <input
                 id="local-restore-input"
-                type="file" 
-                accept=".json" 
-                style={{ display: 'none' }} 
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
                 onChange={async (e) => {
                   const file = e.target.files[0];
                   if (file && confirm('Replace all local data with this file?')) {
