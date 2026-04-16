@@ -15,7 +15,8 @@ import './App.css';
 const SettingsView = () => {
   const {
     theme, toggleTheme, featureMap, addFeatureMapItem,
-    updateFeatureMapItem, deleteFeatureMapItem
+    updateFeatureMapItem, deleteFeatureMapItem,
+    sync, syncLocalToCloud, syncCloudToLocal
   } = useStore();
   const [activeTab, setActiveTab] = useState('general'); // 'general' or 'featuremap'
   const [featureSubTab, setFeatureSubTab] = useState('achieved'); // 'achieved' or 'pipeline'
@@ -113,9 +114,58 @@ const SettingsView = () => {
             <span>Daily Reminders</span>
             <div className="toggle active"></div>
           </div>
-          <div className="setting-item glass-card">
-            <span>Sync to Cloud</span>
-            <div className="toggle"></div>
+          <div className="glass-card" style={{ padding: '16px', marginTop: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: sync.user ? '12px' : '0' }}>
+              <span style={{ fontWeight: 600 }}>Cloud Sync</span>
+              {!sync.user ? (
+                <button 
+                  className="btn btn-primary" 
+                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                  onClick={() => sync.login()}
+                >
+                  Connect Google
+                </button>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img 
+                    src={sync.user.picture} 
+                    alt="profile" 
+                    style={{ width: '24px', height: '24px', borderRadius: '50%' }} 
+                  />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sync.user.name}</span>
+                </div>
+              )}
+            </div>
+            
+            {sync.user && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className={`btn ${sync.isSyncing ? 'loading' : ''}`}
+                  style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
+                  onClick={syncLocalToCloud}
+                  disabled={sync.isSyncing}
+                >
+                  {sync.isSyncing ? 'Syncing...' : 'Backup Now 💾'}
+                </button>
+                <button 
+                  className="btn"
+                  style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
+                  onClick={async () => {
+                    if (confirm('Restore from cloud? Your local changes will be overwritten.')) {
+                      await syncCloudToLocal();
+                    }
+                  }}
+                  disabled={sync.isSyncing}
+                >
+                  Restore 📥
+                </button>
+              </div>
+            )}
+            {sync.lastSync && (
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', textAlign: 'center', marginTop: '8px' }}>
+                Last synced: {new Date(sync.lastSync).toLocaleString()}
+              </div>
+            )}
           </div>
 
           <div className="app-version-footer">

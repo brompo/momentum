@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import initialFeatureMap from '../data/featuremap.json';
+import { useGoogleSync } from './sync';
 
 const StoreContext = createContext();
 
 export const useStore = () => useContext(StoreContext);
 
 export const StoreProvider = ({ children }) => {
+  const sync = useGoogleSync();
+
   // Initialize state from localStorage
   const [goals, setGoals] = useState(() => {
     const saved = localStorage.getItem('ga_goals');
@@ -59,11 +62,17 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem('ga_notes', JSON.stringify(notes)); }, [notes]);
   useEffect(() => { localStorage.setItem('ga_feature_map', JSON.stringify(featureMap)); }, [featureMap]);
   useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
-  useEffect(() => { 
-    localStorage.setItem('ga_theme', theme);
-    if (theme === 'light') document.body.classList.add('light-theme');
-    else document.body.classList.remove('light-theme');
-  }, [theme]);
+  useEffect(() => { localStorage.setItem('ga_theme', theme); }, [theme]);
+
+  // Background Sync Effect (Debounced)
+  useEffect(() => {
+    if (sync.token) {
+      const timer = setTimeout(() => {
+        syncLocalToCloud();
+      }, 5000); // Wait 5 seconds after last change to backup
+      return () => clearTimeout(timer);
+    }
+  }, [goals, visionStatements, pillars, notes, featureMap, sync.token]);
 
   // Actions
   const updateVisionStatement = (pillarId, text) => {
@@ -362,6 +371,33 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const syncLocalToCloud = async () => {
+    const fullData = {
+      goals,
+      visionStatements,
+      pillars,
+      notes,
+      featureMap,
+      theme,
+      updatedAt: new Date().toISOString()
+    };
+    await sync.uploadBackup(fullData);
+  };
+
+  const syncCloudToLocal = async () => {
+    const cloudData = await sync.downloadBackup();
+    if (cloudData) {
+      if (cloudData.goals) setGoals(cloudData.goals);
+      if (cloudData.visionStatements) setVisionStatements(cloudData.visionStatements);
+      if (cloudData.pillars) setPillars(cloudData.pillars);
+      if (cloudData.notes) setNotes(cloudData.notes);
+      if (cloudData.featureMap) setFeatureMap(cloudData.featureMap);
+      if (cloudData.theme) setTheme(cloudData.theme);
+      return true;
+    }
+    return false;
+  };
+
   const value = {
     goals,
     notes,
@@ -401,7 +437,11 @@ export const StoreProvider = ({ children }) => {
     addFeatureMapItem,
     updateFeatureMapItem,
     deleteFeatureMapItem,
-    releaseFeature
+    releaseFeature,
+    // Sync
+    sync,
+    syncLocalToCloud,
+    syncCloudToLocal
   };
 
   return (
