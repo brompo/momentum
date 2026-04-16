@@ -56,6 +56,10 @@ export const StoreProvider = ({ children }) => {
     return withIds;
   });
 
+  const [lastLocalUpdate, setLastLocalUpdate] = useState(() => {
+    return localStorage.getItem('ga_last_update') || new Date(0).toISOString();
+  });
+
   useEffect(() => { localStorage.setItem('ga_goals', JSON.stringify(goals)); }, [goals]);
   useEffect(() => { localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements)); }, [visionStatements]);
   useEffect(() => { localStorage.setItem('ga_pillars', JSON.stringify(pillars)); }, [pillars]);
@@ -63,6 +67,26 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem('ga_feature_map', JSON.stringify(featureMap)); }, [featureMap]);
   useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
   useEffect(() => { localStorage.setItem('ga_theme', theme); }, [theme]);
+  useEffect(() => { localStorage.setItem('ga_last_update', lastLocalUpdate); }, [lastLocalUpdate]);
+
+  // Auto-Pull on Boot/Auth
+  useEffect(() => {
+    const checkCloudUpdate = async () => {
+      if (sync.token) {
+        const metadata = await sync.getCloudMetadata();
+        if (metadata && metadata.modifiedTime) {
+          const cloudTime = new Date(metadata.modifiedTime).getTime();
+          const localTime = new Date(lastLocalUpdate).getTime();
+          
+          if (cloudTime > localTime + 1000) { // 1s buffer
+            console.log('Automated Sync: Cloud is newer. Pulling updates...');
+            await syncCloudToLocal();
+          }
+        }
+      }
+    };
+    checkCloudUpdate();
+  }, [sync.token]);
 
   // Background Sync Effect (Debounced)
   useEffect(() => {
@@ -72,6 +96,8 @@ export const StoreProvider = ({ children }) => {
       }, 5000); // Wait 5 seconds after last change to backup
       return () => clearTimeout(timer);
     }
+    // Update local timestamp on every change even if not syncing
+    setLastLocalUpdate(new Date().toISOString());
   }, [goals, visionStatements, pillars, notes, featureMap, sync.token]);
 
   // Actions
@@ -385,14 +411,19 @@ export const StoreProvider = ({ children }) => {
   };
 
   const syncCloudToLocal = async () => {
-    const cloudData = await sync.downloadBackup();
-    if (cloudData) {
+    const res = await sync.downloadBackup();
+    if (res && res.data) {
+      const cloudData = res.data;
       if (cloudData.goals) setGoals(cloudData.goals);
       if (cloudData.visionStatements) setVisionStatements(cloudData.visionStatements);
       if (cloudData.pillars) setPillars(cloudData.pillars);
       if (cloudData.notes) setNotes(cloudData.notes);
       if (cloudData.featureMap) setFeatureMap(cloudData.featureMap);
       if (cloudData.theme) setTheme(cloudData.theme);
+      
+      if (res.modifiedTime) {
+        setLastLocalUpdate(res.modifiedTime);
+      }
       return true;
     }
     return false;

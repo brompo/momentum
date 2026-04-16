@@ -61,7 +61,7 @@ export const useGoogleSync = (onSuccess) => {
 
   const findBackupFile = async (accessToken, folderId) => {
     const q = `name='${DRIVE_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime)`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     const data = await res.json();
@@ -78,7 +78,7 @@ export const useGoogleSync = (onSuccess) => {
       const metadata = {
         name: DRIVE_FILE_NAME,
         mimeType: 'application/json',
-        parents: existingFile ? undefined : [folderId] // Only need parents on create
+        parents: existingFile ? undefined : [folderId]
       };
       
       const form = new FormData();
@@ -93,17 +93,30 @@ export const useGoogleSync = (onSuccess) => {
         method = 'PATCH';
       }
 
-      await fetch(url, {
+      const res = await fetch(url, {
         method,
         headers: { Authorization: `Bearer ${token}` },
         body: form
       });
+      
+      const result = await res.json();
 
       setLastSync(new Date().toISOString());
     } catch (err) {
       console.error('Upload failed:', err);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const getCloudMetadata = async () => {
+    if (!token) return null;
+    try {
+      const folderId = await getOrCreateFolder(token);
+      return await findBackupFile(token, folderId);
+    } catch (err) {
+      console.error('Failed to get cloud metadata:', err);
+      return null;
     }
   };
 
@@ -118,7 +131,10 @@ export const useGoogleSync = (onSuccess) => {
       const res = await fetch(`https://www.googleapis.com/drive/v3/files/${existingFile.id}?alt=media`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return await res.json();
+      return { 
+        data: await res.json(), 
+        modifiedTime: existingFile.modifiedTime 
+      };
     } catch (err) {
       console.error('Download failed:', err);
       return null;
@@ -134,6 +150,7 @@ export const useGoogleSync = (onSuccess) => {
     isSyncing,
     lastSync,
     uploadBackup,
-    downloadBackup
+    downloadBackup,
+    getCloudMetadata
   };
 };
