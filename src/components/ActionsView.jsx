@@ -12,6 +12,11 @@ const ActionsView = () => {
   const [expandedResultId, setExpandedResultId] = useState(null);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [newSubtaskDate, setNewSubtaskDate] = useState(new Date().toISOString().split('T')[0]);
+  const [collapsedCategories, setCollapsedCategories] = useState({ must: false, should: false });
+
+  const toggleCategory = (cat) => {
+    setCollapsedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
+  };
 
   const formatDateMMM = (dateString) => {
     if (!dateString) return '';
@@ -354,37 +359,53 @@ const ActionsView = () => {
       <div className="actions-content-scroll">
         {activeActionsSubTab === 'Weekly Commitments' ? (
           <div className="weekly-tasks-list">
-            <div className="task-category-group">
-              <h4 className="category-title">MUST DO</h4>
-              {mustDoWeeklyGroups.length === 0 ? (
-                <p className="empty-category">No high priority tasks.</p>
-              ) : (
-                mustDoWeeklyGroups.map(group => (
-                  <div key={`must-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
-                    <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#0d9488', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
-                      <span>{group.milestoneTitle.toUpperCase()}</span>
-                      <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
-                    </div>
-                    {group.tasks.map(task => renderTaskCard(task, true))}
-                  </div>
-                ))
+            <div className={`task-category-group must-do-container ${collapsedCategories.must ? 'collapsed' : ''}`}>
+              <div className="category-header" onClick={() => toggleCategory('must')}>
+                <h4 className="category-title">MUST DO</h4>
+                <svg className={`category-chevron ${collapsedCategories.must ? '' : 'open'}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              
+              {!collapsedCategories.must && (
+                <div className="category-content animate-fade-in">
+                  {mustDoWeeklyGroups.length === 0 ? (
+                    <p className="empty-category">No high priority tasks.</p>
+                  ) : (
+                    mustDoWeeklyGroups.map(group => (
+                      <div key={`must-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
+                        <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#f43f5e', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px', opacity: 0.8 }}>
+                          <span>{group.milestoneTitle.toUpperCase()}</span>
+                          <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
+                        </div>
+                        {group.tasks.map(task => renderTaskCard(task, true))}
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="task-category-group" style={{ marginTop: '24px' }}>
-              <h4 className="category-title">SHOULD DO</h4>
-              {shouldDoWeeklyGroups.length === 0 ? (
-                <p className="empty-category">No secondary tasks scheduled.</p>
-              ) : (
-                shouldDoWeeklyGroups.map(group => (
-                  <div key={`should-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
-                    <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
-                      <span>{group.milestoneTitle.toUpperCase()}</span>
-                      <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
-                    </div>
-                    {group.tasks.map(task => renderTaskCard(task, true))}
-                  </div>
-                ))
+            <div className={`task-category-group should-do-container ${collapsedCategories.should ? 'collapsed' : ''}`} style={{ marginTop: '16px' }}>
+              <div className="category-header" onClick={() => toggleCategory('should')}>
+                <h4 className="category-title">SHOULD DO</h4>
+                <svg className={`category-chevron ${collapsedCategories.should ? '' : 'open'}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+
+              {!collapsedCategories.should && (
+                <div className="category-content animate-fade-in">
+                  {shouldDoWeeklyGroups.length === 0 ? (
+                    <p className="empty-category">No secondary tasks scheduled.</p>
+                  ) : (
+                    shouldDoWeeklyGroups.map(group => (
+                      <div key={`should-${group.milestoneId}`} className="milestone-subgroup" style={{ marginBottom: '16px' }}>
+                        <div className="subgroup-milestone-label" style={{ fontSize: '0.6rem', fontWeight: 800, color: '#0ea5e9', marginBottom: '6px', display: 'flex', justifyContent: 'space-between', padding: '0 4px', opacity: 0.8 }}>
+                          <span>{group.milestoneTitle.toUpperCase()}</span>
+                          <span style={{ opacity: 0.6 }}>{group.goalTitle}</span>
+                        </div>
+                        {group.tasks.map(task => renderTaskCard(task, true))}
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
             {totalWeeklyCount > 0 && (
