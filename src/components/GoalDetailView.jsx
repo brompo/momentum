@@ -39,29 +39,9 @@ const GoalDetailView = ({ goal, onBack }) => {
     }
   };
   const [activeTab, setActiveTab] = useState('Milestones'); // 'Milestones' or 'Results'
-  const [isAddingMetric, setIsAddingMetric] = useState(false);
-  const [newMetricTitle, setNewMetricTitle] = useState('');
-  const [newMetricTarget, setNewMetricTarget] = useState('');
-
-  const [activeLogMetric, setActiveLogMetric] = useState(null);
-  const [logForm, setLogForm] = useState({
-    text: '',
-    date: new Date().toISOString().split('T')[0],
-    value: 1
-  });
-  const [editingEntryId, setEditingEntryId] = useState(null);
-  const [editEntryForm, setEditEntryForm] = useState({ text: '', date: '', value: 1 });
-  const [collapsedMilestones, setCollapsedMilestones] = useState({});
   const [expandedCompletedResults, setExpandedCompletedResults] = useState({});
-  const [isMetricsCollapsed, setIsMetricsCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [sortBy, setSortBy] = useState('date'); // 'date' or 'manual'
-  const [isQuickLog, setIsQuickLog] = useState(false);
-  const [quickLogForm, setQuickLogForm] = useState({ 
-    amount: '', 
-    note: '',
-    date: new Date().toISOString().split('T')[0]
-  });
 
   // Milestone highlight flash logic removed to support dedicated Milestone Detail pages
   useEffect(() => {
@@ -77,41 +57,8 @@ const GoalDetailView = ({ goal, onBack }) => {
     };
   }, []);
 
-  const toggleMilestoneCollapse = (id) => {
-    setCollapsedMilestones(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
   const toggleCompletedResults = (id) => {
     setExpandedCompletedResults(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleAddMetric = (e) => {
-    e.preventDefault();
-    if (newMetricTitle.trim() && newMetricTarget) {
-      addMetric(goal.id, newMetricTitle, newMetricTarget);
-      setNewMetricTitle('');
-      setNewMetricTarget('');
-      setIsAddingMetric(false);
-    }
-  };
-
-  const handleAddMetricEntry = (e) => {
-    e.preventDefault();
-    if (activeLogMetric) {
-      addMetricEntry(goal.id, activeLogMetric.id, logForm);
-      setActiveLogMetric(null);
-      setLogForm({ text: '', date: new Date().toISOString().split('T')[0], value: 1 });
-    }
-  };
-
-  const handleEditEntrySave = (e, metricId, entryId) => {
-    e.preventDefault();
-    updateMetricEntry(goal.id, metricId, entryId, {
-      text: editEntryForm.text,
-      date: editEntryForm.date,
-      value: Number(editEntryForm.value) || 0
-    });
-    setEditingEntryId(null);
   };
 
   const handleAddMilestone = (e) => {
@@ -188,26 +135,25 @@ const GoalDetailView = ({ goal, onBack }) => {
     }
   };
 
-  const formatDateMMM = (dateString) => {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]} ${date.getDate()}`;
-    } catch (e) {
-      return dateString;
-    }
+  const formatCompactNumber = (number) => {
+    if (number === 0) return '0';
+    if (!number) return '';
+    const formatter = Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+    return formatter.format(number);
   };
 
-  const getDateStatusClass = (dateString) => {
-    if (!dateString) return '';
-    const taskDate = new Date(dateString); // Simplified for general status
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (taskDate < today) return 'past';
-    if (taskDate > today) return 'future';
-    return 'today';
+  const getRemainingTime = (endDate) => {
+    if (!endDate) return 'No deadline';
+    const end = new Date(endDate);
+    const now = new Date();
+    const diffTime = end - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'Overdue';
+    
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths > 0) return `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
   };
 
   const handleUpdateGoal = (e) => {
@@ -279,201 +225,66 @@ const GoalDetailView = ({ goal, onBack }) => {
   };
 
   return (
-    <div className="goal-detail-view safe-area animate-fade-in">
-      <div className={`detail-top-nav ${isScrolled ? 'scrolled' : ''}`}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button className="back-btn-icon" onClick={handleBack}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <div className="pillar-context" style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
-            {pillars.find(p => p.id === goal.pillarId)?.title || 'Goal'}
-          </div>
-        </div>
-        <div className="nav-actions">
-          <button className="icon-btn" onClick={() => setIsEditingGoal(true)}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
-          </button>
-          <button className="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg></button>
-        </div>
-      </div>
-
-      <div className="detail-header-v2">
-        <div className="title-section-v2">
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>{goal.title}</h1>
-        </div>
-        <div className="header-meta-v3" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: 600 }}>
-          <span className="active-badge" style={{ color: '#10b981', background: '#ecfdf5', padding: '2px 8px', borderRadius: '6px', fontSize: '0.85rem' }}>Active</span>
-          <span className="summary-stats" style={{ color: '#64748b' }}>
-            {progressPercent}% · {goal.milestones.filter(m => m.completed).length} of {goal.milestones.length} steps done
-          </span>
-        </div>
-      </div>
-
-      {goal.targetNumber && (
-        <div className="numeric-progress-v2">
-          <div className="numeric-header-row">
-            <div className="progress-label-v2">OVERALL PROGRESS</div>
-            <button className="quick-log-btn-v2" onClick={() => setIsQuickLog(!isQuickLog)} title="Quick log progress">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+    <div className="goal-detail-view animate-fade-in">
+      <div className="unified-goal-card">
+        <div className={`detail-top-nav-inline`}>
+          <div className="nav-left">
+            <button className="minimal-back-btn" onClick={handleBack} style={{ gap: '4px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+              <span className="breadcrumb-title">
+                {pillars.find(p => p.id === goal.pillarId)?.title || 'Wealth & career'}
+              </span>
             </button>
           </div>
-          
-          <div className="progress-values-v2">
-            <span className="current-val-v2">{currentVal.toLocaleString()}</span>
-            <span className="target-val-v2">/ {targetVal.toLocaleString()} TZS</span>
+          <div className="nav-actions">
+            <button className="minimal-icon-btn" onClick={() => setIsEditingGoal(true)}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+            </button>
+            <button className="minimal-icon-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
+            </button>
           </div>
+        </div>
 
-          {!isQuickLog && (
-            <div className="progress-track-v2">
-              <div className="progress-fill-v2" style={{ width: `${progressPercent}%` }}></div>
+      <div className="detail-header-new">
+        <div className="pillar-badge-new">
+          <span className="dot"></span>
+          {pillars.find(p => p.id === goal.pillarId)?.title || 'Wealth & career'} · {goal.endDate ? new Date(goal.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'No Date'}
+        </div>
+        
+        <h1 className="goal-title-new">{goal.title}</h1>
+
+        {hasTarget ? (
+          <div className="overall-progress-new" style={{ marginTop: '24px' }}>
+            <div className="op-text">
+              <span className="op-label">Overall progress</span>
+              <span className="op-summary">
+                <span className="op-percent">{progressPercent}%</span> · {goal.milestones.filter(m => m.completed).length} of {goal.milestones.length} milestones done
+              </span>
             </div>
-          )}
-
-          <div className="progress-summary-v2">{progressPercent}% complete</div>
-
-          {isQuickLog && (
-            <form className="detail-quick-log-form animate-fade-in" onSubmit={(e) => {
-              e.preventDefault();
-              if (quickLogForm.amount) {
-                logGoalProgress(goal.id, quickLogForm.amount, quickLogForm.note, quickLogForm.date);
-                setIsQuickLog(false);
-                setQuickLogForm({ amount: '', note: '', date: new Date().toISOString().split('T')[0] });
-              }
-            }}>
-              <div className="quick-log-grid">
-                <input 
-                  autoFocus
-                  type="number"
-                  placeholder="Amount"
-                  value={quickLogForm.amount}
-                  onChange={e => setQuickLogForm({...quickLogForm, amount: e.target.value})}
-                />
-                <input 
-                  placeholder="What happened?"
-                  value={quickLogForm.note}
-                  onChange={e => setQuickLogForm({...quickLogForm, note: e.target.value})}
-                />
-                <div className="quick-log-date-wrapper">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <input 
-                    type="date" 
-                    value={quickLogForm.date} 
-                    onChange={e => setQuickLogForm({...quickLogForm, date: e.target.value})}
-                  />
-                  <span>{quickLogForm.date === new Date().toISOString().split('T')[0] ? 'Today' : quickLogForm.date}</span>
-                </div>
-              </div>
-
-              <div className="quick-log-footer">
-                <button type="button" onClick={() => setIsQuickLog(false)}>Cancel</button>
-                <button type="submit" className="save-btn">Log Progress</button>
-              </div>
-            </form>
-          )}
-        </div>
-      )}
-
-      {/* Sub-Metrics Section */}
-      <div className="metrics-rack-v2">
-        <div
-          className="section-header-v2"
-          onClick={() => setIsMetricsCollapsed(!isMetricsCollapsed)}
-          style={{ cursor: 'pointer' }}
-        >
-          <h2>Tracking metrics</h2>
-          <div className="section-header-actions">
-            <svg
-              className={`collapse-chevron ${isMetricsCollapsed ? 'collapsed' : ''}`}
-              width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              style={{ transform: isMetricsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s', marginRight: '10px' }}
-            >
-              <path d="M19 9l-7 7-7-7" />
-            </svg>
-            <button className="add-small-btn" onClick={(e) => { e.stopPropagation(); setIsAddingMetric(!isAddingMetric); }}>+</button>
+            <div className="op-bar-container">
+               <div className="op-bar-fill" style={{ width: `${progressPercent}%` }}></div>
+            </div>
           </div>
-        </div>
-
-        {!isMetricsCollapsed && (
-          <div className="metrics-body-v2 animate-fade-in">
-            {isAddingMetric && (
-              <form className="inline-add glass-card" onSubmit={handleAddMetric}>
-                <div className="form-row">
-                  <input
-                    autoFocus
-                    placeholder="Metric Name (e.g. Leads)"
-                    value={newMetricTitle}
-                    onChange={e => setNewMetricTitle(e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Target"
-                    value={newMetricTarget}
-                    onChange={e => setNewMetricTarget(e.target.value)}
-                  />
+        ) : (
+          <div className="milestones-only-progress" style={{ marginTop: '24px', marginBottom: '8px' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ flex: 1, height: '4px', background: '#f5f4ef', borderRadius: '10px' }}>
+                   <div style={{ width: `${progressPercent}%`, height: '100%', background: '#d97706', borderRadius: '10px' }}></div>
                 </div>
-                <div className="inline-actions">
-                  <button type="button" onClick={() => setIsAddingMetric(false)}>Cancel</button>
-                  <button type="submit" className="active">Add</button>
+                <div style={{ color: '#d97706', fontWeight: 700, fontSize: '0.95rem' }}>
+                   {goal.milestones.filter(m=>m.completed).length} of {goal.milestones.length}
                 </div>
-              </form>
-            )}
-
-            {(goal.metrics || []).length > 0 && (
-              <div className="metrics-grid-v2">
-                {(goal.metrics || []).map((m, idx) => (
-                  <div
-                    key={m.id}
-                    className={`metric-card-v2 ${idx % 2 === 0 ? 'accent-blue' : 'accent-purple'}`}
-                    onClick={() => {
-                      setActiveLogMetric(m);
-                      setLogForm(prev => ({ ...prev, value: 1 }));
-                    }}
-                  >
-                    <div className="metric-icon-pulse">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 3v18h18" />
-                        <polyline points="7 16 11 12 16 14 19 8" />
-                      </svg>
-                    </div>
-                    <div className="metric-card-info">
-                      <span className="metric-card-title">{m.name}</span>
-                      <div className="metric-card-values">
-                        <span className="v-current">{m.currentValue.toLocaleString()}</span>
-                        <span className="v-target"> / {m.targetValue.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="metric-mini-progress">
-                      <div className="mini-fill" style={{ width: `${Math.min((m.currentValue / m.targetValue) * 100, 100)}%` }}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+             </div>
+             <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '8px' }}>milestones completed</div>
           </div>
         )}
       </div>
 
-      <div className="tab-bar-capsule">
-        <button
-          className={`tab-btn ${activeTab === 'Milestones' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Milestones')}
-        >
-          Milestones
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'Results' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Results')}
-        >
-          Results
-        </button>
-      </div>
+      <div className="section-divider"></div>
 
       {activeTab === 'Milestones' ? (
-        <div className="milestones-section-v2">
-          <div className="section-header-v2" style={{ alignItems: 'center', marginBottom: '10px', padding: '0 16px' }}>
-            <h2 style={{ margin: 0 }}>Milestones</h2>
-            <button className="add-small-btn" onClick={() => setIsAddingMilestone(true)}>+</button>
-          </div>
+        <div className="milestones-section-new">
 
           {isAddingMilestone && (
             <div style={{ padding: '0 16px' }}>
@@ -514,6 +325,17 @@ const GoalDetailView = ({ goal, onBack }) => {
             }}
             onToggleTask={toggleTask}
           />
+
+          <button className="add-ms-row-btn" onClick={() => setIsAddingMilestone(true)}>
+             <span>+</span> Add milestone
+          </button>
+
+          {goal.note && (
+            <div className="goal-note-card">
+              <label>GOAL NOTE</label>
+              <p>"{goal.note}"</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="tasks-section">
@@ -782,118 +604,6 @@ const GoalDetailView = ({ goal, onBack }) => {
         </div>
       )}
 
-      {activeLogMetric && (
-        <div className="modal-overlay glass" onClick={() => setActiveLogMetric(null)}>
-          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-with-title">
-              <h2>{activeLogMetric.title} Log</h2>
-              <button className="close-btn" onClick={() => setActiveLogMetric(null)}>&times;</button>
-            </div>
-
-            <h3>Add Entry</h3>
-            <form onSubmit={handleAddMetricEntry} className="expanded-form">
-              <div className="form-group">
-                <label>Description</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Added 5 Organic leads"
-                  value={logForm.text}
-                  onChange={e => setLogForm({ ...logForm, text: e.target.value })}
-                  className="modal-input"
-                  required
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="date"
-                    value={logForm.date}
-                    onChange={e => setLogForm({ ...logForm, date: e.target.value })}
-                    className="modal-input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Value</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={logForm.value}
-                    onChange={e => setLogForm({ ...logForm, value: parseFloat(e.target.value) || 1 })}
-                    className="modal-input"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setActiveLogMetric(null)}>Cancel</button>
-                <button type="submit" className="btn-primary">Add Row</button>
-              </div>
-            </form>
-
-            <hr className="modal-divider" />
-
-            {/* Log History in Modal */}
-            <div className="modal-history-section">
-              <h3>History</h3>
-              {(activeLogMetric.entries || []).length === 0 ? (
-                <p className="empty-substate">No entries logged yet.</p>
-              ) : (
-                <div className="history-list-scrollbox">
-                  {(activeLogMetric.entries || []).map(entry => (
-                    editingEntryId === entry.id ? (
-                      <form key={entry.id} className="history-log-item editing-row" onSubmit={(e) => handleEditEntrySave(e, activeLogMetric.id, entry.id)}>
-                        <input
-                          className="edit-log-date"
-                          type="date"
-                          value={editEntryForm.date}
-                          onChange={e => setEditEntryForm({ ...editEntryForm, date: e.target.value })}
-                        />
-                        <input
-                          className="edit-log-text"
-                          value={editEntryForm.text}
-                          onChange={e => setEditEntryForm({ ...editEntryForm, text: e.target.value })}
-                        />
-                        <input
-                          className="edit-log-value"
-                          type="number"
-                          value={editEntryForm.value}
-                          onChange={e => setEditEntryForm({ ...editEntryForm, value: parseFloat(e.target.value) || 0 })}
-                        />
-                        <div className="log-actions">
-                          <button type="submit" className="save-edit-btn">✓</button>
-                          <button type="button" className="save-edit-btn cancel" onClick={() => setEditingEntryId(null)}>&times;</button>
-                        </div>
-                      </form>
-                    ) : (
-                      <div key={entry.id} className="history-log-item">
-                        <span className="log-date">{entry.date.split('-').slice(1).join('/')}</span>
-                        <span className="log-text">{entry.text}</span>
-                        <div className="log-value-group">
-                          <span className="log-value">+{entry.value}</span>
-                          <div className="log-actions">
-                            <button className="edit-task-btn" onClick={() => {
-                              setEditingEntryId(entry.id);
-                              setEditEntryForm({ text: entry.text, date: entry.date, value: entry.value });
-                            }} title="Edit Entry">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                              </svg>
-                            </button>
-                            <button className="delete-task-btn" onClick={() => deleteMetricEntry(goal.id, activeLogMetric.id, entry.id)} title="Delete Entry">&times;</button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {editingMilestoneId && (
         <div className="modal-overlay glass" onClick={() => setEditingMilestoneId(null)}>
           <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
@@ -936,6 +646,7 @@ const GoalDetailView = ({ goal, onBack }) => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

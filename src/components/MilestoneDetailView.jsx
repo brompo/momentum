@@ -54,10 +54,11 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     }
   };
 
-  const completedTasks = (milestone.tasks || []).filter(t => t.completed);
-  const pendingTasks = (milestone.tasks || []).filter(t => !t.completed);
-  const progress = (milestone.tasks || []).length > 0 
-    ? Math.round((completedTasks.length / milestone.tasks.length) * 100) 
+  const allTasks = milestone.tasks || [];
+  const completedTasks = allTasks.filter(t => t.completed);
+  const pendingTasks = allTasks.filter(t => !t.completed);
+  const progress = allTasks.length > 0 
+    ? Math.round((completedTasks.length / allTasks.length) * 100) 
     : 0;
 
   const formatDateMMM = (dateString) => {
@@ -65,30 +66,28 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     try {
       const date = new Date(dateString);
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]} ${date.getDate()}`;
+      return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     } catch (e) { return dateString; }
   };
 
-  return (
-    <div className="milestone-detail-view safe-area animate-fade-in">
-      <div className="detail-top-nav">
-        <button className="back-btn-icon" onClick={onBack}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-        </button>
-        <div className="nav-label">Milestone Details</div>
-        <div className="ms-status-badge">{milestone.completed ? 'Completed' : 'Active'}</div>
-      </div>
+  const msIndex = goal.milestones.findIndex(m => m.id === milestoneId);
+  const firstIncompleteIdx = goal.milestones.findIndex(m => !m.completed);
+  const msStatus = milestone.completed ? 'done' : (msIndex === firstIncompleteIdx ? 'active' : 'upcoming');
 
-      <header className="ms-detail-header">
-        <div className="ms-goal-context">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+  const activeTask = pendingTasks.length > 0 ? pendingTasks[0] : null;
+
+  return (
+    <div className="milestone-detail-view animate-fade-in">
+      <div className="ms-detail-top-section">
+        <button className="back-btn-simple" onClick={onBack}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
           {goal.title}
-        </div>
+        </button>
         
         {isEditingTitle ? (
           <input
             autoFocus
-            className="ms-title-edit-input"
+            style={{ width: '100%', fontSize: '1.4rem', fontWeight: 800, border: 'none', borderBottom: '2px solid #10b981', outline: 'none', margin: '12px 0' }}
             value={editForm.title}
             onChange={e => setEditForm({...editForm, title: e.target.value})}
             onBlur={() => {
@@ -98,110 +97,102 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
             onKeyDown={e => e.key === 'Enter' && e.target.blur()}
           />
         ) : (
-          <h3 className="ms-main-title" onClick={() => setIsEditingTitle(true)}>{milestone.title}</h3>
+          <h1 className="ms-title-large" onClick={() => setIsEditingTitle(true)}>{milestone.title}</h1>
         )}
 
-        <div className="ms-meta-bar">
-          <select 
-            className={`priority-select ${editForm.priority.toLowerCase()}`}
-            value={editForm.priority}
-            onChange={e => {
-              const p = e.target.value;
-              setEditForm({...editForm, priority: p});
-              handleUpdate({ priority: p });
-            }}
-          >
-            <option value="Low">Low Priority</option>
-            <option value="Medium">Medium Priority</option>
-            <option value="High">High Priority</option>
-          </select>
-          
-          <div className="ms-progress-stat">
-            <div className="progress-ring-mini">
-              <svg viewBox="0 0 36 36">
-                <path className="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="ring-fill" strokeDasharray={`${progress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
+        <div className="ms-top-status">
+          {msStatus === 'active' && <span className="ms-pill active">Active</span>}
+          {msStatus === 'done' && <span className="ms-pill done">Done</span>}
+          {msStatus === 'upcoming' && <span className="ms-pill upcoming">Upcoming</span>}
+          <span className="ms-top-stats">{progress}% · {completedTasks.length} of {allTasks.length} steps done</span>
+        </div>
+
+        <div className="ms-top-bar-container">
+          <div className="ms-top-bar-fill" style={{ width: `${progress}%` }}></div>
+        </div>
+      </div>
+
+      <div className="ms-timeline-body">
+        {completedTasks.length > 0 && (
+          <div className="timeline-header">Completed Steps</div>
+        )}
+
+        {completedTasks.map((t, idx) => (
+          <div key={t.id} className="tl-row">
+            <div className="tl-left">
+              <div className="tl-node done">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+              </div>
+              <div className="tl-line done"></div>
             </div>
-            <span>{progress}%</span>
+            <div className="tl-right">
+              <div className="tl-title" onClick={() => toggleTask(goalId, milestoneId, t.id)}>{t.title}</div>
+              <div className="tl-meta done">
+                Completed {formatDateMMM(t.scheduledDate || new Date().toISOString())}
+              </div>
+            </div>
           </div>
-        </div>
-      </header>
+        ))}
 
-      <section className="ms-info-section">
-        <label>Information & Notes</label>
-        <textarea
-          placeholder="Add detailed information about this milestone..."
-          value={editForm.note}
-          onChange={e => setEditForm({...editForm, note: e.target.value})}
-          onBlur={handleNoteBlur}
-          className="ms-note-textarea"
-        />
-      </section>
-
-      <section className="ms-tasks-section">
-        <div className="section-header">
-          <label>Results & Actions</label>
-          <span className="count-badge">{milestone.tasks.length}</span>
-        </div>
-
-        <div className="ms-task-list">
-          {pendingTasks.map(task => (
-            <div key={task.id} className="task-row glass-card">
-              <div 
-                className="task-check" 
-                onClick={() => toggleTask(goalId, milestoneId, task.id)}
-              />
-              <span className="task-title">{task.title}</span>
-              {task.scheduledDate && (
-                <span className="task-date">{formatDateMMM(task.scheduledDate)}</span>
-              )}
-            </div>
-          ))}
-
-          {activeTaskId === 'new' ? (
-            <form className="inline-task-form glass-card" onSubmit={handleAddTask}>
-              <input 
-                autoFocus
-                placeholder="What is the result?"
-                value={taskForm.title}
-                onChange={e => setTaskForm({...taskForm, title: e.target.value})}
-              />
-              <div className="form-actions">
-                <input 
-                  type="date"
-                  value={taskForm.scheduledDate.split('T')[0]}
-                  onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})}
-                />
-                <button type="button" onClick={() => setActiveTaskId(null)}>Cancel</button>
-                <button type="submit" className="active-btn">Add</button>
+        {activeTask && (
+          <div className="next-step-card" onClick={() => toggleTask(goalId, milestoneId, activeTask.id)} style={{ cursor: 'pointer' }}>
+            <div className="next-step-label">Next Step</div>
+            <div className="next-step-title">{activeTask.title}</div>
+            {activeTask.scheduledDate && (
+              <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+                Target: {formatDateMMM(activeTask.scheduledDate)}
               </div>
-            </form>
-          ) : (
-            <button className="add-task-btn" onClick={() => setActiveTaskId('new')}>
-              + Add a result
-            </button>
-          )}
+            )}
+          </div>
+        )}
 
-          {completedTasks.length > 0 && (
-            <div className="completed-divider">
-              <span>Completed</span>
-            </div>
-          )}
+        {pendingTasks.length > 1 && (
+          <div className="timeline-header" style={{ marginTop: '8px' }}>Upcoming</div>
+        )}
 
-          {completedTasks.map(task => (
-            <div key={task.id} className="task-row glass-card completed">
-              <div 
-                className="task-check checked" 
-                onClick={() => toggleTask(goalId, milestoneId, task.id)}
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+        {pendingTasks.slice(1).map((t, idx) => {
+          return (
+            <div key={t.id} className="tl-row">
+              <div className="tl-left">
+                <div className="tl-node upcoming">{completedTasks.length + idx + 2}</div>
+                {idx < pendingTasks.length - 2 && <div className="tl-line grey"></div>}
               </div>
-              <span className="task-title">{task.title}</span>
+              <div className="tl-right">
+                <div className="tl-title-upcoming" onClick={() => toggleTask(goalId, milestoneId, t.id)}>{t.title}</div>
+                
+                <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                  <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Dates ▾</span>
+                </div>
+              </div>
             </div>
-          ))}
+          );
+        })}
+
+        {/* Hidden but functional add task form */}
+        <div style={{ marginTop: '32px' }}>
+             {activeTaskId === 'new' ? (
+                <form onSubmit={handleAddTask} style={{ background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                   <input
+                      autoFocus
+                      placeholder="Enter step title..."
+                      value={taskForm.title}
+                      onChange={e => setTaskForm({...taskForm, title: e.target.value})}
+                      style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '0.9rem', marginBottom: '12px' }}
+                   />
+                   <div style={{ display: 'flex', gap: '8px' }}>
+                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '0.8rem', border: 'none', color: '#64748b' }} />
+                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>Cancel</button>
+                      <button type="submit" style={{ border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 600, color: '#3b82f6' }}>Add Step</button>
+                   </div>
+                </form>
+             ) : (
+                <button onClick={() => setActiveTaskId('new')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                   <span>+</span> Add a new step
+                </button>
+             )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };
