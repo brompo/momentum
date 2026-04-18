@@ -320,7 +320,11 @@ export const StoreProvider = ({ children }) => {
               return {
                 ...ms,
                 tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { ...task, completed: !task.completed } : task
+                  task.id === taskId ? { 
+                    ...task, 
+                    completed: !task.completed,
+                    completedAt: !task.completed ? new Date().toISOString() : null
+                  } : task
                 )
               };
             }
