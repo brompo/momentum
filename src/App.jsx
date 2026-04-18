@@ -4,7 +4,6 @@ import GoalsView from './components/GoalsView';
 import GoalDetailView from './components/GoalDetailView';
 import ActionsView from './components/ActionsView';
 import NotesView from './components/NotesView';
-import MilestonesView from './components/MilestonesView';
 import MilestoneDetailView from './components/MilestoneDetailView';
 import ReloadPrompt from './components/ReloadPrompt';
 import { useStore } from './lib/store';
@@ -432,7 +431,6 @@ function App() {
         ) : (
           <GoalsView onSelectGoal={(goal) => setSelectedGoalId(goal.id)} />
         );
-      case 'Milestones': return <MilestonesView />;
       case 'Notes': return <NotesView />;
       case 'Settings': return <SettingsView />;
       default: return <GoalsView onSelectGoal={(goal) => setSelectedGoalId(goal.id)} />;
