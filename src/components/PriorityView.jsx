@@ -3,13 +3,17 @@ import { useStore } from '../lib/store';
 import './PriorityView.css';
 
 const PriorityView = () => {
-  const { goals, updateTask, toggleTask, addTask, deleteTask } = useStore();
+  const { goals, updateTask, toggleTask, addTask, deleteTask, setSelectedGoalId, setSelectedMilestoneId, setActiveTab } = useStore();
   
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [followUpTitle, setFollowUpTitle] = useState('');
+  const [followUpDate, setFollowUpDate] = useState(() => {
+    const t = new Date(); t.setDate(t.getDate() + 1);
+    return t.toISOString().split('T')[0];
+  });
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -60,6 +64,7 @@ const PriorityView = () => {
           goalId: g.id,
           milestoneId: ms.id,
           pillarTitle: getPillarTitle(g.pillarId),
+          milestoneTitle: ms.title,
           type: 'result'
         },
         ...(result.subtasks || []).map(task => ({
@@ -68,6 +73,7 @@ const PriorityView = () => {
            milestoneId: ms.id,
            resultId: result.id,
            pillarTitle: getPillarTitle(g.pillarId),
+           milestoneTitle: ms.title,
            type: 'task'
         }))
       ])
@@ -185,6 +191,8 @@ const PriorityView = () => {
     setSelectedContext(context);
     setEditTitle(item.title || '');
     setFollowUpTitle('');
+    const d = new Date(); d.setDate(d.getDate() + 1);
+    setFollowUpDate(d.toISOString().split('T')[0]);
   };
 
   const handleTitleBlur = () => {
@@ -244,9 +252,7 @@ const PriorityView = () => {
 
   const handleFollowUpSubmit = () => {
       if (!followUpTitle.trim()) return;
-      const newD = new Date(selectedTask.scheduledDate || new Date());
-      newD.setDate(newD.getDate() + 1); 
-      const newDateStr = newD.toISOString().split('T')[0] + 'T09:00';
+      const newDateStr = followUpDate + 'T09:00';
 
       if (selectedTask.type === 'result') {
          addTask(selectedTask.goalId, selectedTask.milestoneId, followUpTitle, 0, newDateStr, 'Medium');
@@ -267,6 +273,17 @@ const PriorityView = () => {
          }
       }
       setSelectedTask(null);
+  };
+
+  const buildFollowUp = () => {
+      // helper logic
+  } // (just wrapping previous to keep line numbers if needed but not required)
+  
+  const handleNavigateToMilestone = (item, e) => {
+      e?.stopPropagation();
+      setSelectedGoalId(item.goalId);
+      setSelectedMilestoneId(item.milestoneId);
+      setActiveTab('Goals');
   };
 
   const headerDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(todayDate);
@@ -342,8 +359,16 @@ const PriorityView = () => {
               value={followUpTitle}
               onChange={(e) => setFollowUpTitle(e.target.value)}
             />
-            <div className="follow-up-date-bubble">
-              Tomorrow
+            <div style={{ position: 'relative' }}>
+              <div className="follow-up-date-bubble" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '70px' }}>
+                {formatDate(followUpDate, false).replace('due ', '')}
+              </div>
+              <input 
+                type="date"
+                value={followUpDate}
+                onChange={(e) => setFollowUpDate(e.target.value)}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+              />
             </div>
             <button className="follow-up-submit-btn" onClick={handleFollowUpSubmit}>
               +
@@ -398,10 +423,9 @@ const PriorityView = () => {
                       <div className="priority-content">
                         <h4 className="priority-title">{t.title}</h4>
                         <div className="priority-meta-row">
-                          <span className="priority-meta">
-                            {t.pillarTitle} · {formatDate(t.scheduledDate, true)}
-                            {t.isPriorityFocus && <span className="highlight-tag"> · focused</span>}
-                          </span>
+                          <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                            <span className="dot"></span> {t.milestoneTitle} &rarr;
+                          </div>
                           {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e)=>{e.stopPropagation(); handleToggleFocusFromCard(t, e)}}>focus ⇡</span>}
                         </div>
                       </div>
@@ -439,14 +463,14 @@ const PriorityView = () => {
                     </div>
                     <div className="priority-content">
                       <h4 className="priority-title">{t.title}</h4>
-                      <div className="priority-meta-row">
-                        <span className="priority-meta">
-                          {t.pillarTitle} · {t.completed ? 'done today' : formatDate(t.scheduledDate, false)}
-                        </span>
-                        {!t.completed && (
-                           <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
-                        )}
-                      </div>
+                        <div className="priority-meta-row">
+                          <div className={`milestone-context-pill ${t.completed ? 'completed' : 'due-week'}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
+                            <span className="dot"></span> {t.milestoneTitle} &rarr;
+                          </div>
+                          {!t.completed && (
+                             <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
+                          )}
+                        </div>
                     </div>
                   </div>
                   )
@@ -503,9 +527,9 @@ const PriorityView = () => {
                           <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
                           <div className="tray-content">
                             <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>{t.title}</h4>
-                            <span className="tray-meta" style={{ fontSize: '0.75rem', color: '#92400e' }}>
-                               Due {formatDate(t.scheduledDate, false).replace('due ', '')} · <span className="highlight-text" style={{fontWeight: 700}}>in today's focus</span>
-                            </span>
+                            <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                               <span className="dot"></span> {t.milestoneTitle} &rarr;
+                            </div>
                           </div>
                         </div>
                       );
@@ -514,9 +538,14 @@ const PriorityView = () => {
                     return (
                       <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
                          <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
-                         <div className="tray-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                         <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                             <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
-                            <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                               <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
+                               </div>
+                               <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
+                            </div>
                          </div>
                       </div>
                     );
