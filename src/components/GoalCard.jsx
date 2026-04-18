@@ -13,17 +13,19 @@ const GoalCard = ({ goal, onClick }) => {
 
   const allTasks = (goal.milestones || []).flatMap(ms => ms.tasks || []);
   const completedTasks = allTasks.filter(t => t.completed);
-  const taskCount = allTasks.length;
-  const completedCount = completedTasks.length;
+
+  const allMilestones = goal.milestones || [];
+  const completedMilestones = allMilestones.filter(m => m.completed);
+  const milestoneCount = allMilestones.length;
+  const completedMilestoneCount = completedMilestones.length;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "No date";
     const d = new Date(dateStr);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const day = String(d.getDate()).padStart(2, '0');
     const month = months[d.getMonth()];
-    const year = String(d.getFullYear()).slice(-2);
-    return `${day}-${month}-${year}`;
+    const year = d.getFullYear();
+    return `${month} ${year}`;
   };
 
   const badgeText = goal.endDate ? formatDate(goal.endDate) : "No date";
@@ -36,7 +38,7 @@ const GoalCard = ({ goal, onClick }) => {
   if (targetVal > 0) {
     progress = Math.min(Math.round((currentVal / targetVal) * 100), 100);
   } else {
-    progress = taskCount > 0 ? Math.round((completedCount / taskCount) * 100) : 0;
+    progress = milestoneCount > 0 ? Math.round((completedMilestoneCount / milestoneCount) * 100) : 0;
   }
 
   const handleQuickLogSubmit = (e) => {
@@ -54,40 +56,48 @@ const GoalCard = ({ goal, onClick }) => {
     setIsQuickLog(!isQuickLog);
   };
 
+  const pillarColors = {
+    personal: '#10b981',
+    wealth: '#b45309',
+    growth: '#6366f1'
+  };
+  const goalColor = pillarColors[goal.pillarId] || '#0d9488';
+
   return (
     <div className={`goal-card smooth-all animate-fade-in ${isQuickLog ? 'is-logging' : ''}`} onClick={() => !isQuickLog && onClick && onClick(goal)}>
-      <div className="goal-card-header">
-        <div className="title-row">
+      <div className="goal-card-indicator" style={{ backgroundColor: goalColor }}></div>
+      <div className="goal-card-content">
+        <div className="goal-card-header">
           <h3>{goal.title}</h3>
-          <span className={`badge ${badgeClass}`}>{badgeText}</span>
+          <span className="goal-card-date">{badgeText}</span>
         </div>
-      </div>
-      
-      <div className="goal-card-body">
-        <div className="progress-container-thick">
-          <div className="progress-bar-thick">
-            <div className="progress-fill-thick" style={{ width: `${progress}%` }}>
-              {progress > 10 && <span className="progress-percent">{progress}%</span>}
+        
+        <div className="goal-card-body">
+          <div className="progress-row-slim">
+            <div className="progress-bar-slim">
+              <div className="progress-fill-slim" style={{ width: `${progress}%`, backgroundColor: goalColor }}></div>
             </div>
+            {targetVal > 0 ? (
+               <span className="progress-text" style={{ color: goalColor, fontWeight: 700 }}>{progress}%</span>
+            ) : (
+               <span className="progress-text" style={{ color: '#64748b' }}>
+                 {milestoneCount > 0 ? `${completedMilestoneCount} of ${milestoneCount} milestones` : 'No milestones yet'}
+               </span>
+            )}
           </div>
-          {progress <= 10 && <span className="progress-percent outside">{progress}%</span>}
-        </div>
 
-        <div className="numeric-row">
           {targetVal > 0 && (
-            <div className="numeric-progress-label">
-              <span className="current-val">{currentVal.toLocaleString()}</span>
-              <span className="target-sep">/</span>
-              <span className="target-val">{targetVal.toLocaleString()}</span>
+            <div className="numeric-row">
+              <div className="numeric-progress-label">
+                <span className="current-val">{currentVal.toLocaleString()}</span>
+                <span className="target-sep">/</span>
+                <span className="target-val">{goal.targetNumber || targetVal.toLocaleString()}</span>
+              </div>
+              <button className="quick-log-trigger" onClick={toggleQuickLog} title="Quick Update" style={{ color: goalColor, borderColor: goalColor, backgroundColor: `${goalColor}10` }}>
+                {isQuickLog ? '×' : '+'}
+              </button>
             </div>
           )}
-          
-          {targetVal > 0 && (
-            <button className="quick-log-trigger" onClick={toggleQuickLog} title="Quick Update">
-              {isQuickLog ? '×' : '+'}
-            </button>
-          )}
-        </div>
 
         {isQuickLog && (
           <form className="quick-log-form animate-fade-in" onClick={e => e.stopPropagation()} onSubmit={handleQuickLogSubmit}>
@@ -123,6 +133,7 @@ const GoalCard = ({ goal, onClick }) => {
             </div>
           </form>
         )}
+      </div>
       </div>
     </div>
   );
