@@ -247,15 +247,10 @@ const GoalDetailView = ({ goal, onBack }) => {
         </div>
 
       <div className="detail-header-new">
-        <div className="pillar-badge-new">
-          <span className="dot"></span>
-          {pillars.find(p => p.id === goal.pillarId)?.title || 'Wealth & career'} · {goal.endDate ? new Date(goal.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'No Date'}
-        </div>
-        
         <h1 className="goal-title-new">{goal.title}</h1>
 
         {hasTarget ? (
-          <div className="overall-progress-new" style={{ marginTop: '24px' }}>
+          <div className="overall-progress-new" style={{ marginTop: '16px' }}>
             <div className="op-text">
               <span className="op-label">Overall progress</span>
               <span className="op-summary">
@@ -267,7 +262,7 @@ const GoalDetailView = ({ goal, onBack }) => {
             </div>
           </div>
         ) : (
-          <div className="milestones-only-progress" style={{ marginTop: '24px', marginBottom: '8px' }}>
+          <div className="milestones-only-progress" style={{ marginTop: '16px', marginBottom: '8px' }}>
              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ flex: 1, height: '4px', background: '#f5f4ef', borderRadius: '10px' }}>
                    <div style={{ width: `${progressPercent}%`, height: '100%', background: '#d97706', borderRadius: '10px' }}></div>

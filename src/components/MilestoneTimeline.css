@@ -1,58 +1,97 @@
-/* MilestoneTimeline.css — Pixel-perfect match to mockup */
+/* MilestoneTimeline.css — Card Design Redesign */
 
-/* MilestoneTimeline.css — Flat List Redesign */
-
-.flat-ms-list {
+.timeline-card-list {
   display: flex;
   flex-direction: column;
-}
-
-.flat-ms-row {
-  border-top: 1px solid #f1f5f9;
-  padding: 16px 20px;
-  cursor: pointer;
-  background: white;
-}
-
-.flat-ms-row:hover {
-  background: #fafaf9;
-}
-
-.flat-pill {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 12px;
-}
-
-.flat-pill.active {
-  background: #fde6d5;
-  color: #c2410c;
-}
-
-.flat-next-box {
-  background: #fdf5ef;
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-top: 12px;
-}
-
-.empty-substate {
-  text-align: center;
-  color: #94a3b8;
-  padding: 64px 32px;
-  font-size: 1rem;
-  font-weight: 600;
+  background: #ffffff;
 }
 
 .timeline-section-header {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #94a3b8;
-  letter-spacing: 0.1em;
-  padding: 24px 20px 8px;
-  background: white;
+  color: #92400e;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
+  background: #fef3c7;
+  /* light yellow-beige */
   text-transform: uppercase;
+  border-top: 1px solid #ffe2ce;
+  border-bottom: 1px solid #ffe2ce;
+  margin-top: 16px;
+}
+
+.timeline-section-header.draft {
+  background: #f8fafc;
+  color: #475569;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.timeline-cards-wrapper {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ms-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.ms-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.ms-card.draft .ms-card-title {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.ms-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ms-card-title {
+  font-size: 0.90rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ms-inline-progress-bg {
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  margin-top: 6px;
+  margin-bottom: 2px;
+  width: 180px;
+  overflow: hidden;
+}
+
+.ms-inline-progress-fill {
+  height: 100%;
+  background: #d97706;
+  border-radius: 4px;
+}
+
+.ms-card-meta {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.empty-substate {
+  text-align: center;
+  color: #94a3b8;
+  padding: 32px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .star-btn {
@@ -72,8 +111,8 @@
 }
 
 .flat-next-box-new {
-  background: #faeedb;
+  background: #fdf5ef;
   border-radius: 8px;
-  padding: 12px 14px;
-  margin-top: 12px;
+  padding: 10px 12px;
+  margin-top: 8px;
 }
