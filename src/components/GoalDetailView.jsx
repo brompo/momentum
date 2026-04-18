@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import './GoalDetailView.css';
+import MilestoneTimeline from './MilestoneTimeline';
 
 const GoalDetailView = ({ goal, onBack }) => {
   const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, toggleMilestoneCompleted, logGoalProgress, pillars } = useStore();
@@ -280,9 +281,14 @@ const GoalDetailView = ({ goal, onBack }) => {
   return (
     <div className="goal-detail-view safe-area animate-fade-in">
       <div className={`detail-top-nav ${isScrolled ? 'scrolled' : ''}`}>
-        <button className="back-btn-icon" onClick={handleBack}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button className="back-btn-icon" onClick={handleBack}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <div className="pillar-context" style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
+            {pillars.find(p => p.id === goal.pillarId)?.title || 'Goal'}
+          </div>
+        </div>
         <div className="nav-actions">
           <button className="icon-btn" onClick={() => setIsEditingGoal(true)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
@@ -292,18 +298,14 @@ const GoalDetailView = ({ goal, onBack }) => {
       </div>
 
       <div className="detail-header-v2">
-        <div className="header-meta-v2">
-          <div className="active-goal-badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-            Active goal
-          </div>
-          <span className="deadline-tag-v2">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-            {goal.endDate || 'Sept 30, 2026'}
-          </span>
-        </div>
         <div className="title-section-v2">
-          <h1>{goal.title}</h1>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>{goal.title}</h1>
+        </div>
+        <div className="header-meta-v3" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: 600 }}>
+          <span className="active-badge" style={{ color: '#10b981', background: '#ecfdf5', padding: '2px 8px', borderRadius: '6px', fontSize: '0.85rem' }}>Active</span>
+          <span className="summary-stats" style={{ color: '#64748b' }}>
+            {progressPercent}% · {goal.milestones.filter(m => m.completed).length} of {goal.milestones.length} steps done
+          </span>
         </div>
       </div>
 
@@ -468,240 +470,50 @@ const GoalDetailView = ({ goal, onBack }) => {
 
       {activeTab === 'Milestones' ? (
         <div className="milestones-section-v2">
-          <div className="section-header-v2" style={{ alignItems: 'center', marginBottom: '10px' }}>
-            <h2 style={{ margin: 0 }}>{goal.milestones.length} milestones</h2>
-
-            <div className="small-filter-capsule">
-              <button className={`ms-filter-btn ${msFilter === 'All' ? 'active' : ''}`} onClick={() => setMsFilter('All')}>All</button>
-              <button className={`ms-filter-btn ${msFilter === 'Active' ? 'active' : ''}`} onClick={() => setMsFilter('Active')}>Active</button>
-              <button className={`ms-filter-btn ${msFilter === 'Completed' ? 'active' : ''}`} onClick={() => setMsFilter('Completed')}>Completed</button>
-            </div>
-
+          <div className="section-header-v2" style={{ alignItems: 'center', marginBottom: '10px', padding: '0 16px' }}>
+            <h2 style={{ margin: 0 }}>Milestones</h2>
             <button className="add-small-btn" onClick={() => setIsAddingMilestone(true)}>+</button>
           </div>
 
           {isAddingMilestone && (
-            <form className="inline-add glass-card" onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
-              <input
-                autoFocus
-                placeholder="Enter milestone..."
-                value={newMilestoneTitle}
-                onChange={e => setNewMilestoneTitle(e.target.value)}
-                style={{ width: '100%', marginBottom: 0 }}
-              />
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <select
-                  value={newMilestonePriority}
-                  onChange={e => setNewMilestonePriority(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
-                >
-                  <option value="Low">Low Priority 🔵</option>
-                  <option value="Medium">Medium Priority 🟡</option>
-                  <option value="High">High Priority 🔴</option>
-                </select>
-              </div>
-              <div className="inline-actions">
-                <button type="button" onClick={() => setIsAddingMilestone(false)}>Cancel</button>
-                <button type="submit" className="active">Add</button>
-              </div>
-            </form>
+            <div style={{ padding: '0 16px' }}>
+              <form className="inline-add glass-card" onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
+                <input
+                  autoFocus
+                  placeholder="Enter milestone..."
+                  value={newMilestoneTitle}
+                  onChange={e => setNewMilestoneTitle(e.target.value)}
+                  style={{ width: '100%', marginBottom: 0 }}
+                />
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <select
+                    value={newMilestonePriority}
+                    onChange={e => setNewMilestonePriority(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
+                  >
+                    <option value="Low">Low Priority 🔵</option>
+                    <option value="Medium">Medium Priority 🟡</option>
+                    <option value="High">High Priority 🔴</option>
+                  </select>
+                </div>
+                <div className="inline-actions">
+                  <button type="button" onClick={() => setIsAddingMilestone(false)}>Cancel</button>
+                  <button type="submit" className="active">Add</button>
+                </div>
+              </form>
+            </div>
           )}
 
-          <div className="milestone-list-v2">
-            {filteredMilestones.length === 0 ? (
-              <p className="empty-substate">No {msFilter.toLowerCase()} milestones found.</p>
-            ) : (
-              filteredMilestones.map(ms => {
-                const totalR = ms.tasks.length;
-                const doneR = ms.tasks.filter(t => t.completed).length;
-                const msProgress = totalR > 0 ? (doneR / totalR) * 100 : 0;
-
-                return (
-                  <div key={ms.id} id={`milestone-${ms.id}`} className={`ms-card-v2 ${ms.completed ? 'ms-completed' : ''}`}>
-                    <div className="ms-header-v2">
-                      <div className="ms-title-group-v2">
-                        <div
-                          className={`ms-completion-checkbox ${ms.completed ? 'checked' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleMilestoneCompleted(goal.id, ms.id); }}
-                        >
-                          {ms.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
-                        </div>
-                        <div className="ms-title-meta" onClick={() => setSelectedMilestoneId(ms.id)} style={{ cursor: 'pointer' }}>
-                          <span className="ms-priority-tag">{(ms.priority || 'Low').toUpperCase()}</span>
-                          <h3>{ms.title}</h3>
-                        </div>
-                        <button className="ms-edit-icon-btn" onClick={(e) => handleOpenEditMs(e, ms)}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
-                        </button>
-                      </div>
-                      <div className="ms-header-right">
-                        <button
-                          className={`toggle-active-btn-v2 ${ms.active ? 'is-active' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleMilestoneActive(goal.id, ms.id); }}
-                          title={ms.active ? "Hide from Milestones view" : "Show in Milestones view"}
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill={ms.active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                        </button>
-                        <button className={`chevron-btn ${collapsedMilestones[ms.id] !== false ? 'collapsed' : ''}`} onClick={() => toggleMilestoneCollapse(ms.id)}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 9l-7 7-7-7" /></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="ms-footer-v2">
-                      <div className="ms-mini-bar">
-                        <div className="ms-bar-fill" style={{ width: `${msProgress}%` }}></div>
-                      </div>
-                      <span className="ms-results-count">{doneR}/{totalR} results</span>
-                    </div>
-
-                    {collapsedMilestones[ms.id] === false && (
-                      <div className="tasks-list">
-                        {/* Pending Results */}
-                        {ms.tasks.filter(t => !t.completed).sort((a, b) => {
-                          if (a.scheduledDate && b.scheduledDate) return a.scheduledDate.localeCompare(b.scheduledDate);
-                          return 0;
-                        }).map(task => (
-                          <div key={task.id} className="task-row card-style">
-                            <div
-                              className="task-item"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '', priority: task.priority || 'Low', subtasks: task.subtasks || [] });
-                                setEditingTaskId(task.id);
-                                setActiveMilestoneId(null);
-                              }}
-                            >
-                              <span style={{ fontWeight: 500, flex: 1 }}>{task.title}</span>
-                              {task.scheduledDate && (
-                                <span className={`task-date-badge ${getDateStatusClass(task.scheduledDate)}`}>
-                                  {formatDateMMM(task.scheduledDate)}
-                                </span>
-                              )}
-                            </div>
-                            <button 
-                              className="result-delete-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (window.confirm('Delete this result?')) {
-                                  deleteTask(goal.id, ms.id, task.id);
-                                }
-                              }}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                            </button>
-                          </div>
-                        ))}
-
-                        {/* Completed Results Collapsible */}
-                        {ms.tasks.some(t => t.completed) && (
-                          <div className="completed-results-collapsible">
-                            <button
-                              className="view-completed-btn"
-                              onClick={() => toggleCompletedResults(ms.id)}
-                            >
-                              {expandedCompletedResults[ms.id] ? 'Hide' : 'View'} completed results ({ms.tasks.filter(t => t.completed).length})
-                            </button>
-
-                            {expandedCompletedResults[ms.id] && (
-                              <div className="completed-tasks-tray animate-fade-in" style={{ marginTop: '8px' }}>
-                                {ms.tasks.filter(t => t.completed).map(task => (
-                                  <div key={task.id} className="task-row card-style completed" style={{ marginBottom: '6px' }}>
-                                    <div
-                                      className="task-item completed"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '', priority: task.priority || 'Low', subtasks: task.subtasks || [] });
-                                        setEditingTaskId(task.id);
-                                      }}
-                                    >
-                                      <span style={{ fontWeight: 600, flex: 1, textDecoration: 'line-through', opacity: 0.6 }}>{task.title}</span>
-                                      {task.scheduledDate && (
-                                        <span className="task-date-badge past" style={{ opacity: 0.5 }}>
-                                          {formatDateMMM(task.scheduledDate)}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <button 
-                                      className="result-delete-btn"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (window.confirm('Delete this result?')) {
-                                          deleteTask(goal.id, ms.id, task.id);
-                                        }
-                                      }}
-                                    >
-                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {activeMilestoneId === ms.id ? (
-                          <form className="inline-add-task glass-card" onSubmit={(e) => handleAddTask(e, ms.id)} style={{ marginTop: '8px' }}>
-                            <div className="inline-input-wrapper-v2" style={{ position: 'relative' }}>
-                              <input
-                                autoFocus
-                                placeholder="Enter result..."
-                                value={taskForm.title}
-                                onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Escape') setActiveMilestoneId(null);
-                                }}
-                                style={{ width: '100%', marginBottom: '8px', padding: '10px 40px 10px 10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white' }}
-                              />
-                              <div
-                                className="inline-date-trigger-v2"
-                                style={{ position: 'absolute', right: '10px', top: '10px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
-                              >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2.5" style={{ pointerEvents: 'none' }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                                <input
-                                  id={`inline-date-picker-${ms.id}`}
-                                  type="date"
-                                  style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    opacity: 0,
-                                    cursor: 'pointer',
-                                    fontSize: '16px' // Prevents zoom on iOS
-                                  }}
-                                  value={taskForm.scheduledDate?.split('T')[0] || ''}
-                                  onChange={(e) => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })}
-                                />
-                              </div>
-                            </div>
-                            {taskForm.scheduledDate && taskForm.scheduledDate.split('T')[0] !== new Date().toISOString().split('T')[0] && (
-                              <div style={{ fontSize: '0.65rem', color: '#0d9488', fontWeight: 800, marginTop: '-6px', marginBottom: '8px', paddingLeft: '4px' }}>
-                                TARGET: {taskForm.scheduledDate.split('T')[0]}
-                              </div>
-                            )}
-                            <div className="inline-actions" style={{ padding: '0 4px' }}>
-                              <button type="button" onClick={() => setActiveMilestoneId(null)}>Cancel</button>
-                              <button type="submit" className="active" style={{ color: '#0d9488', fontWeight: 800 }}>Add</button>
-                            </div>
-                          </form>
-                        ) : (
-                          <button className="add-task-placeholder" onClick={() => {
-                            setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
-                            setActiveMilestoneId(ms.id);
-                            setEditingTaskId(null);
-                          }}>
-                            + Add a result
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
+          <MilestoneTimeline 
+            goal={goal}
+            onMilestoneClick={(id) => setSelectedMilestoneId(id)}
+            onToggleComplete={(id) => toggleMilestoneCompleted(goal.id, id)}
+            onAddTask={(msId) => {
+              setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+              setActiveMilestoneId(msId);
+            }}
+            onToggleTask={toggleTask}
+          />
         </div>
       ) : (
         <div className="tasks-section">

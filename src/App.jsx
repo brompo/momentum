@@ -6,7 +6,6 @@ import ActionsView from './components/ActionsView';
 import NotesView from './components/NotesView';
 import MilestonesView from './components/MilestonesView';
 import MilestoneDetailView from './components/MilestoneDetailView';
-import VisionView from './components/VisionView';
 import ReloadPrompt from './components/ReloadPrompt';
 import { useStore } from './lib/store';
 import featuremap from './data/featuremap.json';
@@ -375,7 +374,6 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'Actions': return <ActionsView />;
-      case 'Vision': return <VisionView />;
       case 'Goals':
         if (selectedGoalId && selectedMilestoneId) {
           return (
