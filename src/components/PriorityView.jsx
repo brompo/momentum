@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import './PriorityView.css';
 
 const PriorityView = () => {
-  const { goals, updateTask, toggleTask } = useStore();
+  const { goals, updateTask, toggleTask, addTask, deleteTask } = useStore();
   
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedContext, setSelectedContext] = useState('');
+  const [editTitle, setEditTitle] = useState('');
+  const [followUpTitle, setFollowUpTitle] = useState('');
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [editTitle, selectedTask]);
 
   // Date logic
   const todayDate = new Date();
@@ -62,7 +74,6 @@ const PriorityView = () => {
     )
   );
 
-  // --- Streak Calculation ---
   const completedDateStrings = [...new Set(
     allTasks.filter(t => t.completed && t.completedAt)
             .map(t => new Date(t.completedAt).toLocaleDateString('en-CA'))
@@ -82,7 +93,6 @@ const PriorityView = () => {
      loopDate.setDate(loopDate.getDate() - 1);
   }
 
-  // --- Bucketing ---
   const overdue = [];
   const thisWeekTasks = [];
   const upNext = [];
@@ -95,17 +105,14 @@ const PriorityView = () => {
      
      const completedToday = t.completed && t.completedAt && (new Date(t.completedAt).toLocaleDateString('en-CA') === todayDate.toLocaleDateString('en-CA'));
      
-     // 1. THIS WEEK logic (includes completed)
      if (tDate >= startOfWeek && tDate <= endOfWeek) {
         thisWeekTasks.push(t);
      }
      
-     // 2. TODAY'S FOCUS logic
      if (t.isPriorityFocus || completedToday) {
         todayFocus.push(t);
      }
 
-     // 3. OVERDUE and UP NEXT (only incomplete)
      if (!t.completed) {
         if (tDate < todayDate) overdue.push(t);
         else if (tDate > endOfWeek) upNext.push(t);
@@ -121,8 +128,24 @@ const PriorityView = () => {
 
   const incompleteFocusCount = todayFocus.filter(t => !t.completed).length;
 
+  const setItemProperty = (item, propObj) => {
+    if (item.type === 'result') {
+      updateTask(item.goalId, item.milestoneId, item.id, propObj);
+    } else {
+      const g = goals.find(g => g.id === item.goalId);
+      const ms = g?.milestones.find(m => m.id === item.milestoneId);
+      const parentResult = ms?.tasks.find(r => r.id === item.resultId);
+      if (parentResult) {
+        const newSubtasks = parentResult.subtasks.map(s =>
+          s.id === item.id ? { ...s, ...propObj } : s
+        );
+        updateTask(item.goalId, item.milestoneId, item.resultId, { subtasks: newSubtasks });
+      }
+    }
+  }
+
   const handleToggle = (item, e) => {
-    e?.stopPropagation();
+    e.stopPropagation();
     if (item.type === 'result') {
       toggleTask(item.goalId, item.milestoneId, item.id);
     } else {
@@ -142,40 +165,199 @@ const PriorityView = () => {
     }
   };
 
-  const handleToggleFocus = (item, e) => {
+  const handleToggleFocusFromCard = (item, e) => {
     e?.stopPropagation();
     const newValue = !item.isPriorityFocus;
     if (newValue && incompleteFocusCount >= 3) {
       alert("Focus full! Today's Focus can only have max 3 actions. Un-swap one first.");
       return;
     }
+    setItemProperty(item, { isPriorityFocus: newValue });
+  };
 
-    if (item.type === 'result') {
-      updateTask(item.goalId, item.milestoneId, item.id, { isPriorityFocus: newValue });
-    } else {
-      const g = goals.find(g => g.id === item.goalId);
-      const ms = g?.milestones.find(m => m.id === item.milestoneId);
-      const parentResult = ms?.tasks.find(r => r.id === item.resultId);
-      if (parentResult) {
-        const newSubtasks = parentResult.subtasks.map(s =>
-          s.id === item.id ? { ...s, isPriorityFocus: newValue } : s
-        );
-        updateTask(item.goalId, item.milestoneId, item.resultId, { subtasks: newSubtasks });
-      }
+  const handleCardClick = (item, context) => {
+    if (selectedTask?.id === item.id && selectedContext === context) {
+       setSelectedTask(null);
+       setSelectedContext('');
+       return;
     }
+    setSelectedTask(item);
+    setSelectedContext(context);
+    setEditTitle(item.title || '');
+    setFollowUpTitle('');
+  };
+
+  const handleTitleBlur = () => {
+     if (editTitle !== selectedTask.title) {
+        setItemProperty(selectedTask, { title: editTitle });
+        setSelectedTask({...selectedTask, title: editTitle});
+     }
+  };
+
+  const handleToggleFocusFromModal = () => {
+    const newValue = !selectedTask.isPriorityFocus;
+    if (newValue && incompleteFocusCount >= 3) {
+      alert("Focus full! Today's Focus can only have max 3 actions. Un-swap one first.");
+      return;
+    }
+    setItemProperty(selectedTask, { isPriorityFocus: newValue });
+    setSelectedTask({ ...selectedTask, isPriorityFocus: newValue });
+  }
+
+  const handleDelete = () => {
+     if (selectedTask.type === 'result') {
+        deleteTask(selectedTask.goalId, selectedTask.milestoneId, selectedTask.id);
+     } else {
+        const g = goals.find(g => g.id === selectedTask.goalId);
+        const ms = g?.milestones.find(m => m.id === selectedTask.milestoneId);
+        const parentResult = ms?.tasks.find(r => r.id === selectedTask.resultId);
+        if (parentResult) {
+           const newSubtasks = parentResult.subtasks.filter(s => s.id !== selectedTask.id);
+           updateTask(selectedTask.goalId, selectedTask.milestoneId, selectedTask.resultId, { subtasks: newSubtasks });
+        }
+     }
+     setSelectedTask(null);
+  };
+
+  const handleSnooze = (daysDelta) => {
+     const date = new Date();
+     date.setDate(date.getDate() + daysDelta);
+     const dateString = date.toISOString().split('T')[0] + 'T09:00';
+     setItemProperty(selectedTask, { scheduledDate: dateString });
+     setSelectedTask(null); 
+  };
+
+  const getSnoozeDetails = () => {
+     const t = new Date();
+     t.setDate(t.getDate() + 1);
+     const m = new Date();
+     m.setDate(m.getDate() + ((1 + 7 - m.getDay()) % 7 || 7));
+     const nw = new Date();
+     nw.setDate(nw.getDate() + 7);
+     const mStr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+     return {
+        tomorrowDays: 1, tomorrowStr: `${mStr[t.getMonth()]} ${t.getDate()}`,
+        mondayDays: ((1 + 7 - new Date().getDay()) % 7 || 7), mondayStr: `${mStr[m.getMonth()]} ${m.getDate()}`,
+        nextWeekDays: 7, nextWeekStr: `${mStr[nw.getMonth()]} ${nw.getDate()}`
+     };
+  };
+
+  const handleFollowUpSubmit = () => {
+      if (!followUpTitle.trim()) return;
+      const newD = new Date(selectedTask.scheduledDate || new Date());
+      newD.setDate(newD.getDate() + 1); 
+      const newDateStr = newD.toISOString().split('T')[0] + 'T09:00';
+
+      if (selectedTask.type === 'result') {
+         addTask(selectedTask.goalId, selectedTask.milestoneId, followUpTitle, 0, newDateStr, 'Medium');
+      } else {
+         const g = goals.find(g => g.id === selectedTask.goalId);
+         const ms = g?.milestones.find(m => m.id === selectedTask.milestoneId);
+         const parentResult = ms?.tasks.find(r => r.id === selectedTask.resultId);
+         if (parentResult) {
+            const newSubtask = {
+               id: crypto.randomUUID(),
+               title: followUpTitle,
+               completed: false,
+               isPriorityFocus: false,
+               scheduledDate: newDateStr
+            };
+            const newSubtasks = [...(parentResult.subtasks || []), newSubtask];
+            updateTask(selectedTask.goalId, selectedTask.milestoneId, selectedTask.resultId, { subtasks: newSubtasks });
+         }
+      }
+      setSelectedTask(null);
   };
 
   const headerDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(todayDate);
   const maxOverdue = 3;
   const overdueRender = overdue.slice(0, maxOverdue);
 
-  const weeklyTotal = thisWeekTasks.length;
-  const displayTotal = weeklyTotal === 0 ? 5 : weeklyTotal; 
+  const displayTotal = thisWeekTasks.length === 0 ? 5 : thisWeekTasks.length; 
   const weeklyCompleted = thisWeekTasks.filter(t => t.completed).length;
+
+  const renderInlineOptions = () => {
+    if (!selectedTask) return null;
+    return (
+      <div className="inline-options-card">
+        {/* Close Button top right */}
+        <div className="inline-close-btn" onClick={(e) => { e.stopPropagation(); setSelectedTask(null); setSelectedContext(''); }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+
+        <div className="options-row-top">
+            <div style={{ flex: 1, paddingRight: '12px' }}>
+              <textarea 
+                  ref={textareaRef}
+                  value={editTitle}
+                  onChange={(e) => {
+                     setEditTitle(e.target.value);
+                  }}
+                  onBlur={handleTitleBlur}
+                  className="sheet-title-input"
+                  rows={1}
+              />
+            </div>
+            <div className="options-date-pill">
+              {selectedTask.scheduledDate ? formatDate(selectedTask.scheduledDate, false).replace('due ', '') : 'No Date'} ✏️
+            </div>
+        </div>
+
+        <div className="options-row-actions">
+            <div className="action-pill-card focus" onClick={handleToggleFocusFromModal}>
+              <span>⚡</span> {selectedTask.isPriorityFocus ? "Remove focus" : "Focus today"}
+            </div>
+            <div className="action-pill-card delete" onClick={handleDelete}>
+              <span>🗑️</span> Won't do
+            </div>
+        </div>
+
+        <div className="options-row-snooze">
+            <div className="snooze-header">Snooze To</div>
+            <div className="snooze-grid">
+              <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().tomorrowDays)}>
+                  <span className="s-title">Tomorrow</span>
+                  <span className="s-date">{getSnoozeDetails().tomorrowStr}</span>
+              </div>
+              <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().mondayDays)}>
+                  <span className="s-title">Monday</span>
+                  <span className="s-date">{getSnoozeDetails().mondayStr}</span>
+              </div>
+              <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().nextWeekDays)}>
+                  <span className="s-title">Next week</span>
+                  <span className="s-date">{getSnoozeDetails().nextWeekStr}</span>
+              </div>
+              <div className="snooze-bubble">
+                  <span className="s-title">Pick</span>
+                  <span className="s-date">...</span>
+              </div>
+            </div>
+        </div>
+
+        <div className="options-row-followup">
+            <input 
+              type="text" 
+              className="follow-up-input" 
+              placeholder="Follow-up step..."
+              value={followUpTitle}
+              onChange={(e) => setFollowUpTitle(e.target.value)}
+            />
+            <div className="follow-up-date-bubble">
+              Tomorrow
+            </div>
+            <button className="follow-up-submit-btn" onClick={handleFollowUpSubmit}>
+              +
+            </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="priority-view safe-area animate-fade-in">
-       {/* Floating Pulse Widget kept as requested */}
+       {/* Global blur mask when a task is selected */}
+       {selectedTask && <div className="inline-options-overlay" onClick={() => setSelectedTask(null)}></div>}
+
        <div className="priority-header">
          <div className="priority-header-titles">
             <h1>Actions</h1>
@@ -189,7 +371,7 @@ const PriorityView = () => {
 
        <div className="priority-scroll-container">
           
-          <div className="weekly-pulse-card">
+          <div className="weekly-pulse-card relative-z">
              <span className="pulse-text">This week — {weeklyCompleted} of {displayTotal} steps done</span>
              <div className="pulse-dots">
                 {Array.from({length: Math.min(displayTotal, 20)}).map((_, i) => (
@@ -198,8 +380,7 @@ const PriorityView = () => {
              </div>
           </div>
 
-          {/* OVERDUE */}
-          <div className="priority-section overdue">
+          <div className="priority-section overdue relative-z">
             <div className="priority-section-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="dot"></span> OVERDUE
@@ -211,8 +392,9 @@ const PriorityView = () => {
               <>
                 <div className="priority-list">
                   {overdueRender.map((t, idx) => (
-                    <div key={t.id} className="priority-card overdue" onClick={(e) => handleToggle(t, e)}>
-                      <div className="priority-radio"></div>
+                    selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions() : (
+                    <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
+                      <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
                       <div className="priority-content">
                         <h4 className="priority-title">{t.title}</h4>
                         <div className="priority-meta-row">
@@ -220,10 +402,11 @@ const PriorityView = () => {
                             {t.pillarTitle} · {formatDate(t.scheduledDate, true)}
                             {t.isPriorityFocus && <span className="highlight-tag"> · focused</span>}
                           </span>
-                          {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e)=>{e.stopPropagation(); handleToggleFocus(t, e)}}>focus ⇡</span>}
+                          {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e)=>{e.stopPropagation(); handleToggleFocusFromCard(t, e)}}>focus ⇡</span>}
                         </div>
                       </div>
                     </div>
+                    )
                   ))}
                 </div>
                 {overdue.length > maxOverdue && (
@@ -239,8 +422,7 @@ const PriorityView = () => {
             )}
           </div>
 
-          {/* TODAY'S FOCUS */}
-          <div className="priority-section due-week">
+          <div className="priority-section due-week relative-z">
             <div className="priority-section-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="dot" style={{background: '#b45309'}}></span> TODAY'S FOCUS
@@ -250,8 +432,9 @@ const PriorityView = () => {
             {todayFocus.length > 0 ? (
               <div className="priority-list">
                 {todayFocus.map(t => (
-                  <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={(e) => handleToggle(t, e)}>
-                    <div className="priority-radio">
+                  selectedTask?.id === t.id && !t.completed && selectedContext === 'today' ? renderInlineOptions() : (
+                  <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={() => !t.completed && handleCardClick(t, 'today')}>
+                    <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
                        {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
                     </div>
                     <div className="priority-content">
@@ -261,11 +444,12 @@ const PriorityView = () => {
                           {t.pillarTitle} · {t.completed ? 'done today' : formatDate(t.scheduledDate, false)}
                         </span>
                         {!t.completed && (
-                           <span className="swap-text clickable" onClick={(e) => handleToggleFocus(t, e)}>swap ⇆</span>
+                           <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
                         )}
                       </div>
                     </div>
                   </div>
+                  )
                 ))}
               </div>
             ) : (
@@ -275,8 +459,7 @@ const PriorityView = () => {
             )}
           </div>
 
-          {/* THIS WEEK COLLAPSIBLE */}
-          <div className="priority-section this-week-section">
+          <div className="priority-section this-week-section relative-z" style={{ zIndex: selectedTask ? 1002 : 'auto' }}>
             <div 
               className="priority-section-header clickable" 
               onClick={() => setIsThisWeekExpanded(!isThisWeekExpanded)}
@@ -310,10 +493,14 @@ const PriorityView = () => {
                       );
                     }
 
+                    if (selectedTask?.id === t.id && selectedContext === 'week') {
+                       return renderInlineOptions();
+                    }
+
                     if (t.isPriorityFocus) {
                       return (
-                        <div key={t.id} className="tray-item focused" onClick={(e) => handleToggle(t, e)}>
-                          <div className="priority-radio" style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
+                        <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
+                          <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
                           <div className="tray-content">
                             <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>{t.title}</h4>
                             <span className="tray-meta" style={{ fontSize: '0.75rem', color: '#92400e' }}>
@@ -325,11 +512,11 @@ const PriorityView = () => {
                     }
 
                     return (
-                      <div key={t.id} className="tray-item normal" onClick={(e) => handleToggle(t, e)}>
-                         <div className="priority-radio" style={{ width: '18px', height: '18px' }}></div>
+                      <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
+                         <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
                          <div className="tray-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
-                            <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocus(t, e)}>focus ⇡</span>
+                            <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
                          </div>
                       </div>
                     );
@@ -339,8 +526,7 @@ const PriorityView = () => {
             )}
           </div>
 
-          {/* UP NEXT */}
-          <div className="priority-section up-next">
+          <div className="priority-section up-next relative-z">
             <div className="priority-section-header no-margin">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
                 <span className="dot" style={{background: '#94a3b8'}}></span> UP NEXT
