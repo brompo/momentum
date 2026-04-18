@@ -68,23 +68,23 @@ const GoalsView = ({ onSelectGoal }) => {
                 <h2>New Achievement</h2>
               </div>
               <button className="modal-close-icon" onClick={() => setIsAdding(false)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
               </button>
             </div>
-            
+
             {error && <div className="form-error">{error}</div>}
-            
+
             <form onSubmit={handleAddGoal} className="modal-form-v2">
               <div className="form-section">
                 <div className="form-group-v2">
                   <label>Pillar Category</label>
-                  <select 
-                    value={newGoal.pillarId} 
+                  <select
+                    value={newGoal.pillarId}
                     onChange={e => setNewGoal({ ...newGoal, pillarId: e.target.value })}
                     className="modal-select-v2"
                   >
                     {pillars.map(p => (
-                      <option key={p.id} value={p.id}>{p.icon} {p.title}</option>
+                      <option key={p.id} value={p.id}>{p.title}</option>
                     ))}
                   </select>
                 </div>
@@ -138,7 +138,7 @@ const GoalsView = ({ onSelectGoal }) => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="form-group-v2" style={{ marginTop: '12px' }}>
                   <label>Metric Goal (Optional)</label>
                   <input
@@ -164,38 +164,42 @@ const GoalsView = ({ onSelectGoal }) => {
         {pillars.map(pillar => {
           const pillarGoals = goals.filter(g => g.pillarId === pillar.id || (!g.pillarId && pillar.id === 'personal'));
           const isCollapsed = collapsedPillars[pillar.id];
-          
+
           return (
             <div key={pillar.id} className="pillar-group" style={{ marginBottom: '12px' }}>
-              <div 
-                className="pillar-group-header" 
+              <div
+                className="pillar-group-header"
                 onClick={() => togglePillar(pillar.id)}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px', 
-                  marginBottom: '8px', 
-                  borderBottom: '1px solid rgba(0,0,0,0.03)', 
-                  paddingBottom: '4px',
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  borderTop: '1px solid #0000000d',
+                  paddingTop: '8px',
                   cursor: 'pointer'
                 }}
               >
-                <span style={{ fontSize: '1rem', opacity: 0.8 }}>{pillar.icon}</span>
+                <span style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: pillar.id === 'personal' ? '#10b981' : pillar.id === 'wealth' ? '#b45309' : pillar.id === 'growth' ? '#6366f1' : '#0d9488'
+                }}></span>
                 <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
-                <button 
+                <button
                   className="add-goal-mini-btn-v2"
                   onClick={(e) => handleAddForPillar(e, pillar.id)}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14" /></svg>
                 </button>
-                <svg 
-                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3" 
-                   style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                <svg
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="3"
+                  style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
                 >
                   <path d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
-              
+
               {!isCollapsed && (
                 <div className="goals-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {pillarGoals.length === 0 ? (
