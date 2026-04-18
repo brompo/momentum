@@ -15,11 +15,6 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [visionStatements, setVisionStatements] = useState(() => {
-    const saved = localStorage.getItem('ga_vision_statements');
-    if (saved) return JSON.parse(saved);
-    return { personal: '', wealth: '', growth: '' };
-  });
 
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('ga_notes');
@@ -61,7 +56,6 @@ export const StoreProvider = ({ children }) => {
   });
 
   useEffect(() => { localStorage.setItem('ga_goals', JSON.stringify(goals)); }, [goals]);
-  useEffect(() => { localStorage.setItem('ga_vision_statements', JSON.stringify(visionStatements)); }, [visionStatements]);
   useEffect(() => { localStorage.setItem('ga_pillars', JSON.stringify(pillars)); }, [pillars]);
   useEffect(() => { localStorage.setItem('ga_notes', JSON.stringify(notes)); }, [notes]);
   useEffect(() => { localStorage.setItem('ga_feature_map', JSON.stringify(featureMap)); }, [featureMap]);
@@ -99,12 +93,9 @@ export const StoreProvider = ({ children }) => {
     }
     // Update local timestamp on every change even if not syncing
     setLastLocalUpdate(new Date().toISOString());
-  }, [goals, visionStatements, pillars, notes, featureMap, sync.token]);
+  }, [goals, pillars, notes, featureMap, sync.token]);
 
   // Actions
-  const updateVisionStatement = (pillarId, text) => {
-    setVisionStatements(prev => ({ ...prev, [pillarId]: text }));
-  };
 
   const addPillar = (title, icon = '📌') => {
     setPillars(prev => [...prev, { id: crypto.randomUUID(), title, icon, subcategories: [] }]);
@@ -156,10 +147,6 @@ export const StoreProvider = ({ children }) => {
     if (pillarId === 'personal' || pillarId === 'wealth' || pillarId === 'growth') return; // Protect defaults
     setPillars(prev => prev.filter(p => p.id !== pillarId));
     setGoals(prev => prev.map(g => g.pillarId === pillarId ? { ...g, pillarId: 'personal' } : g));
-    setVisionStatements(prev => {
-      const { [pillarId]: removed, ...rest } = prev;
-      return rest;
-    });
   };
 
   const addGoal = (title, pillarId = 'personal', note = '', startDate = '', endDate = '', targetNumber = '', subcategoryId = null) => {
@@ -451,8 +438,7 @@ export const StoreProvider = ({ children }) => {
 
   const syncLocalToCloud = async () => {
     const fullData = {
-      goals,
-      visionStatements,
+       goals,
       pillars,
       notes,
       featureMap,
@@ -465,9 +451,8 @@ export const StoreProvider = ({ children }) => {
   const syncCloudToLocal = async () => {
     const res = await sync.downloadBackup();
     if (res && res.data) {
-      const cloudData = res.data;
+       const cloudData = res.data;
       if (cloudData.goals) setGoals(cloudData.goals);
-      if (cloudData.visionStatements) setVisionStatements(cloudData.visionStatements);
       if (cloudData.pillars) setPillars(cloudData.pillars);
       if (cloudData.notes) setNotes(cloudData.notes);
       if (cloudData.featureMap) setFeatureMap(cloudData.featureMap);
@@ -484,7 +469,6 @@ export const StoreProvider = ({ children }) => {
   const exportToJSON = () => {
     const data = {
       goals,
-      visionStatements,
       pillars,
       notes,
       featureMap,
@@ -507,7 +491,6 @@ export const StoreProvider = ({ children }) => {
         try {
           const cloudData = JSON.parse(e.target.result);
           if (cloudData.goals) setGoals(cloudData.goals);
-          if (cloudData.visionStatements) setVisionStatements(cloudData.visionStatements);
           if (cloudData.pillars) setPillars(cloudData.pillars);
           if (cloudData.notes) setNotes(cloudData.notes);
           if (cloudData.featureMap) setFeatureMap(cloudData.featureMap);
@@ -526,8 +509,6 @@ export const StoreProvider = ({ children }) => {
   const value = {
     goals,
     notes,
-    visionStatements,
-    updateVisionStatement,
     pillars,
     addPillar,
     updatePillar,

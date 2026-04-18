@@ -22,6 +22,7 @@ const SettingsView = () => {
   const [activeTab, setActiveTab] = useState('general'); // 'general' or 'featuremap'
   const [featureSubTab, setFeatureSubTab] = useState('achieved'); // 'achieved' or 'pipeline'
   const [isDirty, setIsDirty] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
 
   const handleInlineChange = (section, id, field, value) => {
     updateFeatureMapItem(section, id, { [field]: value });
@@ -156,10 +157,16 @@ const SettingsView = () => {
                 <button
                   className="btn"
                   style={{ flex: 1, padding: '8px', fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)' }}
-                  onClick={async () => {
-                    if (confirm('Restore from cloud? Your local changes will be overwritten.')) {
-                      await syncCloudToLocal();
-                    }
+                  onClick={() => {
+                    setConfirmModal({
+                      show: true,
+                      title: 'Restore from Cloud',
+                      message: 'Are you sure? Your local changes will be overwritten with the cloud backup.',
+                      onConfirm: async () => {
+                        await syncCloudToLocal();
+                        setConfirmModal({ show: false });
+                      }
+                    });
                   }}
                   disabled={sync.isSyncing}
                 >
@@ -198,16 +205,26 @@ const SettingsView = () => {
                 type="file"
                 accept=".json"
                 style={{ display: 'none' }}
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files[0];
-                  if (file && confirm('Replace all local data with this file?')) {
-                    try {
-                      await importFromJSON(file);
-                      alert('Restored successfully!');
-                    } catch (err) {
-                      alert('Error restoring file: ' + err.message);
+                  if (!file) return;
+                  
+                  setConfirmModal({
+                    show: true,
+                    title: 'Restore from File',
+                    message: 'Replace all local data with the content of this backup file?',
+                    onConfirm: async () => {
+                      try {
+                        await importFromJSON(file);
+                        setConfirmModal({ show: false });
+                        setTimeout(() => alert('Restored successfully!'), 100);
+                      } catch (err) {
+                        alert('Error restoring file: ' + err.message);
+                      }
                     }
-                  }
+                  });
+                  // Reset input so same file can be selected again
+                  e.target.value = '';
                 }}
               />
             </div>
@@ -355,6 +372,23 @@ const SettingsView = () => {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {confirmModal.show && (
+        <div className="modal-overlay glass animate-fade-in" onClick={() => setConfirmModal({ ...confirmModal, show: false })}>
+          <div className="modal-content glass-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', background: 'var(--bg-card)', padding: '32px', border: '1px solid var(--border-subtle)' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '12px' }}>{confirmModal.title}</h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '24px' }}>{confirmModal.message}</p>
+            <div className="modal-footer" style={{ justifyContent: 'center', gap: '12px' }}>
+              <button className="btn" onClick={() => setConfirmModal({ ...confirmModal, show: false })} style={{ background: 'var(--bg-main)', border: '1px solid var(--border-subtle)', color: 'var(--text-main)', padding: '10px 20px' }}>
+                Cancel
+              </button>
+              <button className="btn" onClick={confirmModal.onConfirm} style={{ background: 'var(--primary)', color: 'white', padding: '10px 20px' }}>
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}
