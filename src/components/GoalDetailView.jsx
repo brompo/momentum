@@ -284,29 +284,30 @@ const GoalDetailView = ({ goal, onBack }) => {
         <div className="milestones-section-new">
 
           {isAddingMilestone && (
-            <div style={{ padding: '0 16px' }}>
-              <form className="inline-add glass-card" onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
+            <div style={{ padding: '8px 20px' }}>
+              <form onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <input
                   autoFocus
-                  placeholder="Enter milestone..."
+                  placeholder="Enter milestone title..."
                   value={newMilestoneTitle}
                   onChange={e => setNewMilestoneTitle(e.target.value)}
-                  style={{ width: '100%', marginBottom: 0 }}
+                  style={{ width: '100%', padding: '8px 0', border: 'none', borderBottom: '2px solid #0d9488', fontSize: '16px', outline: 'none', background: 'transparent', color: '#1e293b', fontWeight: 600 }}
+                  required
                 />
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <select
                     value={newMilestonePriority}
                     onChange={e => setNewMilestonePriority(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '16px' }}
+                    style={{ padding: '4px 0', border: 'none', background: 'transparent', fontSize: '16px', color: '#64748b', outline: 'none', fontWeight: 500 }}
                   >
                     <option value="Low">Low Priority 🔵</option>
                     <option value="Medium">Medium Priority 🟡</option>
                     <option value="High">High Priority 🔴</option>
                   </select>
-                </div>
-                <div className="inline-actions">
-                  <button type="button" onClick={() => setIsAddingMilestone(false)}>Cancel</button>
-                  <button type="submit" className="active">Add</button>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <button type="button" onClick={() => setIsAddingMilestone(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 600, fontSize: '16px', cursor: 'pointer', padding: 0 }}>Cancel</button>
+                    <button type="submit" style={{ background: 'none', border: 'none', color: '#0d9488', fontWeight: 700, fontSize: '16px', cursor: 'pointer', padding: 0 }}>Add</button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -323,10 +324,6 @@ const GoalDetailView = ({ goal, onBack }) => {
             onToggleTask={toggleTask}
             onToggleFocus={(msId, currentVal) => updateMilestone(goal.id, msId, { inFocus: !currentVal })}
           />
-
-          <button className="add-ms-row-btn" onClick={() => setIsAddingMilestone(true)}>
-             <span>+</span> Add milestone
-          </button>
 
           {goal.note && (
             <div className="goal-note-card">
@@ -643,6 +640,19 @@ const GoalDetailView = ({ goal, onBack }) => {
             </form>
           </div>
         </div>
+      )}
+
+      {!isAddingMilestone && !isEditingGoal && !editingTaskId && !editingMilestoneId && activeTab === 'Milestones' && (
+        <button 
+          className="fab-add-milestone" 
+          onClick={() => setIsAddingMilestone(true)}
+          aria-label="Add Milestone"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
       )}
       </div>
     </div>

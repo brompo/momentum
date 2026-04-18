@@ -39,9 +39,9 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
           <div className="ms-inline-progress-fill" style={{ width: `${progressPct}%` }}></div>
         </div>
         <div className="ms-card-meta">
-          {taskCount > 0 ? `${completedTaskCount} of ${taskCount} steps` : 'no steps'} {ms.endDate ? `· due ${formatDateMMM(ms.endDate, true)}` : '· no date'}
+          {taskCount > 0 ? `${completedTaskCount} of ${taskCount} steps` : <span style={{ color: '#dc2626', fontWeight: 600 }}>no steps</span>} {ms.endDate ? `· due ${formatDateMMM(ms.endDate, true)}` : '· no date'}
         </div>
-        {nextTask ? (
+        {nextTask && (
           <div className="flat-next-box-new" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ color: '#92400e', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Next</div>
             <div style={{ color: '#431407', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
@@ -53,11 +53,6 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
                 {formatDateMMM(nextTask.scheduledDate)}
               </div>
             )}
-          </div>
-        ) : (
-          <div style={{ color: '#dc2626', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontWeight: 500 }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#dc2626' }}></span>
-            No steps yet — add one to activate
           </div>
         )}
       </div>
@@ -92,7 +87,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
           </button>
         </div>
         <div className="ms-card-meta">
-          {ms.endDate ? `No date` : 'No date'} · {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} steps` : 'no steps'}
+          {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} steps` : 'no steps'} · {ms.endDate ? `due ${formatDateMMM(ms.endDate, true)}` : 'no date'}
         </div>
       </div>
     );
