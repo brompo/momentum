@@ -47,9 +47,20 @@
   font-weight: 700;
 }
 
-.ms-pill.active { background: #dcfce7; color: #166534; }
-.ms-pill.done { background: #f0fdf4; color: #15803d; }
-.ms-pill.upcoming { background: #f1f5f9; color: #475569; }
+.ms-pill.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ms-pill.done {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.ms-pill.upcoming {
+  background: #f1f5f9;
+  color: #475569;
+}
 
 .ms-top-stats {
   font-size: 0.85rem;
@@ -112,9 +123,21 @@
   font-weight: 800;
 }
 
-.tl-node.done { background: #10b981; color: white; }
-.tl-node.active { background: #3b82f6; color: white; }
-.tl-node.upcoming { background: white; border: 1.5px solid #cbd5e1; color: #64748b; }
+.tl-node.done {
+  background: #10b981;
+  color: white;
+}
+
+.tl-node.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.tl-node.upcoming {
+  background: white;
+  border: 1.5px solid #cbd5e1;
+  color: #64748b;
+}
 
 .tl-line {
   width: 1.5px;
@@ -124,8 +147,14 @@
   margin-bottom: 4px;
 }
 
-.tl-line.done { background: #10b981; opacity: 0.3; }
-.tl-line.grey { background: #cbd5e1; }
+.tl-line.done {
+  background: #10b981;
+  opacity: 0.3;
+}
+
+.tl-line.grey {
+  background: #cbd5e1;
+}
 
 .tl-right {
   flex: 1;
@@ -134,9 +163,9 @@
 }
 
 .tl-title {
-  font-size: 0.95rem;
+  font-size: 0.90rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #0f172adb;
   margin-bottom: 4px;
   cursor: pointer;
 }
@@ -157,9 +186,17 @@
   font-weight: 600;
 }
 
-.tl-meta.done { color: #059669; }
-.tl-meta.active { color: #475569; }
-.tl-meta.upcoming { color: #64748b; }
+.tl-meta.done {
+  color: #059669;
+}
+
+.tl-meta.active {
+  color: #475569;
+}
+
+.tl-meta.upcoming {
+  color: #64748b;
+}
 
 .tl-sub-pill {
   padding: 2px 8px;
@@ -167,8 +204,16 @@
   font-size: 0.7rem;
   font-weight: 700;
 }
-.tl-sub-pill.done { background: #dcfce7; color: #166534; }
-.tl-sub-pill.ip { background: #e0e7ff; color: #3730a3; }
+
+.tl-sub-pill.done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tl-sub-pill.ip {
+  background: #e0e7ff;
+  color: #3730a3;
+}
 
 /* ── Next Step Box ── */
 .next-step-card {
@@ -178,7 +223,7 @@
   border-radius: 12px;
   padding: 16px;
   margin: 8px 0 24px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .next-step-label {

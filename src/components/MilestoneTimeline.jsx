@@ -42,15 +42,15 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
           {taskCount > 0 ? `${completedTaskCount} of ${taskCount} steps` : 'no steps'} {ms.endDate ? `· due ${formatDateMMM(ms.endDate, true)}` : '· no date'}
         </div>
         {nextTask ? (
-          <div className="flat-next-box-new">
-            <div style={{ color: '#92400e', fontSize: '0.7rem', fontWeight: 800, marginBottom: '2px' }}>Next</div>
-            <div style={{ color: '#431407', fontWeight: 600, fontSize: '0.85rem', marginBottom: '4px' }}>
+          <div className="flat-next-box-new" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ color: '#92400e', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase' }}>Next</div>
+            <div style={{ color: '#431407', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
               {nextTask.title}
             </div>
             {nextTask.scheduledDate && (
-              <div style={{ color: '#dc2626', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ color: '#dc2626', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#dc2626' }}></span>
-                Overdue · was due {formatDateMMM(nextTask.scheduledDate)}
+                {formatDateMMM(nextTask.scheduledDate)}
               </div>
             )}
           </div>
