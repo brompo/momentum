@@ -324,6 +324,7 @@ const GoalDetailView = ({ goal, onBack }) => {
               setActiveMilestoneId(msId);
             }}
             onToggleTask={toggleTask}
+            onToggleFocus={(msId, currentVal) => updateMilestone(goal.id, msId, { inFocus: !currentVal })}
           />
 
           <button className="add-ms-row-btn" onClick={() => setIsAddingMilestone(true)}>

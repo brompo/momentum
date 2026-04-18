@@ -44,3 +44,36 @@
   font-size: 1rem;
   font-weight: 600;
 }
+
+.timeline-section-header {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  padding: 24px 20px 8px;
+  background: white;
+  text-transform: uppercase;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-btn:hover {
+  background: #f1f5f9;
+}
+
+.flat-next-box-new {
+  background: #faeedb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
