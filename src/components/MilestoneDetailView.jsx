@@ -19,6 +19,10 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const [taskForm, setTaskForm] = useState({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00' });
 
   useEffect(() => {
+    window.scrollTo(0, 0); // Reset scroll to top
+  }, []);
+
+  useEffect(() => {
     if (milestone) {
       setEditForm({
         title: milestone.title,
@@ -178,11 +182,11 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                       placeholder="Enter step title..."
                       value={taskForm.title}
                       onChange={e => setTaskForm({...taskForm, title: e.target.value})}
-                      style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '0.9rem', marginBottom: '12px' }}
+                      style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
                    />
                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '0.8rem', border: 'none', color: '#64748b' }} />
-                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>Cancel</button>
+                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '16px', border: 'none', color: '#64748b' }} />
+                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '16px', fontWeight: 600, color: '#64748b' }}>Cancel</button>
                       <button type="submit" style={{ border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 600, color: '#3b82f6' }}>Add Step</button>
                    </div>
                 </form>

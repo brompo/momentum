@@ -45,6 +45,8 @@ const GoalDetailView = ({ goal, onBack }) => {
 
   // Milestone highlight flash logic removed to support dedicated Milestone Detail pages
   useEffect(() => {
+    window.scrollTo(0, 0); // Reset scroll to top when page opens
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -295,7 +297,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                   <select
                     value={newMilestonePriority}
                     onChange={e => setNewMilestonePriority(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', fontSize: '16px' }}
                   >
                     <option value="Low">Low Priority 🔵</option>
                     <option value="Medium">Medium Priority 🟡</option>
@@ -415,18 +417,18 @@ const GoalDetailView = ({ goal, onBack }) => {
             <div className="subtasks-section">
               <label style={{ fontWeight: 800, color: '#0f172a', marginBottom: '12px', display: 'block', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Daily Tasks</label>
               <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', marginBottom: '24px' }}>
-                <div className="subtask-item-form" style={{ display: 'grid', gridTemplateColumns: '1fr 140px auto', gap: '10px', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                <div className="subtask-item-form" style={{ display: 'grid', gridTemplateColumns: '1fr 130px auto', gap: '10px', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
                   <input
                     type="text"
                     placeholder="Add a daily task..."
                     value={newSubtaskTitle || ''}
                     onChange={e => setNewSubtaskTitle(e.target.value)}
-                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', fontWeight: 500 }}
+                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '16px', fontWeight: 500 }}
                   />
                   <input
                     type="date"
                     className="subtask-date-input"
-                    style={{ border: 'none', background: 'transparent', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}
+                    style={{ border: 'none', background: 'transparent', fontSize: '16px', color: '#64748b', fontWeight: 600 }}
                     onBlur={(e) => {
                       const dateVal = e.target.value;
                       if (newSubtaskTitle.trim()) {
@@ -442,7 +444,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                 </div>
 
                 {(taskForm.subtasks || []).map((sub, idx) => (
-                  <div key={sub.id} className="subtask-item" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 100px auto', alignItems: 'center', gap: '12px', padding: '12px', background: 'white', borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                  <div key={sub.id} className="subtask-item" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 130px auto', alignItems: 'center', gap: '12px', padding: '12px', background: 'white', borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                     <input
                       type="checkbox"
                       checked={sub.completed}
@@ -452,7 +454,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                           subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, completed: !s.completed } : s)
                         }));
                       }}
-                      style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: '#0d9488' }}
+                      style={{ cursor: 'pointer', width: '20px', height: '20px', accentColor: '#0d9488' }}
                     />
                     <input
                       type="text"
@@ -464,7 +466,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                           subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, title: newTitle } : s)
                         }));
                       }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '0.9rem', color: '#1e293b', fontWeight: 500 }}
+                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '16px', color: '#1e293b', fontWeight: 500 }}
                     />
                     <input
                       type="date"
@@ -476,7 +478,7 @@ const GoalDetailView = ({ goal, onBack }) => {
                           subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, scheduledDate: newDate } : s)
                         }));
                       }}
-                      style={{ border: 'none', background: 'transparent', fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}
+                      style={{ border: 'none', background: 'transparent', fontSize: '16px', color: '#94a3b8', fontWeight: 600 }}
                     />
                     <button type="button" onClick={() => {
                       setTaskForm(prev => ({
@@ -590,10 +592,10 @@ const GoalDetailView = ({ goal, onBack }) => {
                 </select>
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-danger" onClick={handleDeleteGoal}>Delete Goal</button>
+                <button type="button" className="btn btn-danger" onClick={handleDeleteGoal}>Delete Goal</button>
                 <div style={{ flex: 1 }}></div>
-                <button type="button" className="btn-secondary" onClick={() => setIsEditingGoal(false)}>Cancel</button>
-                <button type="submit" className="btn-primary">Save Changes</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setIsEditingGoal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
               </div>
             </form>
           </div>
@@ -633,10 +635,10 @@ const GoalDetailView = ({ goal, onBack }) => {
                 </select>
               </div>
               <div className="modal-actions" style={{ marginTop: '24px' }}>
-                <button type="button" className="btn-danger" onClick={handleDeleteMs}>Delete Milestone</button>
+                <button type="button" className="btn btn-danger" onClick={handleDeleteMs}>Delete</button>
                 <div style={{ flex: 1 }}></div>
-                <button type="button" className="btn-secondary" onClick={() => setEditingMilestoneId(null)}>Cancel</button>
-                <button type="submit" className="btn-primary">Save Changes</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setEditingMilestoneId(null)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save</button>
               </div>
             </form>
           </div>
