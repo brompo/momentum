@@ -320,7 +320,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                       style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
                    />
                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '14px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
+                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '16px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
                       
                       <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: taskForm.isCritical ? '#ef4444' : '#64748b', cursor: 'pointer', fontWeight: 600 }}>
                          <input 

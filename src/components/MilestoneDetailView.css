@@ -273,7 +273,7 @@
   border: none;
   border-bottom: 2px solid var(--pillar-color, #3b82f6);
   outline: none;
-  font-size: 0.95rem;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 10px;
   padding: 4px 0;
@@ -288,7 +288,7 @@
 }
  
 .inline-edit-date {
-  font-size: 0.75rem;
+  font-size: 16px;
   border: none;
   color: #64748b;
   background: #f8fafc;
