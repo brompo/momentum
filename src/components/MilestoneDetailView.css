@@ -248,6 +248,116 @@
   background: #e0e7ff;
   color: #3730a3;
 }
+ 
+.tl-node.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+ 
+.tl-node.clickable:active {
+  transform: scale(0.9);
+}
+ 
+/* ── Inline Editing Form ── */
+.inline-task-edit-form {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-top: 4px;
+}
+ 
+.inline-edit-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--pillar-color, #3b82f6);
+  outline: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 4px 0;
+  color: #0f172a;
+}
+ 
+.inline-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+ 
+.inline-edit-date {
+  font-size: 0.75rem;
+  border: none;
+  color: #64748b;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+ 
+.critical-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+ 
+.critical-toggle-label.active {
+  background: #fef2f2;
+  color: #ef4444;
+}
+ 
+.edit-btn-save {
+  border: none;
+  background: var(--pillar-color, #3b82f6);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+ 
+.edit-btn-cancel {
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+}
+ 
+.edit-btn-delete {
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+  opacity: 0.7;
+  cursor: pointer;
+}
+ 
+.edit-btn-delete:hover {
+  opacity: 1;
+}
+ 
+.next-step-label-clickable {
+  cursor: pointer;
+  padding: 2px 0;
+}
+ 
+.next-step-label-clickable:hover {
+  text-decoration: underline;
+}
 
 /* ── Next Step Box ── */
 .next-step-card {

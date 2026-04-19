@@ -15,10 +15,16 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   });
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [activeTaskId, setActiveTaskId] = useState(null);
+  const [activeTaskId, setActiveTaskId] = useState(null); // For 'new' task form
+  const [editingTaskId, setEditingTaskId] = useState(null); // For editing existing tasks
   const [taskForm, setTaskForm] = useState({ 
     title: '', 
     scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00',
+    isCritical: false
+  });
+  const [taskEditForm, setTaskEditForm] = useState({
+    title: '',
+    scheduledDate: '',
     isCritical: false
   });
 
@@ -60,6 +66,72 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
       setTaskForm({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', isCritical: false });
       setActiveTaskId(null);
     }
+  };
+ 
+  const handleStartEditTask = (task, e) => {
+    e.stopPropagation();
+    setTaskEditForm({
+      title: task.title,
+      scheduledDate: task.scheduledDate || new Date().toISOString().split('T')[0] + 'T09:00',
+      isCritical: !!task.isCritical
+    });
+    setEditingTaskId(task.id);
+  };
+ 
+  const handleSaveEditTask = (e, taskId) => {
+    e && e.preventDefault();
+    if (taskEditForm.title.trim()) {
+      updateTask(goalId, milestoneId, taskId, {
+        title: taskEditForm.title,
+        scheduledDate: taskEditForm.scheduledDate,
+        isCritical: taskEditForm.isCritical
+      });
+      setEditingTaskId(null);
+    }
+  };
+ 
+  const handleDeleteTask = (taskId) => {
+    if (window.confirm('Delete this step?')) {
+      deleteTask(goalId, milestoneId, taskId);
+      setEditingTaskId(null);
+    }
+  };
+
+  const renderTaskEditForm = (task) => {
+    return (
+      <form onSubmit={(e) => handleSaveEditTask(e, task.id)} className="inline-task-edit-form">
+        <input
+          autoFocus
+          placeholder="Step title..."
+          value={taskEditForm.title}
+          onChange={e => setTaskEditForm({...taskEditForm, title: e.target.value})}
+          className="inline-edit-input"
+        />
+        <div className="inline-edit-actions">
+          <input 
+            type="date" 
+            value={taskEditForm.scheduledDate.split('T')[0]} 
+            onChange={e => setTaskEditForm({...taskEditForm, scheduledDate: e.target.value + 'T09:00'})} 
+            className="inline-edit-date"
+          />
+          
+          <label className={`critical-toggle-label ${taskEditForm.isCritical ? 'active' : ''}`}>
+             <input 
+               type="checkbox" 
+               checked={taskEditForm.isCritical} 
+               onChange={e => setTaskEditForm({...taskEditForm, isCritical: e.target.checked})}
+             />
+             Critical
+          </label>
+
+          <div style={{ flex: 1 }}></div>
+          
+          <button type="button" onClick={() => handleDeleteTask(task.id)} className="edit-btn-delete">Delete</button>
+          <button type="button" onClick={() => setEditingTaskId(null)} className="edit-btn-cancel">Cancel</button>
+          <button type="submit" className="edit-btn-save">Save</button>
+        </div>
+      </form>
+    );
   };
 
   const handleDeleteMilestone = () => {
@@ -152,30 +224,55 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
         {completedTasks.map((t, idx) => (
           <div key={t.id} className="tl-row">
             <div className="tl-left">
-              <div className="tl-node done">
+              <div className="tl-node done clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
               </div>
               <div className="tl-line done"></div>
             </div>
             <div className="tl-right">
-              <div className="tl-title" onClick={() => toggleTask(goalId, milestoneId, t.id)}>{t.title}</div>
-              <div className="tl-meta done">
-                Completed {formatDateMMM(t.scheduledDate || new Date().toISOString())}
-              </div>
+              {editingTaskId === t.id ? (
+                renderTaskEditForm(t)
+              ) : (
+                <>
+                  <div className="tl-title" onClick={(e) => handleStartEditTask(t, e)}>{t.title}</div>
+                  <div className="tl-meta done">
+                    Completed {formatDateMMM(t.scheduledDate || new Date().toISOString())}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         ))}
 
         {activeTask && (
-          <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={() => !isEditingTitle && toggleTask(goalId, milestoneId, activeTask.id)} style={{ cursor: 'pointer' }}>
-            <div className="next-step-header-row">
-              <div className="next-step-label">{activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}</div>
-              {activeTask.scheduledDate && (
-                <div className="next-step-date-mini"> {formatDateMMM(activeTask.scheduledDate)}</div>
-              )}
+          editingTaskId === activeTask.id ? (
+            <div className="tl-row">
+              <div className="tl-left">
+                <div className="tl-node active clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}>
+                  1
+                </div>
+                <div className="tl-line grey"></div>
+              </div>
+              <div className="tl-right">
+                {renderTaskEditForm(activeTask)}
+              </div>
             </div>
-            <div className="next-step-title">{activeTask.title}</div>
-          </div>
+          ) : (
+            <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)} style={{ cursor: 'pointer' }}>
+              <div className="next-step-header-row">
+                <div 
+                  className="next-step-label-clickable" 
+                  onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
+                >
+                  {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
+                </div>
+                {activeTask.scheduledDate && (
+                  <div className="next-step-date-mini"> {formatDateMMM(activeTask.scheduledDate)}</div>
+                )}
+              </div>
+              <div className="next-step-title">{activeTask.title}</div>
+            </div>
+          )
         )}
 
         {pendingTasks.length > 1 && (
@@ -186,19 +283,26 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           return (
             <div key={t.id} className="tl-row">
               <div className="tl-left">
-                <div className="tl-node upcoming">{completedTasks.length + idx + 2}</div>
+                <div className="tl-node upcoming clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
+                  {completedTasks.length + idx + 2}
+                </div>
                 {idx < pendingTasks.length - 2 && <div className="tl-line grey"></div>}
               </div>
               <div className="tl-right">
-                <div className="tl-title-upcoming" onClick={() => toggleTask(goalId, milestoneId, t.id)}>
-                  {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                  {t.title}
-                </div>
-                
-                <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                  <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Dates ▾</span>
-                </div>
+                {editingTaskId === t.id ? (
+                  renderTaskEditForm(t)
+                ) : (
+                  <>
+                    <div className="tl-title-upcoming" onClick={(e) => handleStartEditTask(t, e)}>
+                      {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                      {t.title}
+                    </div>
+                    
+                    <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                      <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           );
