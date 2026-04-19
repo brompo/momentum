@@ -7,84 +7,139 @@
 }
 
 .timeline-section-header {
-  font-size: 0.75rem;
   font-weight: 800;
-  color: #92400e;
+  color: var(--pillar-color, #f49d0d);
   letter-spacing: 0.05em;
-  padding: 8px 16px;
-  background: #fef3c7b3;
-  /*background: #feefef;*/
-  /* light yellow-beige */
-  text-transform: uppercase;
-  border-top: 1px solid #ffe2ce;
-  border-bottom: 1px solid #ffe2ce;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
   margin-top: 16px;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  position: relative;
 }
 
-.timeline-section-header.draft {
-  background: #f8fafc;
-  color: #475569;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+.timeline-section-header::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
 }
 
+.timeline-section-header.in-focus::before {
+  background: var(--pillar-color, #f49d0d);
+}
+
+/* Timeline Cards Wrapper */
 .timeline-cards-wrapper {
-  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
+/* Milestone Card - High Density */
 .ms-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: #fdfdfd;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 9px;
+  padding: 10px 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .ms-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  border-color: #cbd5e1;
+  border-color: rgba(15, 23, 42, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transform: translateY(-1px);
+}
+
+/* In Focus State - Active Energy */
+.ms-card.in-focus {
+  /*background: #ffffff;*/
+  background: var(--pillar-color-faint, #fed7aa0d);
+  border-color: var(--pillar-color, #f49d0d);
+  /* Light Amber border */
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.04);
+}
+
+.ms-card.in-focus:hover {
+  border-color: #fdba74;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+}
+
+/* Draft State - Subtle & Secondary */
+.ms-card.draft {
+  background: #fdfdfd66;
+  border: 1px dashed #e2e8f0;
+  opacity: 0.65;
 }
 
 .ms-card.draft .ms-card-title {
-  color: #64748b;
-  font-weight: 600;
+  color: #475569;
+}
+
+.ms-card.draft:hover {
+  border-style: solid;
+  border-color: #cbd5e1;
+  opacity: 1;
+}
+
+/* Completed State - Success */
+.ms-card.completed {
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  opacity: 0.8;
 }
 
 .ms-card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 6px;
 }
 
 .ms-card-title {
-  font-size: 0.90rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #0f172a;
+  line-height: 1.3;
+  flex: 1;
+  margin-right: 12px;
 }
 
+.ms-card-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ms-status-alert {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+/* Progress Indicators */
 .ms-inline-progress-bg {
+  width: 100%;
   height: 4px;
   background: #f1f5f9;
-  border-radius: 4px;
-  margin-top: 6px;
-  margin-bottom: 2px;
-  width: 180px;
+  border-radius: 2px;
+  margin: 8px 0;
   overflow: hidden;
 }
 
 .ms-inline-progress-fill {
   height: 100%;
-  background: #d97706;
-  border-radius: 4px;
-}
-
-.ms-card-meta {
-  font-size: 0.85rem;
-  color: #64748b;
+  background: var(--pillar-color, #f49d0d);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 
 .empty-substate {
@@ -95,20 +150,36 @@
   font-weight: 600;
 }
 
-.star-btn {
-  background: none;
-  border: none;
+.ms-focus-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--pillar-color, #f49d0d);
+  background: white;
+  border: 1px solid var(--pillar-color, #f49d0d);
+  padding: 3px 10px;
+  border-radius: 12px;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
+  outline: none;
+  box-shadow: none;
 }
 
-.star-btn:hover {
-  background: #f1f5f9;
+.ms-focus-pill.active {
+  background: var(--pillar-color, #f49d0d);
+  color: white;
+  border-color: var(--pillar-color, #f49d0d);
+}
+
+.ms-focus-pill:hover {
+  border-color: #fb923c;
+  transform: translateY(-1px);
+}
+
+.ms-focus-pill.active:hover {
+  background: #d97706;
 }
 
 .flat-next-box-new {
@@ -116,4 +187,5 @@
   border-radius: 8px;
   padding: 10px 12px;
   margin-top: 8px;
+  font-size: 13px;
 }

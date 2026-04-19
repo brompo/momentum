@@ -449,7 +449,7 @@ const PriorityView = () => {
           <div className="priority-section due-week relative-z">
             <div className="priority-section-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span className="dot" style={{background: '#b45309'}}></span> TODAY'S FOCUS
+                <span className="dot" style={{background: '#f49d0d'}}></span> TODAY'S FOCUS
               </div>
               <span className="header-count">{todayFocus.filter(t => t.completed).length} of {todayFocus.length} done</span>
             </div>

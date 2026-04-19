@@ -10,6 +10,39 @@
   background: #ffffff;
   padding: 20px;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.ms-detail-nav-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.minimal-icon-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.minimal-icon-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.delete-ms-btn:hover {
+  background: #fef2f2;
+  color: #ef4444;
 }
 
 .back-btn-simple {
@@ -53,8 +86,8 @@
 }
 
 .ms-pill.done {
-  background: #f0fdf4;
-  color: #15803d;
+  background: var(--pillar-color-faint, #f0fdf4);
+  color: var(--pillar-color, #10b981);
 }
 
 .ms-pill.upcoming {
@@ -76,9 +109,9 @@
 
 .ms-top-bar-fill {
   height: 100%;
-  background: #10b981;
-  border-radius: 10px;
-  transition: width 0.3s;
+  background: var(--pillar-color, #10b981);
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Body Sections ── */
@@ -124,8 +157,9 @@
 }
 
 .tl-node.done {
-  background: #10b981;
+  background: var(--pillar-color, #10b981);
   color: white;
+  border: none;
 }
 
 .tl-node.active {
@@ -148,8 +182,8 @@
 }
 
 .tl-line.done {
-  background: #10b981;
-  opacity: 0.3;
+  background: var(--pillar-color, #10b981);
+  opacity: 0.6;
 }
 
 .tl-line.grey {
@@ -164,7 +198,7 @@
 
 .tl-title {
   font-size: 0.90rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #0f172adb;
   margin-bottom: 4px;
   cursor: pointer;
@@ -217,22 +251,21 @@
 
 /* ── Next Step Box ── */
 .next-step-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid #3b82f6;
+  background: #ffffff;
+  border: 1px solid var(--pillar-color, #3b82f6);
+  border-left: 4px solid var(--pillar-color, #3b82f6);
   border-radius: 12px;
   padding: 16px;
-  margin: 8px 0 24px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .next-step-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  color: #3b82f6;
+  color: var(--pillar-color, #3b82f6);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
 }
 
 .next-step-title {

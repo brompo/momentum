@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './MilestoneDetailView.css';
 
 const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
-  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask } = useStore();
+  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone } = useStore();
   
   const goal = goals.find(g => g.id === goalId);
   const milestone = goal?.milestones?.find(m => m.id === milestoneId);
@@ -58,6 +58,13 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     }
   };
 
+  const handleDeleteMilestone = () => {
+    if (window.confirm('Are you sure you want to delete this milestone? All its steps will be lost.')) {
+      deleteMilestone(goalId, milestoneId);
+      onBack();
+    }
+  };
+
   const allTasks = milestone.tasks || [];
   const completedTasks = allTasks.filter(t => t.completed);
   const pendingTasks = allTasks.filter(t => !t.completed);
@@ -76,18 +83,35 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
   const msIndex = goal.milestones.findIndex(m => m.id === milestoneId);
   const firstIncompleteIdx = goal.milestones.findIndex(m => !m.completed);
-  const msStatus = milestone.completed ? 'done' : (msIndex === firstIncompleteIdx ? 'active' : 'upcoming');
+  
+  // Fail-safe status: only Truly "done" if flag is set AND no tasks are pending
+  const isTrulyDone = milestone.completed && pendingTasks.length === 0;
+  const msStatus = isTrulyDone ? 'done' : (msIndex === firstIncompleteIdx ? 'active' : 'upcoming');
 
   const activeTask = pendingTasks.length > 0 ? pendingTasks[0] : null;
 
+  const pillarColors = {
+    personal: '#10b981',
+    wealth: '#f49d0d',
+    growth: '#6366f1'
+  };
+  const themeColor = pillarColors[goal.pillarId] || '#0d9488';
+  const themeColorFaint = themeColor + '14'; // ~8% opacity
+
   return (
-    <div className="milestone-detail-view animate-fade-in">
+    <div className="milestone-detail-view animate-fade-in" style={{ '--pillar-color': themeColor, '--pillar-color-faint': themeColorFaint }}>
       <div className="ms-detail-top-section">
         <button className="back-btn-simple" onClick={onBack}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
           {goal.title}
         </button>
         
+        <div className="ms-detail-nav-actions">
+           <button className="minimal-icon-btn delete-ms-btn" onClick={handleDeleteMilestone} title="Delete Milestone">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+           </button>
+        </div>
+
         {isEditingTitle ? (
           <input
             autoFocus

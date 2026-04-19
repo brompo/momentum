@@ -18,6 +18,10 @@ const GoalDetailView = ({ goal, onBack }) => {
   });
   const [newMilestoneTitle, setNewMilestoneTitle] = useState('');
   const [newMilestonePriority, setNewMilestonePriority] = useState('Low');
+  const allMilestones = goal.milestones || [];
+  const completedMilestones = allMilestones.filter(m => m.completed && (m.tasks || []).every(t => t.completed));
+  const milestoneCount = allMilestones.length;
+  const completedMilestoneCount = completedMilestones.length;
 
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -226,37 +230,46 @@ const GoalDetailView = ({ goal, onBack }) => {
     return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
+  const pillarColors = {
+    personal: '#10b981',
+    wealth: '#f49d0d',
+    growth: '#6366f1'
+  };
+  const themeColor = pillarColors[goal.pillarId] || '#0d9488';
+  const themeColorFaint = themeColor + '14'; // ~8% opacity
+
+  const reallyCompletedMilestones = (goal.milestones || []).filter(m => m.completed && (m.tasks || []).every(t => t.completed));
+
   return (
-    <div className="goal-detail-view animate-fade-in">
-      <div className="unified-goal-card">
-        <div className={`detail-top-nav-inline`}>
-          <div className="nav-left">
-            <button className="minimal-back-btn" onClick={handleBack} style={{ gap: '4px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-              <span className="breadcrumb-title">
-                {pillars.find(p => p.id === goal.pillarId)?.title || 'Wealth & career'}
-              </span>
-            </button>
-          </div>
-          <div className="nav-actions">
-            <button className="minimal-icon-btn" onClick={() => setIsEditingGoal(true)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-            </button>
-            <button className="minimal-icon-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
-            </button>
-          </div>
+    <div className="goal-detail-view animate-fade-in" style={{ '--pillar-color': themeColor, '--pillar-color-faint': themeColorFaint }}>
+      <div className="detail-top-nav-inline">
+        <div className="nav-left">
+          <button className="minimal-back-btn" onClick={handleBack}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+            <span className="breadcrumb-title">
+              {pillars.find(p => p.id === goal.pillarId)?.title || 'Goals'}
+            </span>
+          </button>
         </div>
+        <div className="nav-actions">
+          <button className="minimal-icon-btn" onClick={() => setIsEditingGoal(true)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+          </button>
+          <button className="minimal-icon-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
+          </button>
+        </div>
+      </div>
 
       <div className="detail-header-new">
         <h1 className="goal-title-new">{goal.title}</h1>
 
         {hasTarget ? (
-          <div className="overall-progress-new" style={{ marginTop: '16px' }}>
+          <div className="overall-progress-new">
             <div className="op-text">
               <span className="op-label">Overall progress</span>
               <span className="op-summary">
-                <span className="op-percent">{progressPercent}%</span> · {goal.milestones.filter(m => m.completed).length} of {goal.milestones.length} milestones done
+                <span className="op-percent">{progressPercent}%</span> <span className="op-divider">·</span> {reallyCompletedMilestones.length} / {goal.milestones.length} milestones
               </span>
             </div>
             <div className="op-bar-container">
@@ -264,397 +277,161 @@ const GoalDetailView = ({ goal, onBack }) => {
             </div>
           </div>
         ) : (
-          <div className="milestones-only-progress" style={{ marginTop: '16px', marginBottom: '8px' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ flex: 1, height: '4px', background: '#f5f4ef', borderRadius: '10px' }}>
-                   <div style={{ width: `${progressPercent}%`, height: '100%', background: '#d97706', borderRadius: '10px' }}></div>
+          <div className="milestones-only-progress">
+             <div className="mop-row">
+                <div className="mop-bar-container">
+                   <div className="mop-bar-fill" style={{ width: `${progressPercent}%` }}></div>
                 </div>
-                <div style={{ color: '#d97706', fontWeight: 700, fontSize: '0.95rem' }}>
-                   {goal.milestones.filter(m=>m.completed).length} of {goal.milestones.length}
+                <div className="mop-status-inline">
+                   <span className="mop-count">{reallyCompletedMilestones.length} / {goal.milestones.length}</span>
+                   <span className="mop-label">milestones</span>
                 </div>
              </div>
-             <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '8px' }}>milestones completed</div>
           </div>
         )}
       </div>
 
       <div className="section-divider"></div>
 
-      {activeTab === 'Milestones' ? (
-        <div className="milestones-section-new">
-
-          {isAddingMilestone && (
-            <div style={{ padding: '8px 20px' }}>
-              <form onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <input
-                  autoFocus
-                  placeholder="Enter milestone title..."
-                  value={newMilestoneTitle}
-                  onChange={e => setNewMilestoneTitle(e.target.value)}
-                  style={{ width: '100%', padding: '8px 0', border: 'none', borderBottom: '2px solid #0d9488', fontSize: '16px', outline: 'none', background: 'transparent', color: '#1e293b', fontWeight: 600 }}
-                  required
-                />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <select
-                    value={newMilestonePriority}
-                    onChange={e => setNewMilestonePriority(e.target.value)}
-                    style={{ padding: '4px 0', border: 'none', background: 'transparent', fontSize: '16px', color: '#64748b', outline: 'none', fontWeight: 500 }}
-                  >
-                    <option value="Low">Low Priority 🔵</option>
-                    <option value="Medium">Medium Priority 🟡</option>
-                    <option value="High">High Priority 🔴</option>
-                  </select>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <button type="button" onClick={() => setIsAddingMilestone(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 600, fontSize: '16px', cursor: 'pointer', padding: 0 }}>Cancel</button>
-                    <button type="submit" style={{ background: 'none', border: 'none', color: '#0d9488', fontWeight: 700, fontSize: '16px', cursor: 'pointer', padding: 0 }}>Add</button>
-                  </div>
+      <div className="milestones-section-new">
+        {isAddingMilestone && (
+          <div className="quick-add-milestone-form animate-fade-in" style={{ marginBottom: '20px', padding: '16px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+            <form onSubmit={handleAddMilestone} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input
+                autoFocus
+                placeholder="Name this milestone..."
+                value={newMilestoneTitle}
+                onChange={e => setNewMilestoneTitle(e.target.value)}
+                style={{ width: '100%', padding: '10px 0', border: 'none', borderBottom: '1px solid #e2e8f0', fontSize: '16px', outline: 'none', background: 'transparent', color: '#0f172a', fontWeight: 700 }}
+                required
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <select
+                  value={newMilestonePriority}
+                  onChange={e => setNewMilestonePriority(e.target.value)}
+                  style={{ border: 'none', background: 'transparent', fontSize: '14px', color: '#64748b', outline: 'none', fontWeight: 600 }}
+                >
+                  <option value="Low">Low Priority</option>
+                  <option value="Medium">Medium Priority</option>
+                  <option value="High">High Priority</option>
+                </select>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <button type="button" onClick={() => setIsAddingMilestone(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>Cancel</button>
+                  <button type="submit" style={{ background: 'none', border: 'none', color: '#0f172a', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>Add Milestone</button>
                 </div>
-              </form>
-            </div>
-          )}
-
-          <MilestoneTimeline 
-            goal={goal}
-            onMilestoneClick={(id) => setSelectedMilestoneId(id)}
-            onToggleComplete={(id) => toggleMilestoneCompleted(goal.id, id)}
-            onAddTask={(msId) => {
-              setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
-              setActiveMilestoneId(msId);
-            }}
-            onToggleTask={toggleTask}
-            onToggleFocus={(msId, currentVal) => updateMilestone(goal.id, msId, { inFocus: !currentVal })}
-          />
-
-          {goal.note && (
-            <div className="goal-note-card">
-              <label>GOAL NOTE</label>
-              <p>"{goal.note}"</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="tasks-section">
-          <div className="section-header-v2" style={{ alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ margin: 0 }}>All Results</h2>
-            <button
-              className="ms-filter-btn active"
-              onClick={() => setSortBy(sortBy === 'date' ? 'manual' : 'date')}
-              style={{ marginLeft: 'auto', background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}
-            >
-              {sortBy === 'date' ? '📅 Sorted by Date' : '🔄 Manual Order'}
-            </button>
-          </div>
-
-          <div className="tasks-list-flat">
-            {allTasks.length === 0 ? (
-              <p className="empty-substate">No results created yet.</p>
-            ) : (
-              allTasks.reduce((acc, task, idx, arr) => {
-                const currentDate = task.scheduledDate ? task.scheduledDate.split('T')[0] : 'No Date';
-                const prevDate = idx > 0 && arr[idx - 1].scheduledDate ? arr[idx - 1].scheduledDate.split('T')[0] : (idx > 0 ? 'No Date' : null);
-
-                if (sortBy === 'date' && currentDate !== prevDate) {
-                  acc.push(
-                    <div key={`date-header-${currentDate}`} style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', padding: '12px 0 4px 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {currentDate === 'No Date' ? 'No Date Set' : new Date(currentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </div>
-                  );
-                }
-
-                const milestone = goal.milestones.find(m => m.tasks.some(t => t.id === task.id));
-                acc.push(
-                  <div
-                    key={task.id}
-                    className="task-row card-style"
-                    style={{ marginBottom: '8px' }}
-                    onClick={() => {
-                      if (milestone) {
-                        setTaskForm({ title: task.title, value: task.value.toString(), scheduledDate: task.scheduledDate || '', priority: task.priority || 'Low', subtasks: task.subtasks || [] });
-                        setEditingTaskId(task.id);
-                        setActiveMilestoneId(null);
-                      }
-                    }}
-                  >
-                    <div className={`task-item ${task.completed ? 'completed' : ''}`}>
-                      <span style={{ fontWeight: 600, flex: 1 }}>{task.title}</span>
-                      {task.scheduledDate && sortBy !== 'date' && (
-                        <span className={`task-date-badge ${getDateStatusClass(task.scheduledDate)}`}>
-                          {formatDateMMM(task.scheduledDate)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-                return acc;
-              }, [])
-            )}
-          </div>
-        </div>
-      )}
-
-      {editingTaskId && (
-        <div className="modal-overlay glass" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>
-          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-with-title">
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', flex: 1 }}>{taskForm.title}</h2>
-              <button className="close-btn" onClick={() => { setActiveMilestoneId(null); setEditingTaskId(null); }}>&times;</button>
-            </div>
-
-            <div className="modal-tactical-header" style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  📅 {formatDateMMM(taskForm.scheduledDate)}
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  🎯 {taskForm.priority || 'Low'} Priority
-                </span>
               </div>
-            </div>
-
-            <div className="subtasks-section">
-              <label style={{ fontWeight: 800, color: '#0f172a', marginBottom: '12px', display: 'block', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Daily Tasks</label>
-              <div className="subtasks-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', marginBottom: '24px' }}>
-                <div className="subtask-item-form" style={{ display: 'grid', gridTemplateColumns: '1fr 130px auto', gap: '10px', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-                  <input
-                    type="text"
-                    placeholder="Add a daily task..."
-                    value={newSubtaskTitle || ''}
-                    onChange={e => setNewSubtaskTitle(e.target.value)}
-                    style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '16px', fontWeight: 500 }}
-                  />
-                  <input
-                    type="date"
-                    className="subtask-date-input"
-                    style={{ border: 'none', background: 'transparent', fontSize: '16px', color: '#64748b', fontWeight: 600 }}
-                    onBlur={(e) => {
-                      const dateVal = e.target.value;
-                      if (newSubtaskTitle.trim()) {
-                        setTaskForm(prev => ({
-                          ...prev,
-                          subtasks: [...(prev.subtasks || []), { id: crypto.randomUUID(), title: newSubtaskTitle, completed: false, scheduledDate: dateVal }]
-                        }));
-                        setNewSubtaskTitle('');
-                        e.target.value = '';
-                      }
-                    }}
-                  />
-                </div>
-
-                {(taskForm.subtasks || []).map((sub, idx) => (
-                  <div key={sub.id} className="subtask-item" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 130px auto', alignItems: 'center', gap: '12px', padding: '12px', background: 'white', borderRadius: '12px', border: '1px solid #f1f5f9', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                    <input
-                      type="checkbox"
-                      checked={sub.completed}
-                      onChange={() => {
-                        setTaskForm(prev => ({
-                          ...prev,
-                          subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, completed: !s.completed } : s)
-                        }));
-                      }}
-                      style={{ cursor: 'pointer', width: '20px', height: '20px', accentColor: '#0d9488' }}
-                    />
-                    <input
-                      type="text"
-                      value={sub.title}
-                      onChange={(e) => {
-                        const newTitle = e.target.value;
-                        setTaskForm(prev => ({
-                          ...prev,
-                          subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, title: newTitle } : s)
-                        }));
-                      }}
-                      style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: '16px', color: '#1e293b', fontWeight: 500 }}
-                    />
-                    <input
-                      type="date"
-                      value={sub.scheduledDate || ''}
-                      onChange={(e) => {
-                        const newDate = e.target.value;
-                        setTaskForm(prev => ({
-                          ...prev,
-                          subtasks: prev.subtasks.map((s, i) => i === idx ? { ...s, scheduledDate: newDate } : s)
-                        }));
-                      }}
-                      style={{ border: 'none', background: 'transparent', fontSize: '16px', color: '#94a3b8', fontWeight: 600 }}
-                    />
-                    <button type="button" onClick={() => {
-                      setTaskForm(prev => ({
-                        ...prev,
-                        subtasks: prev.subtasks.filter((_, i) => i !== idx)
-                      }));
-                    }} style={{ color: '#94a3b8', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '1.2rem', padding: '0 4px' }}>&times;</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="modal-actions" style={{ marginTop: '0', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-              <button type="button" className="btn-secondary" style={{ width: '100%', py: '12px' }} onClick={() => {
-                if (editingTaskId) {
-                  const milestone = goal.milestones.find(m => m.tasks.some(t => t.id === editingTaskId));
-                  if (milestone) saveEditTask(milestone.id, editingTaskId);
-                }
-                setActiveMilestoneId(null);
-                setEditingTaskId(null);
-              }}>Done</button>
-            </div>
+            </form>
           </div>
-        </div>
-      )}
+        )}
+
+        <MilestoneTimeline 
+          goal={goal}
+          onMilestoneClick={(id) => setSelectedMilestoneId(id)}
+          onToggleComplete={(id) => toggleMilestoneCompleted(goal.id, id)}
+          onAddTask={(msId) => {
+            setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+            setActiveMilestoneId(msId);
+          }}
+          onToggleTask={toggleTask}
+          onToggleFocus={(msId, currentVal) => updateMilestone(goal.id, msId, { inFocus: !currentVal })}
+        />
+
+        {goal.note && (
+          <div className="goal-note-card">
+            <label>Note</label>
+            <p>{goal.note}</p>
+          </div>
+        )}
+      </div>
 
       {isEditingGoal && (
         <div className="modal-overlay glass" onClick={() => setIsEditingGoal(false)}>
-          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <h2>Edit Goal</h2>
-            <form onSubmit={handleUpdateGoal} className="expanded-form">
-              <div className="form-group">
+          <div className="modal-content glass-card animate-pop-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header-modern">
+               <h2>Edit Goal</h2>
+               <button className="modal-close-icon" onClick={() => setIsEditingGoal(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateGoal} className="modal-form-v2">
+              <div className="form-group-v2">
                 <label>Achievement Pillar</label>
                 <select
                   value={editForm.pillarId || 'personal'}
                   onChange={e => setEditForm({ ...editForm, pillarId: e.target.value })}
-                  className="modal-input"
-                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b' }}
+                  className="modal-select-v2"
                 >
                   {pillars.map(p => (
                     <option key={p.id} value={p.id}>{p.title}</option>
                   ))}
                 </select>
               </div>
-              <div className="form-group">
+
+              <div className="form-group-v2">
                 <label>Goal Name</label>
                 <input
                   type="text"
                   value={editForm.title}
                   onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                  className="modal-input"
+                  className="modal-input-v2"
                   required
                 />
               </div>
-              <div className="form-group">
+
+              <div className="form-group-v2">
                 <label>Note</label>
                 <textarea
                   value={editForm.note}
                   onChange={e => setEditForm({ ...editForm, note: e.target.value })}
-                  className="modal-input"
-                  rows="3"
+                  className="modal-textarea-v2"
+                  rows="2"
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date</label>
+
+              <div className="timeline-grid">
+                <div className="form-group-v2">
+                  <label>Start</label>
                   <input
                     type="date"
                     value={editForm.startDate}
                     onChange={e => setEditForm({ ...editForm, startDate: e.target.value })}
-                    className="modal-input"
+                    className="modal-input-v2"
                   />
                 </div>
-                <div className="form-group">
-                  <label>End Date</label>
+                <div className="form-group-v2">
+                  <label>End</label>
                   <input
                     type="date"
                     value={editForm.endDate}
                     onChange={e => setEditForm({ ...editForm, endDate: e.target.value })}
-                    className="modal-input"
+                    className="modal-input-v2"
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <label>Target Number (Optional)</label>
-                <input
-                  type="text"
-                  value={formatNumberWithCommas(editForm.targetNumber)}
-                  onChange={e => {
-                    const cleanVal = e.target.value.replace(/[^0-9]/g, '');
-                    setEditForm({ ...editForm, targetNumber: cleanVal });
-                  }}
-                  className="modal-input"
-                  placeholder="e.g. 500,000,000"
-                />
-              </div>
 
-              <div className="form-group">
-                <label>Quick Update Destination</label>
-                <div className="form-helper" style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '4px' }}>Where should '+' button updates go?</div>
-                <select
-                  value={editForm.defaultMilestoneId}
-                  onChange={e => setEditForm({...editForm, defaultMilestoneId: e.target.value})}
-                  className="modal-input"
-                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#fff', color: '#1e293b' }}
-                >
-                  <option value="">Automatic (General Progress)</option>
-                  {(goal.milestones || []).map(ms => (
-                    <option key={ms.id} value={ms.id}>{ms.title}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn btn-danger" onClick={handleDeleteGoal}>Delete Goal</button>
+              <div className="modal-footer-v2">
+                <button type="button" className="btn-cancel-v2" onClick={handleDeleteGoal} style={{ color: '#dc2626', borderColor: '#fee2e2' }}>Delete Goal</button>
                 <div style={{ flex: 1 }}></div>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsEditingGoal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save Changes</button>
+                <button type="submit" className="btn-create-v2">Save Changes</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {editingMilestoneId && (
-        <div className="modal-overlay glass" onClick={() => setEditingMilestoneId(null)}>
-          <div className="modal-content glass-card animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-with-title">
-              <h2>Edit Milestone</h2>
-              <button className="close-btn" onClick={() => setEditingMilestoneId(null)}>&times;</button>
-            </div>
-
-            <form onSubmit={handleSaveMsEdit} className="expanded-form">
-              <div className="form-group">
-                <label>Milestone Title</label>
-                <input
-                  autoFocus
-                  type="text"
-                  value={msEditForm.title}
-                  onChange={e => setMsEditForm({ ...msEditForm, title: e.target.value })}
-                  className="modal-input"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Priority</label>
-                <select
-                  value={msEditForm.priority}
-                  onChange={e => setMsEditForm({ ...msEditForm, priority: e.target.value })}
-                  className="modal-input"
-                >
-                  <option value="Low">Low Priority 🔵</option>
-                  <option value="Medium">Medium Priority 🟡</option>
-                  <option value="High">High Priority 🔴</option>
-                </select>
-              </div>
-              <div className="modal-actions" style={{ marginTop: '24px' }}>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteMs}>Delete</button>
-                <div style={{ flex: 1 }}></div>
-                <button type="button" className="btn btn-secondary" onClick={() => setEditingMilestoneId(null)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {!isAddingMilestone && !isEditingGoal && !editingTaskId && !editingMilestoneId && activeTab === 'Milestones' && (
+      {!isAddingMilestone && !isEditingGoal && (
         <button 
           className="fab-add-milestone" 
           onClick={() => setIsAddingMilestone(true)}
           aria-label="Add Milestone"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
       )}
-      </div>
     </div>
   );
 };

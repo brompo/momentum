@@ -193,9 +193,17 @@ export const StoreProvider = ({ children }) => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: (goal.milestones || []).map(ms => 
-            ms.id === milestoneId ? { ...ms, ...updates } : ms
-          )
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              const merged = { ...ms, ...updates };
+              const hasIncomplete = (merged.tasks || []).some(t => !t.completed);
+              if (merged.completed && hasIncomplete) {
+                return { ...merged, completed: false };
+              }
+              return merged;
+            }
+            return ms;
+          })
         };
       }
       return goal;
@@ -288,7 +296,7 @@ export const StoreProvider = ({ children }) => {
           ...goal,
           milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
-              return {
+              const newMs = {
                 ...ms,
                 tasks: [...(ms.tasks || []), {
                   id: taskId,
@@ -301,6 +309,8 @@ export const StoreProvider = ({ children }) => {
                   subtasks: []
                 }]
               };
+              // Always revert completion status when a task is added
+              return { ...newMs, completed: false };
             }
             return ms;
           })
@@ -317,15 +327,25 @@ export const StoreProvider = ({ children }) => {
           ...goal,
           milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
+              const newTasks = (ms.tasks || []).map(task => 
+                task.id === taskId ? { 
+                  ...task, 
+                  completed: !task.completed,
+                  completedAt: !task.completed ? new Date().toISOString() : null
+                } : task
+              );
+              
+              // If we just unchecked a task, the milestone MUST become incomplete
+              const taskBecameIncomplete = newTasks.find(t => t.id === taskId && !t.completed);
+              let newMsCompleted = ms.completed;
+              if (taskBecameIncomplete) {
+                newMsCompleted = false;
+              }
+
               return {
                 ...ms,
-                tasks: (ms.tasks || []).map(task => 
-                  task.id === taskId ? { 
-                    ...task, 
-                    completed: !task.completed,
-                    completedAt: !task.completed ? new Date().toISOString() : null
-                  } : task
-                )
+                completed: newMsCompleted,
+                tasks: newTasks
               };
             }
             return ms;
@@ -375,7 +395,13 @@ export const StoreProvider = ({ children }) => {
           ...goal,
           milestones: (goal.milestones || []).map(ms => {
             if (ms.id === milestoneId) {
-              return { ...ms, tasks: ms.tasks.filter(t => t.id !== taskId) };
+              const newTasks = ms.tasks.filter(t => t.id !== taskId);
+              const hasIncomplete = newTasks.some(t => !t.completed);
+              return { 
+                ...ms, 
+                tasks: newTasks,
+                completed: ms.completed && !hasIncomplete
+              };
             }
             return ms;
           })
@@ -392,9 +418,18 @@ export const StoreProvider = ({ children }) => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: (goal.milestones || []).map(ms => 
-            ms.id === milestoneId ? { ...ms, completed: !ms.completed } : ms
-          )
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              const hasIncompleteTasks = (ms.tasks || []).some(t => !t.completed);
+              if (!ms.completed && hasIncompleteTasks) {
+                // Block completion if there are pending tasks
+                alert("Cannot complete milestone: Some steps are still pending.");
+                return ms;
+              }
+              return { ...ms, completed: !ms.completed };
+            }
+            return ms;
+          })
         };
       }
       return goal;

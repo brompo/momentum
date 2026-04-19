@@ -19,6 +19,10 @@ const GoalsView = ({ onSelectGoal }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [collapsedPillars, setCollapsedPillars] = useState({});
 
+  const togglePillar = (id) => {
+    setCollapsedPillars(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -183,7 +187,7 @@ const GoalsView = ({ onSelectGoal }) => {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  background: pillar.id === 'personal' ? '#10b981' : pillar.id === 'wealth' ? '#b45309' : pillar.id === 'growth' ? '#6366f1' : '#0d9488'
+                  background: pillar.id === 'personal' ? '#10b981' : pillar.id === 'wealth' ? '#f49d0d' : pillar.id === 'growth' ? '#6366f1' : '#0d9488'
                 }}></span>
                 <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', flex: 1 }}>{pillar.title}</h2>
                 <button

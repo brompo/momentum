@@ -32,7 +32,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  color: #b45309;
+  color: #f49d0d;
 }
 
 .priority-header-streak h2 {
@@ -115,6 +115,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  background: #94a3b8;
 }
 
 .header-count-alert {
@@ -202,11 +203,13 @@
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  font-weight: 500;
-  padding: 2px 0;
-  border-radius: 4px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
   color: #64748b;
 }
 
@@ -262,7 +265,7 @@
 
 .milestone-context-pill.overdue {
   background: transparent;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .milestone-context-pill.overdue .dot {
@@ -280,11 +283,11 @@
 
 /* Due This Week Theme */
 .priority-section.due-week .priority-section-header {
-  color: #b45309;
+  color: #f49d0d;
 }
 
 .priority-section.due-week .dot {
-  background: #b45309;
+  background: #f49d0d;
 }
 
 .priority-card.due-week {
@@ -302,7 +305,7 @@
 
 .milestone-context-pill.due-week {
   background: transparent;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .milestone-context-pill.due-week .dot {
@@ -438,7 +441,7 @@
 
 .milestone-context-pill.tray {
   background: transparent;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .milestone-context-pill.tray .dot {
@@ -511,7 +514,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 2px solid #d97706;
+  border-bottom: 2px solid #f49d0d;
   padding-bottom: 6px;
   padding-right: 24px;
   margin-bottom: 0px;
@@ -520,7 +523,7 @@
 .options-row-top textarea {
   background: transparent;
   border: none;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
   outline: none;
@@ -579,7 +582,7 @@
 
 .action-pill-card.focus {
   background: #ffedd5;
-  color: #92400e;
+  color: #f49d0d;
 }
 
 .action-pill-card.delete {
@@ -647,7 +650,7 @@
   border: 1px solid #e2e8f0;
   padding: 10px 12px;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 16px;
   color: #1e293b;
   outline: none;
 }
