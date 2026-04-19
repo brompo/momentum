@@ -279,8 +279,30 @@ export const StoreProvider = ({ children }) => {
         return {
           ...goal,
           milestones: (goal.milestones || []).map(ms => 
-            ms.id === milestoneId ? { ...ms, active: !ms.active } : ms
+            ms.id === milestoneId ? { ...ms, inFocus: !ms.inFocus } : ms
           )
+        };
+      }
+      return goal;
+    }));
+  };
+
+  const toggleOneThing = (goalId, milestoneId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              const becomingOneThing = !ms.isOneThing;
+              return { 
+                ...ms, 
+                isOneThing: becomingOneThing,
+                inFocus: becomingOneThing ? true : ms.inFocus 
+              };
+            }
+            return { ...ms, isOneThing: false };
+          })
         };
       }
       return goal;
@@ -571,6 +593,7 @@ export const StoreProvider = ({ children }) => {
     addMilestone,
     logGoalProgress,
     toggleMilestoneActive,
+    toggleOneThing,
     toggleMilestoneCompleted,
     addTask,
     toggleTask,

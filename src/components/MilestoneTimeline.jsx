@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import './MilestoneTimeline.css';
 
-const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask, onToggleTask, onToggleFocus }) => {
+const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask, onToggleTask, onToggleFocus, onToggleOneThing }) => {
   const isMsReallyDone = (m) => m.completed && (m.tasks || []).every(t => t.completed);
 
-  const inFocusList = goal.milestones.filter(m => m.inFocus && !isMsReallyDone(m));
+  const oneThingList = goal.milestones.filter(m => m.isOneThing && !isMsReallyDone(m));
+  const activeList = goal.milestones.filter(m => m.inFocus && !m.isOneThing && !isMsReallyDone(m));
   const doneList = goal.milestones.filter(m => isMsReallyDone(m));
-  const draftList = goal.milestones.filter(m => !m.inFocus && !isMsReallyDone(m));
+  const draftList = goal.milestones.filter(m => !m.inFocus && !m.isOneThing && !isMsReallyDone(m));
 
   const formatDateMMM = (dateString, useYear = false) => {
     if (!dateString) return 'No date';
@@ -18,22 +19,39 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
     } catch (e) { return dateString; }
   };
 
-  const renderInFocus = (ms) => {
+  const renderActiveCard = (ms, isOneThing = false) => {
     const taskCount = (ms.tasks || []).length;
     const completedTaskCount = (ms.tasks || []).filter(t => t.completed).length;
     const nextTask = (ms.tasks || []).find(t => !t.completed);
     const progressPct = taskCount > 0 ? (completedTaskCount / taskCount) * 100 : 0;
 
     return (
-      <div key={ms.id} className="ms-card in-focus" onClick={() => onMilestoneClick(ms.id)}>
+      <div key={ms.id} className={`ms-card in-focus ${isOneThing ? 'one-thing' : ''}`} onClick={() => onMilestoneClick(ms.id)}>
         <div className="ms-card-top">
-          <span className="ms-card-title">{ms.title}</span>
-          <button
-            className="ms-focus-pill active"
-            onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}
-          >
-            focused
-          </button>
+          <div className="ms-title-area">
+             {isOneThing && <span className="one-thing-crown" title="The One Thing">★</span>}
+             <span className="ms-card-title">{ms.title}</span>
+          </div>
+          <div className="ms-card-actions">
+            {!isOneThing && oneThingList.length === 0 && (
+              <button 
+                className="ms-promote-btn" 
+                onClick={(e) => { e.stopPropagation(); onToggleOneThing(ms.id); }}
+                title="Promote to One Thing"
+              >
+                One Thing ↑
+              </button>
+            )}
+            <button
+              className="ms-focus-pill active"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                isOneThing ? onToggleOneThing(ms.id) : onToggleFocus(ms.id, ms.inFocus); 
+              }}
+            >
+              {isOneThing ? 'one thing' : 'active'}
+            </button>
+          </div>
         </div>
         <div className="ms-inline-progress-bg">
           <div className="ms-inline-progress-fill" style={{ width: `${progressPct}%` }}></div>
@@ -81,7 +99,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
             className="ms-focus-pill"
             onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}
           >
-            focus ↑
+            active ↑
           </button>
         </div>
         <div className="ms-card-meta">
@@ -94,11 +112,20 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
 
   return (
     <div className="timeline-card-list">
-      {inFocusList.length > 0 && (
+      {oneThingList.length > 0 && (
         <>
-          <div className="timeline-section-header in-focus">IN FOCUS</div>
+          <div className="timeline-section-header in-focus one-thing">THE ONE THING</div>
           <div className="timeline-cards-wrapper">
-            {inFocusList.map(ms => renderInFocus(ms))}
+             {oneThingList.map(ms => renderActiveCard(ms, true))}
+          </div>
+        </>
+      )}
+
+      {activeList.length > 0 && (
+        <>
+          <div className="timeline-section-header in-focus">ACTIVE</div>
+          <div className="timeline-cards-wrapper">
+            {activeList.map(ms => renderActiveCard(ms, false))}
           </div>
         </>
       )}

@@ -4,7 +4,7 @@ import './GoalDetailView.css';
 import MilestoneTimeline from './MilestoneTimeline';
 
 const GoalDetailView = ({ goal, onBack }) => {
-  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, toggleMilestoneCompleted, logGoalProgress, pillars } = useStore();
+  const { addMilestone, addTask, toggleTask, deleteTask, updateTask, updateGoal, deleteGoal, addMetric, updateMetricValue, addMetricEntry, deleteMetricEntry, updateMetricEntry, selectedMilestoneId, setSelectedMilestoneId, previousTab, setPreviousTab, setActiveTab: setGlobalActiveTab, setActiveActionsSubTab, toggleMilestoneActive, toggleOneThing, toggleMilestoneCompleted, logGoalProgress, pillars } = useStore();
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -336,7 +336,8 @@ const GoalDetailView = ({ goal, onBack }) => {
             setActiveMilestoneId(msId);
           }}
           onToggleTask={toggleTask}
-          onToggleFocus={(msId, currentVal) => updateMilestone(goal.id, msId, { inFocus: !currentVal })}
+          onToggleFocus={(msId, currentVal) => toggleMilestoneActive(goal.id, msId)}
+          onToggleOneThing={(msId) => toggleOneThing(goal.id, msId)}
         />
 
         {goal.note && (

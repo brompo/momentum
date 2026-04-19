@@ -168,9 +168,24 @@
 }
 
 .ms-focus-pill.active {
-  background: var(--pillar-color, #f49d0d);
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+/* Specifically keep the One Thing badge 'shouting' */
+.ms-card.one-thing .ms-focus-pill.active {
+  background: #f59e0b;
   color: white;
-  border-color: var(--pillar-color, #f49d0d);
+  border-color: #f59e0b;
+}
+
+.ms-focus-pill.active:hover {
+  background: #e2e8f0;
+}
+
+.ms-card.one-thing .ms-focus-pill.active:hover {
+  background: #d97706;
 }
 
 .ms-focus-pill:hover {
@@ -180,6 +195,61 @@
 
 .ms-focus-pill.active:hover {
   background: #d97706;
+}
+
+/* One Thing Specific Enhancements */
+.timeline-section-header.one-thing {
+  color: #d97706;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.timeline-section-header.one-thing::before {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.ms-card.one-thing {
+  border-width: 2px;
+  border-color: #f59e0b;
+  background: #fffbef; /* Very subtle warm yellow */
+  box-shadow: 0 4px 20px rgba(245,158,11, 0.12);
+}
+
+.ms-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.one-thing-crown {
+  font-size: 1.1rem;
+  color: #f59e0b;
+  filter: drop-shadow(0 0 2px rgba(245,158,11, 0.4));
+}
+
+.ms-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ms-promote-btn {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ms-promote-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
 }
 
 .flat-next-box-new {
