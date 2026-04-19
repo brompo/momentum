@@ -6,6 +6,7 @@ const PriorityView = () => {
   const { goals, updateTask, toggleTask, addTask, deleteTask, setSelectedGoalId, setSelectedMilestoneId, setActiveTab } = useStore();
   
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
+  const [isUpNextExpanded, setIsUpNextExpanded] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
@@ -555,13 +556,39 @@ const PriorityView = () => {
             )}
           </div>
 
-          <div className="priority-section up-next relative-z">
-            <div className="priority-section-header no-margin">
+          <div className="priority-section up-next relative-z" style={{ zIndex: selectedTask ? 1001 : 'auto' }}>
+            <div 
+              className="priority-section-header clickable" 
+              onClick={() => setIsUpNextExpanded(!isUpNextExpanded)}
+              style={{ marginBottom: isUpNextExpanded ? '12px' : '0' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
                 <span className="dot" style={{background: '#94a3b8'}}></span> UP NEXT
               </div>
               <span className="header-count">{upNext.length} steps ›</span>
             </div>
+
+            {isUpNextExpanded && (
+              <div className="this-week-expanded-tray animate-slide-down">
+                <div className="tray-instruction">Upcoming actions scheduled beyond this week</div>
+                <div className="tray-list">
+                  {upNext.map(t => (
+                    <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'upnext')}>
+                      <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
+                      <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                            <span className="dot"></span> {t.milestoneTitle} &rarr;
+                          </div>
+                          <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
        </div>
