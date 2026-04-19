@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import TabBar from './components/TabBar';
 import GoalsView from './components/GoalsView';
 import GoalDetailView from './components/GoalDetailView';
-import ActionsView from './components/ActionsView';
 import PriorityView from './components/PriorityView';
 import NotesView from './components/NotesView';
 import MilestoneDetailView from './components/MilestoneDetailView';
@@ -407,8 +406,7 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'Actions': return <ActionsView />;
-      case 'Priority': return <PriorityView />;
+      case 'Actions': return <PriorityView />;
       case 'Goals':
         if (selectedGoalId && selectedMilestoneId) {
           return (

@@ -21,9 +21,10 @@ export const StoreProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ga_active_tab') || 'Goals');
-  const [activeActionsSubTab, setActiveActionsSubTab] = useState(() => {
-    return localStorage.getItem('ga_actions_subtab') || 'Weekly Commitments';
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('ga_active_tab');
+    if (saved === 'Priority' || saved === 'Actions') return 'Actions';
+    return saved || 'Actions';
   });
   const [selectedGoalId, setSelectedGoalId] = useState(null);
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
@@ -59,7 +60,7 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem('ga_pillars', JSON.stringify(pillars)); }, [pillars]);
   useEffect(() => { localStorage.setItem('ga_notes', JSON.stringify(notes)); }, [notes]);
   useEffect(() => { localStorage.setItem('ga_feature_map', JSON.stringify(featureMap)); }, [featureMap]);
-  useEffect(() => { localStorage.setItem('ga_actions_subtab', activeActionsSubTab); }, [activeActionsSubTab]);
+
   useEffect(() => { localStorage.setItem('ga_theme', theme); }, [theme]);
   useEffect(() => { localStorage.setItem('ga_last_update', lastLocalUpdate); }, [lastLocalUpdate]);
   useEffect(() => { localStorage.setItem('ga_active_tab', activeTab); }, [activeTab]);
@@ -557,8 +558,6 @@ export const StoreProvider = ({ children }) => {
     deleteSubcategory,
     activeTab,
     setActiveTab,
-    activeActionsSubTab,
-    setActiveActionsSubTab,
     selectedGoalId,
     setSelectedGoalId,
     selectedMilestoneId,
