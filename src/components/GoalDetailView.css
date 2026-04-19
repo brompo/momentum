@@ -70,6 +70,19 @@
   border-color: #cbd5e1;
   color: #0f172a;
 }
+ 
+.minimal-icon-btn.action-add-ms {
+  background: var(--pillar-color, #0f172a);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+}
+ 
+.minimal-icon-btn.action-add-ms:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
 
 /* ── Header Section ── */
 .detail-header-new {
@@ -224,10 +237,10 @@
 /* ── FAB ── */
 .fab-add-milestone {
   position: fixed;
-  bottom: 32px;
+  bottom: 100px;
   right: 24px;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   background: var(--pillar-color, #0f172a);
   color: white;
   border: none;
@@ -235,9 +248,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  z-index: 100;
+  z-index: 2000;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

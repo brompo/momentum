@@ -168,13 +168,13 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
         {activeTask && (
           <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={() => !isEditingTitle && toggleTask(goalId, milestoneId, activeTask.id)} style={{ cursor: 'pointer' }}>
-            <div className="next-step-label">{activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}</div>
+            <div className="next-step-header-row">
+              <div className="next-step-label">{activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}</div>
+              {activeTask.scheduledDate && (
+                <div className="next-step-date-mini"> {formatDateMMM(activeTask.scheduledDate)}</div>
+              )}
+            </div>
             <div className="next-step-title">{activeTask.title}</div>
-            {activeTask.scheduledDate && (
-              <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
-                Target: {formatDateMMM(activeTask.scheduledDate)}
-              </div>
-            )}
           </div>
         )}
 

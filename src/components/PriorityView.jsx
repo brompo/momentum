@@ -7,6 +7,7 @@ const PriorityView = () => {
   
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
   const [isUpNextExpanded, setIsUpNextExpanded] = useState(false);
+  const [isOverdueExpanded, setIsOverdueExpanded] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
@@ -423,43 +424,47 @@ const PriorityView = () => {
           </div>
 
           <div className="priority-section overdue relative-z">
-            <div className="priority-section-header">
+            <div 
+              className="priority-section-header clickable" 
+              onClick={() => setIsOverdueExpanded(!isOverdueExpanded)}
+              style={{ marginBottom: isOverdueExpanded && overdue.length > 0 ? '12px' : '0' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="dot"></span> OVERDUE
               </div>
-              <span className="header-count-alert">{overdue.length} total</span>
+              <span className="header-count-alert">{overdue.length} total ›</span>
             </div>
             
-            {overdue.length > 0 ? (
-              <>
-                <div className="priority-list">
-                  {overdueRender.map((t, idx) => (
-                    selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions() : (
-                    <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
-                      <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
-                      <div className="priority-content">
-                        <h4 className="priority-title">{t.title}</h4>
-                        <div className="priority-meta-row">
-                          <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                            <span className="dot"></span> {t.milestoneTitle} &rarr;
-                          </div>
-                          {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e)=>{e.stopPropagation(); handleToggleFocusFromCard(t, e)}}>focus ⇡</span>}
+            {isOverdueExpanded && overdue.length > 0 && (
+              <div className="priority-list">
+                {overdueRender.map((t, idx) => (
+                  selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions() : (
+                  <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
+                    <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
+                    <div className="priority-content">
+                      <h4 className="priority-title">{t.title}</h4>
+                      <div className="priority-meta-row">
+                        <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                          <span className="dot"></span> {t.milestoneTitle} &rarr;
                         </div>
+                        {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e)=>{e.stopPropagation(); handleToggleFocusFromCard(t, e)}}>focus ⇡</span>}
                       </div>
                     </div>
-                    )
-                  ))}
-                </div>
+                  </div>
+                  )
+                ))}
+                
                 {overdue.length > maxOverdue && (
                   <div className="show-more-link">
                     Show {overdue.length - maxOverdue} more overdue steps ›
                   </div>
                 )}
-              </>
-            ) : (
-                <div className="priority-card completed-blank">
-                  All caught up here!
-                </div>
+              </div>
+            )}
+            {isOverdueExpanded && overdue.length === 0 && (
+              <div className="priority-card completed-blank" style={{ marginTop: '12px' }}>
+                All caught up here!
+              </div>
             )}
           </div>
 
@@ -560,7 +565,6 @@ const PriorityView = () => {
 
                     return (
                       <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
-                         <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
                          <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                             <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -594,13 +598,12 @@ const PriorityView = () => {
               <div className="this-week-expanded-tray animate-slide-down">
                 <div className="tray-instruction">Upcoming actions scheduled beyond this week</div>
                 <div className="tray-list grouped">
-                  {Object.keys(upNextGroups).map(dateStr => (
+                  {Object.keys(upNextGroups).sort().map(dateStr => (
                     <div key={dateStr} className="up-next-date-group">
                       <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
                       <div className="date-group-items">
                         {upNextGroups[dateStr].map(t => (
                           <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'upnext')}>
-                            <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
                             <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                               <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
                                 {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
@@ -618,6 +621,11 @@ const PriorityView = () => {
                       </div>
                     </div>
                   ))}
+                  {upNext.length === 0 && (
+                    <div className="priority-card completed-blank">
+                      No future actions scheduled yet.
+                    </div>
+                  )}
                 </div>
               </div>
             )}
