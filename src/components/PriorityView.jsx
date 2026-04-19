@@ -130,6 +130,22 @@ const PriorityView = () => {
   thisWeekTasks.sort((a,b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a,b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1)); 
 
+  upNext.sort((a,b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+  
+  const upNextGroups = upNext.reduce((groups, task) => {
+    const date = task.scheduledDate.split('T')[0];
+    if (!groups[date]) groups[date] = [];
+    groups[date].push(task);
+    return groups;
+  }, {});
+
+  const formatDateHeader = (dateStr) => {
+    const date = new Date(dateStr);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+  };
+
   todayFocus.sort((a,b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   todayFocus.sort((a,b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1));
 
@@ -463,7 +479,10 @@ const PriorityView = () => {
                        {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
                     </div>
                     <div className="priority-content">
-                      <h4 className="priority-title">{t.title}</h4>
+                      <h4 className="priority-title">
+                        {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
+                        {t.title}
+                      </h4>
                         <div className="priority-meta-row">
                           <div className={`milestone-context-pill ${t.completed ? 'completed' : 'due-week'}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
                             <span className="dot"></span> {t.milestoneTitle} &rarr;
@@ -527,7 +546,10 @@ const PriorityView = () => {
                         <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
                           <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
                           <div className="tray-content">
-                            <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>{t.title}</h4>
+                            <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>
+                              {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                              {t.title}
+                            </h4>
                             <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
                                <span className="dot"></span> {t.milestoneTitle} &rarr;
                             </div>
@@ -571,18 +593,28 @@ const PriorityView = () => {
             {isUpNextExpanded && (
               <div className="this-week-expanded-tray animate-slide-down">
                 <div className="tray-instruction">Upcoming actions scheduled beyond this week</div>
-                <div className="tray-list">
-                  {upNext.map(t => (
-                    <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'upnext')}>
-                      <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
-                      <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                        <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                            <span className="dot"></span> {t.milestoneTitle} &rarr;
+                <div className="tray-list grouped">
+                  {Object.keys(upNextGroups).map(dateStr => (
+                    <div key={dateStr} className="up-next-date-group">
+                      <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
+                      <div className="date-group-items">
+                        {upNextGroups[dateStr].map(t => (
+                          <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'upnext')}>
+                            <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px' }}></div>
+                            <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                              <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                                {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                                {t.title}
+                              </span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
+                                </div>
+                                <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
+                              </div>
+                            </div>
                           </div>
-                          <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   ))}

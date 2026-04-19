@@ -16,7 +16,11 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState(null);
-  const [taskForm, setTaskForm] = useState({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00' });
+  const [taskForm, setTaskForm] = useState({ 
+    title: '', 
+    scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00',
+    isCritical: false
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0); // Reset scroll to top
@@ -52,8 +56,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const handleAddTask = (e) => {
     e.preventDefault();
     if (taskForm.title.trim()) {
-      addTask(goalId, milestoneId, taskForm.title, 1, taskForm.scheduledDate, milestone.priority);
-      setTaskForm({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00' });
+      addTask(goalId, milestoneId, taskForm.title, 1, taskForm.scheduledDate, milestone.priority, taskForm.isCritical);
+      setTaskForm({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', isCritical: false });
       setActiveTaskId(null);
     }
   };
@@ -163,8 +167,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
         ))}
 
         {activeTask && (
-          <div className="next-step-card" onClick={() => toggleTask(goalId, milestoneId, activeTask.id)} style={{ cursor: 'pointer' }}>
-            <div className="next-step-label">Next Step</div>
+          <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={() => !isEditingTitle && toggleTask(goalId, milestoneId, activeTask.id)} style={{ cursor: 'pointer' }}>
+            <div className="next-step-label">{activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}</div>
             <div className="next-step-title">{activeTask.title}</div>
             {activeTask.scheduledDate && (
               <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
@@ -186,7 +190,10 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                 {idx < pendingTasks.length - 2 && <div className="tl-line grey"></div>}
               </div>
               <div className="tl-right">
-                <div className="tl-title-upcoming" onClick={() => toggleTask(goalId, milestoneId, t.id)}>{t.title}</div>
+                <div className="tl-title-upcoming" onClick={() => toggleTask(goalId, milestoneId, t.id)}>
+                  {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                  {t.title}
+                </div>
                 
                 <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
                   <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
@@ -208,10 +215,22 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                       onChange={e => setTaskForm({...taskForm, title: e.target.value})}
                       style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
                    />
-                   <div style={{ display: 'flex', gap: '8px' }}>
-                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '16px', border: 'none', color: '#64748b' }} />
-                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '16px', fontWeight: 600, color: '#64748b' }}>Cancel</button>
-                      <button type="submit" style={{ border: 'none', background: 'none', fontSize: '0.8rem', fontWeight: 600, color: '#3b82f6' }}>Add Step</button>
+                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '14px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
+                      
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: taskForm.isCritical ? '#ef4444' : '#64748b', cursor: 'pointer', fontWeight: 600 }}>
+                         <input 
+                           type="checkbox" 
+                           checked={taskForm.isCritical} 
+                           onChange={e => setTaskForm({...taskForm, isCritical: e.target.checked})}
+                         />
+                         Critical
+                      </label>
+
+                      <div style={{ flex: 1 }}></div>
+                      
+                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Cancel</button>
+                      <button type="submit" style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>Add Step</button>
                    </div>
                 </form>
              ) : (

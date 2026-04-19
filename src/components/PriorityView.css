@@ -682,3 +682,58 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* ── Critical Enhancements ── */
+.critical-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #fef2f2;
+  color: #ef4444;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #fee2e2;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.critical-tag-badge.mini {
+  font-size: 0.55rem;
+  padding: 0px 4px;
+  margin-right: 6px;
+}
+
+/* ── Grouping Enhancements ── */
+.tray-list.grouped {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.up-next-date-group {
+  margin-top: 16px;
+}
+
+.up-next-date-group:first-child {
+  margin-top: 0;
+}
+
+.up-next-date-header {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.date-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

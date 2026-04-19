@@ -287,7 +287,7 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
-  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', taskId = crypto.randomUUID()) => {
+  const addTask = (goalId, milestoneId, title, value = 0, scheduledDate, priority = 'Medium', isCritical = false, taskId = crypto.randomUUID()) => {
     let finalDate = scheduledDate;
     if (finalDate && !finalDate.includes('T')) finalDate = finalDate + 'T09:00';
 
@@ -305,6 +305,7 @@ export const StoreProvider = ({ children }) => {
                   value: Number(value) || 0,
                   scheduledDate: finalDate,
                   priority,
+                  isCritical,
                   completed: false,
                   createdAt: new Date().toISOString(),
                   subtasks: []
