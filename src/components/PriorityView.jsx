@@ -400,16 +400,14 @@ const PriorityView = () => {
   };
 
   const handleSnooze = (val, shouldClose = true) => {
-    let dateString;
-    if (typeof val === 'number') {
-      const date = new Date();
-      date.setDate(date.getDate() + val);
-      dateString = date.toISOString().split('T')[0] + 'T09:00';
-    } else {
-      dateString = val + 'T09:00';
-    }
+    const dateString = typeof val === 'number' 
+      ? new Date(new Date().setDate(new Date().getDate() + val)).toISOString().split('T')[0] + 'T09:00'
+      : val + 'T09:00';
 
-    const updates = { scheduledDate: dateString };
+    const updates = { 
+      scheduledDate: dateString,
+      isPriorityFocus: false 
+    };
     
     if (snoozeNote.trim()) {
       const newLog = {
