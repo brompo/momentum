@@ -712,7 +712,7 @@ const PriorityView = () => {
           )}
         </div>
 
-        <div className="priority-section up-next relative-z" style={{ zIndex: selectedTask ? 1001 : 'auto' }}>
+        <div className="priority-section up-next relative-z">
           <div
             className="priority-section-header clickable"
             onClick={() => setIsUpNextExpanded(!isUpNextExpanded)}
