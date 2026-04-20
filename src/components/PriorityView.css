@@ -451,7 +451,7 @@
 .tray-item.focused {
   background: #fffbeb;
   padding: 12px;
-  font-size: 12px;
+  font-size: 0.85rem;
 }
 
 .add-focus-btn {
