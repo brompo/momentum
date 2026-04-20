@@ -712,11 +712,13 @@
   gap: 4px;
 }
 
-.up-next-date-group {
+.up-next-date-group,
+.this-week-date-group {
   margin-top: 16px;
 }
 
-.up-next-date-group:first-child {
+.up-next-date-group:first-child,
+.this-week-date-group:first-child {
   margin-top: 0;
 }
 

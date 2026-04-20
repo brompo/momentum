@@ -140,6 +140,13 @@ const PriorityView = () => {
     return groups;
   }, {});
 
+  const thisWeekGroups = thisWeekTasks.reduce((groups, task) => {
+    const date = task.scheduledDate.split('T')[0];
+    if (!groups[date]) groups[date] = [];
+    groups[date].push(task);
+    return groups;
+  }, {});
+
   const formatDateHeader = (dateStr) => {
     const date = new Date(dateStr);
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -527,56 +534,62 @@ const PriorityView = () => {
 
           {isThisWeekExpanded && (
             <div className="this-week-expanded-tray animate-slide-down">
-              <div className="tray-instruction">↑ Tap "{weeklyCompleted} of {displayTotal} done ›" to collapse</div>
 
-              <div className="tray-list">
-                {thisWeekTasks.map(t => {
-                  if (t.completed) {
-                    return (
-                      <div key={t.id} className="tray-item completed" onClick={(e) => handleToggle(t, e)}>
-                        <div className="tray-mini-check">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
-                        </div>
-                        <span className="tray-title">{t.title}</span>
-                      </div>
-                    );
-                  }
+              <div className="tray-list grouped">
+                {Object.keys(thisWeekGroups).sort().map(dateStr => (
+                  <div key={dateStr} className="this-week-date-group">
+                    <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
+                    <div className="date-group-items">
+                      {thisWeekGroups[dateStr].map(t => {
+                        if (t.completed) {
+                          return (
+                            <div key={t.id} className="tray-item completed" onClick={(e) => handleToggle(t, e)}>
+                              <div className="tray-mini-check">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+                              </div>
+                              <span className="tray-title">{t.title}</span>
+                            </div>
+                          );
+                        }
 
-                  if (selectedTask?.id === t.id && selectedContext === 'week') {
-                    return renderInlineOptions();
-                  }
+                        if (selectedTask?.id === t.id && selectedContext === 'week') {
+                          return renderInlineOptions();
+                        }
 
-                  if (t.isPriorityFocus) {
-                    return (
-                      <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
-                        <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
-                        <div className="tray-content">
-                          <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>
-                            {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                            {t.title}
-                          </h4>
-                          <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                            <span className="dot"></span> {t.milestoneTitle} &rarr;
+                        if (t.isPriorityFocus) {
+                          return (
+                            <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
+                              <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
+                              <div className="tray-content">
+                                <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>
+                                  {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                                  {t.title}
+                                </h4>
+                                <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
+                            <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                              <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
+                                </div>
+                                <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
-                      <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                        <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                            <span className="dot"></span> {t.milestoneTitle} &rarr;
-                          </div>
-                          <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
-                        </div>
-                      </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           )}
