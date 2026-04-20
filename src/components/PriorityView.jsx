@@ -252,12 +252,18 @@ const PriorityView = () => {
     setSelectedTask(null);
   };
 
-  const handleSnooze = (daysDelta) => {
-    const date = new Date();
-    date.setDate(date.getDate() + daysDelta);
-    const dateString = date.toISOString().split('T')[0] + 'T09:00';
+  const handleSnooze = (val) => {
+    let dateString;
+    if (typeof val === 'number') {
+      const date = new Date();
+      date.setDate(date.getDate() + val);
+      dateString = date.toISOString().split('T')[0] + 'T09:00';
+    } else {
+      dateString = val + 'T09:00';
+    }
     setItemProperty(selectedTask, { scheduledDate: dateString });
     setSelectedTask(null);
+    setSelectedContext('');
   };
 
   const getSnoozeDetails = () => {
@@ -369,9 +375,22 @@ const PriorityView = () => {
               <span className="s-title">Next week</span>
               <span className="s-date">{getSnoozeDetails().nextWeekStr}</span>
             </div>
-            <div className="snooze-bubble">
+            <div className="snooze-bubble" style={{ position: 'relative' }}>
               <span className="s-title">Pick</span>
               <span className="s-date">...</span>
+              <input
+                type="date"
+                onChange={(e) => handleSnooze(e.target.value)}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: 'pointer'
+                }}
+              />
             </div>
           </div>
         </div>
