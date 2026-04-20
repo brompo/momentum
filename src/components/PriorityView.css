@@ -451,6 +451,7 @@
 .tray-item.focused {
   background: #fffbeb;
   padding: 12px;
+  font-size: 12px;
 }
 
 .add-focus-btn {
@@ -467,7 +468,10 @@
 /* ================================ */
 .inline-options-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(2px);
   z-index: 2000;
@@ -489,16 +493,23 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 400px;
   animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalIn {
-  from { transform: translate(-50%, -40%); opacity: 0; }
-  to { transform: translate(-50%, -50%); opacity: 1; }
+  from {
+    transform: translate(-50%, -40%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
 }
 
 .inline-close-btn {
@@ -511,7 +522,10 @@
   opacity: 0.5;
   transition: opacity 0.2s;
 }
-.inline-close-btn:hover { opacity: 1; }
+
+.inline-close-btn:hover {
+  opacity: 1;
+}
 
 /* Row 1: Editable Title & Date Pill */
 .options-row-top {
@@ -563,7 +577,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding-bottom: 14px;
 }
 
@@ -596,7 +610,7 @@
 
 /* Row 3: Snooze Section */
 .options-row-snooze {
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding-bottom: 14px;
 }
 
