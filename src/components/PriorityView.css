@@ -747,3 +747,57 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* ── Snooze Trail & History ── */
+.snooze-note-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  outline: none;
+  background: white;
+  margin-bottom: 10px;
+}
+
+.snooze-note-input::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.options-row-history {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.history-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 2px solid #e2e8f0;
+  padding-left: 10px;
+  margin-left: 4px;
+}
+
+.history-timestamp {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.history-text {
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.3;
+}

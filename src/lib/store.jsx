@@ -330,7 +330,8 @@ export const StoreProvider = ({ children }) => {
                   isCritical,
                   completed: false,
                   createdAt: new Date().toISOString(),
-                  subtasks: []
+                  subtasks: [],
+                  logs: []
                 }]
               };
               // Always revert completion status when a task is added

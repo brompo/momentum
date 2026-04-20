@@ -2,6 +2,145 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import './PriorityView.css';
 
+const InlineOptionsCard = ({
+  task,
+  textareaRef,
+  editTitle,
+  setEditTitle,
+  handleTitleBlur,
+  formatDate,
+  handleToggleFocusFromModal,
+  handleDelete,
+  getSnoozeDetails,
+  handleSnooze,
+  snoozeNote,
+  setSnoozeNote,
+  followUpTitle,
+  setFollowUpTitle,
+  followUpDate,
+  setFollowUpDate,
+  handleFollowUpSubmit,
+  setSelectedTask,
+  setSelectedContext
+}) => {
+  if (!task) return null;
+  return (
+    <div className="inline-options-card" onClick={(e) => e.stopPropagation()}>
+      {/* Close Button top right */}
+      <div className="inline-close-btn" onClick={(e) => { e.stopPropagation(); setSelectedTask(null); setSelectedContext(''); }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </div>
+
+      <div className="options-row-top">
+        <div style={{ flex: 1, paddingRight: '12px' }}>
+          <textarea
+            ref={textareaRef}
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            onBlur={handleTitleBlur}
+            className="sheet-title-input"
+            rows={1}
+          />
+        </div>
+        <div className="options-date-pill">
+          {task.scheduledDate ? formatDate(task.scheduledDate, false).replace('due ', '') : 'No Date'} ✏️
+        </div>
+      </div>
+
+      <div className="options-row-actions">
+        <div className="action-pill-card focus" onClick={handleToggleFocusFromModal}>
+          <span>⚡</span> {task.isPriorityFocus ? "Remove focus" : "Focus today"}
+        </div>
+        <div className="action-pill-card delete" onClick={handleDelete}>
+          <span>🗑️</span> Won't do
+        </div>
+      </div>
+
+      <div className="options-row-snooze">
+        <div className="snooze-header">Snooze To</div>
+        <input
+          type="text"
+          className="snooze-note-input"
+          placeholder="Why snooze? (optional)..."
+          value={snoozeNote}
+          onChange={(e) => setSnoozeNote(e.target.value)}
+        />
+        <div className="snooze-grid">
+          <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().tomorrowDays)}>
+            <span className="s-title">Tomorrow</span>
+            <span className="s-date">{getSnoozeDetails().tomorrowStr}</span>
+          </div>
+          <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().mondayDays)}>
+            <span className="s-title">Monday</span>
+            <span className="s-date">{getSnoozeDetails().mondayStr}</span>
+          </div>
+          <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().nextWeekDays)}>
+            <span className="s-title">Next week</span>
+            <span className="s-date">{getSnoozeDetails().nextWeekStr}</span>
+          </div>
+          <div className="snooze-bubble" style={{ position: 'relative' }}>
+            <span className="s-title">Pick</span>
+            <span className="s-date">...</span>
+            <input
+              type="date"
+              onChange={(e) => handleSnooze(e.target.value)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: 'pointer'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="options-row-followup">
+        <input
+          type="text"
+          className="follow-up-input"
+          placeholder="Follow-up step..."
+          value={followUpTitle}
+          onChange={(e) => setFollowUpTitle(e.target.value)}
+        />
+        <div className="follow-up-date-wrapper">
+          <div className="follow-up-date-bubble" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '70px' }}>
+            {formatDate(followUpDate, false).replace('due ', '')}
+          </div>
+          <input
+            type="date"
+            value={followUpDate}
+            onChange={(e) => setFollowUpDate(e.target.value)}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+          />
+        </div>
+        <button className="follow-up-submit-btn" onClick={handleFollowUpSubmit}>
+          +
+        </button>
+      </div>
+
+      {task.logs && task.logs.length > 0 && (
+        <div className="options-row-history">
+          <div className="snooze-header" style={{ marginTop: '8px' }}>History</div>
+          <div className="history-trail">
+            {task.logs.slice().reverse().map(log => (
+              <div key={log.id} className="history-item">
+                <div className="history-timestamp">
+                  {new Date(log.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div className="history-text">{log.text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PriorityView = () => {
   const { goals, updateTask, toggleTask, addTask, deleteTask, setSelectedGoalId, setSelectedMilestoneId, setActiveTab } = useStore();
 
@@ -12,6 +151,7 @@ const PriorityView = () => {
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [followUpTitle, setFollowUpTitle] = useState('');
+  const [snoozeNote, setSnoozeNote] = useState('');
   const [followUpDate, setFollowUpDate] = useState(() => {
     const t = new Date(); t.setDate(t.getDate() + 1);
     return t.toISOString().split('T')[0];
@@ -216,6 +356,7 @@ const PriorityView = () => {
     setSelectedContext(context);
     setEditTitle(item.title || '');
     setFollowUpTitle('');
+    setSnoozeNote('');
     const d = new Date(); d.setDate(d.getDate() + 1);
     setFollowUpDate(d.toISOString().split('T')[0]);
   };
@@ -267,9 +408,24 @@ const PriorityView = () => {
     } else {
       dateString = val + 'T09:00';
     }
-    setItemProperty(selectedTask, { scheduledDate: dateString });
+
+    const updates = { scheduledDate: dateString };
+    
+    if (snoozeNote.trim()) {
+      const newLog = {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        text: snoozeNote,
+        type: 'snooze',
+        newDate: dateString
+      };
+      updates.logs = [...(selectedTask.logs || []), newLog];
+    }
+
+    setItemProperty(selectedTask, updates);
     setSelectedTask(null);
     setSelectedContext('');
+    setSnoozeNote('');
   };
 
   const getSnoozeDetails = () => {
@@ -333,98 +489,28 @@ const PriorityView = () => {
   const renderInlineOptions = (key) => {
     if (!selectedTask) return null;
     return (
-      <div className="inline-options-card" key={key}>
-        {/* Close Button top right */}
-        <div className="inline-close-btn" onClick={(e) => { e.stopPropagation(); setSelectedTask(null); setSelectedContext(''); }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </div>
-
-        <div className="options-row-top">
-          <div style={{ flex: 1, paddingRight: '12px' }}>
-            <textarea
-              ref={textareaRef}
-              value={editTitle}
-              onChange={(e) => {
-                setEditTitle(e.target.value);
-              }}
-              onBlur={handleTitleBlur}
-              className="sheet-title-input"
-              rows={1}
-            />
-          </div>
-          <div className="options-date-pill">
-            {selectedTask.scheduledDate ? formatDate(selectedTask.scheduledDate, false).replace('due ', '') : 'No Date'} ✏️
-          </div>
-        </div>
-
-        <div className="options-row-actions">
-          <div className="action-pill-card focus" onClick={handleToggleFocusFromModal}>
-            <span>⚡</span> {selectedTask.isPriorityFocus ? "Remove focus" : "Focus today"}
-          </div>
-          <div className="action-pill-card delete" onClick={handleDelete}>
-            <span>🗑️</span> Won't do
-          </div>
-        </div>
-
-        <div className="options-row-snooze">
-          <div className="snooze-header">Snooze To</div>
-          <div className="snooze-grid">
-            <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().tomorrowDays)}>
-              <span className="s-title">Tomorrow</span>
-              <span className="s-date">{getSnoozeDetails().tomorrowStr}</span>
-            </div>
-            <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().mondayDays)}>
-              <span className="s-title">Monday</span>
-              <span className="s-date">{getSnoozeDetails().mondayStr}</span>
-            </div>
-            <div className="snooze-bubble" onClick={() => handleSnooze(getSnoozeDetails().nextWeekDays)}>
-              <span className="s-title">Next week</span>
-              <span className="s-date">{getSnoozeDetails().nextWeekStr}</span>
-            </div>
-            <div className="snooze-bubble" style={{ position: 'relative' }}>
-              <span className="s-title">Pick</span>
-              <span className="s-date">...</span>
-              <input
-                type="date"
-                onChange={(e) => handleSnooze(e.target.value)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                  cursor: 'pointer'
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="options-row-followup">
-          <input
-            type="text"
-            className="follow-up-input"
-            placeholder="Follow-up step..."
-            value={followUpTitle}
-            onChange={(e) => setFollowUpTitle(e.target.value)}
-          />
-          <div className="follow-up-date-wrapper">
-            <div className="follow-up-date-bubble" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '70px' }}>
-              {formatDate(followUpDate, false).replace('due ', '')}
-            </div>
-            <input
-              type="date"
-              value={followUpDate}
-              onChange={(e) => setFollowUpDate(e.target.value)}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-            />
-          </div>
-          <button className="follow-up-submit-btn" onClick={handleFollowUpSubmit}>
-            +
-          </button>
-        </div>
-      </div>
+      <InlineOptionsCard
+        key={key}
+        task={selectedTask}
+        textareaRef={textareaRef}
+        editTitle={editTitle}
+        setEditTitle={setEditTitle}
+        handleTitleBlur={handleTitleBlur}
+        formatDate={formatDate}
+        handleToggleFocusFromModal={handleToggleFocusFromModal}
+        handleDelete={handleDelete}
+        getSnoozeDetails={getSnoozeDetails}
+        handleSnooze={handleSnooze}
+        snoozeNote={snoozeNote}
+        setSnoozeNote={setSnoozeNote}
+        followUpTitle={followUpTitle}
+        setFollowUpTitle={setFollowUpTitle}
+        followUpDate={followUpDate}
+        setFollowUpDate={setFollowUpDate}
+        handleFollowUpSubmit={handleFollowUpSubmit}
+        setSelectedTask={setSelectedTask}
+        setSelectedContext={setSelectedContext}
+      />
     );
   };
 
