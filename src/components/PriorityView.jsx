@@ -21,7 +21,12 @@ const InlineOptionsCard = ({
   setFollowUpDate,
   handleFollowUpSubmit,
   setSelectedTask,
-  setSelectedContext
+  setSelectedContext,
+  newActionTitle,
+  setNewActionTitle,
+  handleAddSubtask,
+  handleToggleSubtask,
+  handleDeleteSubtask
 }) => {
   if (!task) return null;
   return (
@@ -122,6 +127,34 @@ const InlineOptionsCard = ({
         </button>
       </div>
 
+      <div className="options-row-actions-list">
+        <div className="snooze-header" style={{ marginBottom: '8px' }}>Actions</div>
+        <div className="actions-list">
+          {task.subtasks && task.subtasks.map(sub => (
+            <div key={sub.id} className={`action-item ${sub.completed ? 'completed' : ''}`} onClick={() => handleToggleSubtask(sub.id)}>
+              <div className="action-checkbox">
+                {sub.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
+              </div>
+              <span className="action-text">{sub.title}</span>
+              <button className="action-delete-btn" onClick={(e) => { e.stopPropagation(); handleDeleteSubtask(sub.id); }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+          ))}
+          <div className="add-action-row">
+            <input 
+              type="text" 
+              className="add-action-input"
+              placeholder="Add needed action..."
+              value={newActionTitle}
+              onChange={(e) => setNewActionTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask()}
+            />
+            <button className="add-action-btn" onClick={handleAddSubtask}>Add</button>
+          </div>
+        </div>
+      </div>
+
       {task.logs && task.logs.length > 0 && (
         <div className="options-row-history">
           <div className="snooze-header" style={{ marginTop: '8px' }}>History</div>
@@ -156,6 +189,7 @@ const PriorityView = () => {
     const t = new Date(); t.setDate(t.getDate() + 1);
     return t.toISOString().split('T')[0];
   });
+  const [newActionTitle, setNewActionTitle] = useState('');
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -339,8 +373,8 @@ const PriorityView = () => {
   const handleToggleFocusFromCard = (item, e) => {
     e?.stopPropagation();
     const newValue = !item.isPriorityFocus;
-    if (newValue && incompleteFocusCount >= 3) {
-      alert("Focus full! Today's Focus can only have max 3 actions. Un-swap one first.");
+    if (newValue && incompleteFocusCount >= 5) {
+      alert("Focus full! Weekly Focus can only have max 5 actions. Un-swap one first.");
       return;
     }
     setItemProperty(item, { isPriorityFocus: newValue });
@@ -357,6 +391,7 @@ const PriorityView = () => {
     setEditTitle(item.title || '');
     setFollowUpTitle('');
     setSnoozeNote('');
+    setNewActionTitle('');
     const d = new Date(); d.setDate(d.getDate() + 1);
     setFollowUpDate(d.toISOString().split('T')[0]);
   };
@@ -376,13 +411,40 @@ const PriorityView = () => {
 
   const handleToggleFocusFromModal = () => {
     const newValue = !selectedTask.isPriorityFocus;
-    if (newValue && incompleteFocusCount >= 3) {
-      alert("Focus full! Today's Focus can only have max 3 actions. Un-swap one first.");
+    if (newValue && incompleteFocusCount >= 5) {
+      alert("Focus full! Weekly Focus can only have max 5 actions. Un-swap one first.");
       return;
     }
     setItemProperty(selectedTask, { isPriorityFocus: newValue });
     setSelectedTask({ ...selectedTask, isPriorityFocus: newValue });
   }
+
+  const handleToggleSubtask = (subtaskId) => {
+    const newSubtasks = (selectedTask.subtasks || []).map(s =>
+      s.id === subtaskId ? { ...s, completed: !s.completed } : s
+    );
+    setItemProperty(selectedTask, { subtasks: newSubtasks });
+    setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
+  };
+
+  const handleAddSubtask = () => {
+    if (!newActionTitle.trim()) return;
+    const newSubtask = {
+      id: crypto.randomUUID(),
+      title: newActionTitle.trim(),
+      completed: false
+    };
+    const newSubtasks = [...(selectedTask.subtasks || []), newSubtask];
+    setItemProperty(selectedTask, { subtasks: newSubtasks });
+    setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
+    setNewActionTitle('');
+  };
+
+  const handleDeleteSubtask = (subtaskId) => {
+    const newSubtasks = (selectedTask.subtasks || []).filter(s => s.id !== subtaskId);
+    setItemProperty(selectedTask, { subtasks: newSubtasks });
+    setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
+  };
 
   const handleDelete = () => {
     if (selectedTask.type === 'result') {
@@ -514,6 +576,11 @@ const PriorityView = () => {
         handleFollowUpSubmit={handleFollowUpSubmit}
         setSelectedTask={setSelectedTask}
         setSelectedContext={setSelectedContext}
+        newActionTitle={newActionTitle}
+        setNewActionTitle={setNewActionTitle}
+        handleAddSubtask={handleAddSubtask}
+        handleToggleSubtask={handleToggleSubtask}
+        handleDeleteSubtask={handleDeleteSubtask}
       />
     );
   };
@@ -597,7 +664,7 @@ const PriorityView = () => {
         <div className="priority-section due-week relative-z">
           <div className="priority-section-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="dot" style={{ background: '#f49d0d' }}></span> TODAY'S FOCUS
+              <span className="dot" style={{ background: '#f49d0d' }}></span> WEEKLY FOCUS
             </div>
             <span className="header-count">{todayFocus.filter(t => t.completed).length} of {todayFocus.length} done</span>
           </div>
@@ -689,6 +756,7 @@ const PriorityView = () => {
 
                         return (
                           <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
+                            <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px', flexShrink: 0, marginTop: '2px' }}></div>
                             <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                               <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
                                 {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}

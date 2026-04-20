@@ -767,6 +767,123 @@
   gap: 4px;
 }
 
+/* ── Actions (Subtasks) List ── */
+.options-row-actions-list {
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.05);
+  margin-top: 4px;
+}
+
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-item:hover {
+  border-color: #e2e8f0;
+  background: #fdfdfd;
+}
+
+.action-item.completed {
+  background: #f8fafc;
+  border-color: #f1f5f9;
+}
+
+.action-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.action-item.completed .action-checkbox {
+  background: #ecfdf5;
+  border-color: #10b981;
+}
+
+.action-text {
+  flex: 1;
+  font-size: 0.8rem;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.action-item.completed .action-text {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.action-delete-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.action-item:hover .action-delete-btn {
+  opacity: 1;
+}
+
+.add-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.add-action-input {
+  flex: 1;
+  background: #f8fafc;
+  border: 1.5px dashed #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.add-action-input:focus {
+  border-color: #cbd5e1;
+  border-style: solid;
+  background: white;
+}
+
+.add-action-btn {
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-action-btn:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
 /* ── Snooze Trail & History ── */
 .snooze-note-input {
   width: 100%;
