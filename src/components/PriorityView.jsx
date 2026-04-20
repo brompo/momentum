@@ -404,13 +404,10 @@ const PriorityView = () => {
       ? new Date(new Date().setDate(new Date().getDate() + val)).toISOString().split('T')[0] + 'T09:00'
       : val + 'T09:00';
 
-    const updates = { scheduledDate: dateString };
-    
-    // Only remove from Today's Focus if we are actually closing the modal.
-    // If we stay open (e.g. 'Pick' button), keep it in the list so the modal doesn't vanish.
-    if (shouldClose) {
-      updates.isPriorityFocus = false;
-    }
+    const updates = { 
+      scheduledDate: dateString,
+      isPriorityFocus: false 
+    };
     
     if (snoozeNote.trim()) {
       const newLog = {
@@ -523,8 +520,11 @@ const PriorityView = () => {
 
   return (
     <div className="priority-view safe-area animate-fade-in">
-      {/* Global blur mask when a task is selected */}
-      {selectedTask && <div className="inline-options-overlay" onClick={() => setSelectedTask(null)}></div>}
+      {selectedTask && (
+        <div className="inline-options-overlay" onClick={() => { setSelectedTask(null); setSelectedContext(''); }}>
+          {renderInlineOptions(selectedTask.id)}
+        </div>
+      )}
 
       <div className="priority-header">
         <div className="priority-header-titles">
@@ -563,23 +563,21 @@ const PriorityView = () => {
           {isOverdueExpanded && overdue.length > 0 && (
             <div className="priority-list">
               {overdueRender.map((t, idx) => (
-                selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions(t.id) : (
-                  <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
-                    <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
-                    <div className="priority-content">
-                      <h4 className="priority-title">
-                        {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                        {t.title}
-                      </h4>
-                      <div className="priority-meta-row">
-                        <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                          <span className="dot"></span> {t.milestoneTitle} &rarr;
-                        </div>
-                        {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>}
+                <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
+                  <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
+                  <div className="priority-content">
+                    <h4 className="priority-title">
+                      {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                      {t.title}
+                    </h4>
+                    <div className="priority-meta-row">
+                      <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
+                        <span className="dot"></span> {t.milestoneTitle} &rarr;
                       </div>
+                      {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>}
                     </div>
                   </div>
-                )
+                </div>
               ))}
 
               {overdue.length > maxOverdue && (
@@ -606,27 +604,25 @@ const PriorityView = () => {
           {todayFocus.length > 0 ? (
             <div className="priority-list">
               {todayFocus.map(t => (
-                selectedTask?.id === t.id && !t.completed && selectedContext === 'today' ? renderInlineOptions(t.id) : (
-                  <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={() => !t.completed && handleCardClick(t, 'today')}>
-                    <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
-                      {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
-                    </div>
-                    <div className="priority-content">
-                      <h4 className="priority-title">
-                        {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
-                        {t.title}
-                      </h4>
-                      <div className="priority-meta-row">
-                        <div className={`milestone-context-pill ${t.completed ? 'completed' : 'due-week'}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
-                          <span className="dot"></span> {t.milestoneTitle} &rarr;
-                        </div>
-                        {!t.completed && (
-                          <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
-                        )}
+                <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={() => !t.completed && handleCardClick(t, 'today')}>
+                  <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
+                    {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
+                  </div>
+                  <div className="priority-content">
+                    <h4 className="priority-title">
+                      {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
+                      {t.title}
+                    </h4>
+                    <div className="priority-meta-row">
+                      <div className={`milestone-context-pill ${t.completed ? 'completed' : 'due-week'}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
+                        <span className="dot"></span> {t.milestoneTitle} &rarr;
                       </div>
+                      {!t.completed && (
+                        <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
+                      )}
                     </div>
                   </div>
-                )
+                </div>
               ))}
             </div>
           ) : (
@@ -636,7 +632,7 @@ const PriorityView = () => {
           )}
         </div>
 
-        <div className="priority-section this-week-section relative-z" style={{ zIndex: selectedTask ? 1002 : 'auto' }}>
+        <div className="priority-section this-week-section relative-z">
           <div
             className="priority-section-header clickable"
             onClick={() => setIsThisWeekExpanded(!isThisWeekExpanded)}
@@ -676,22 +672,16 @@ const PriorityView = () => {
                           );
                         }
 
-                        if (selectedTask?.id === t.id && selectedContext === 'week') {
-                          return renderInlineOptions(t.id);
-                        }
-
                         if (t.isPriorityFocus) {
                           return (
                             <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
                               <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
                               <div className="tray-content">
-                                <h4 className="tray-title" style={{ fontSize: '0.9rem', margin: 0, color: '#1e293b' }}>
+                                <span className="tray-title" style={{ color: '#d97706' }}>
                                   {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
                                   {t.title}
-                                </h4>
-                                <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
-                                </div>
+                                </span>
+                                <div className="tray-milestone" style={{ color: '#d97706', opacity: 0.8 }}>{t.milestoneTitle}</div>
                               </div>
                             </div>
                           );
