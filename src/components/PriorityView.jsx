@@ -222,8 +222,14 @@ const PriorityView = () => {
 
   const handleTitleBlur = () => {
     if (editTitle !== selectedTask.title) {
-      setItemProperty(selectedTask, { title: editTitle });
-      setSelectedTask({ ...selectedTask, title: editTitle });
+      // Use a timeout to avoid immediate re-render which can close native pickers
+      // being opened as a result of this blur (focus moving to date input)
+      const cachedTitle = editTitle;
+      const cachedTask = selectedTask;
+      setTimeout(() => {
+        setItemProperty(cachedTask, { title: cachedTitle });
+        // Don't setSelectedTask here if we might be unmounted, but it's safe usually
+      }, 100);
     }
   };
 
