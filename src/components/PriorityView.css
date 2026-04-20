@@ -676,11 +676,19 @@
   font-weight: bold;
   height: 38px;
   width: 38px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.follow-up-date-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 /* ── Critical Enhancements ── */
@@ -723,14 +731,14 @@
 }
 
 .up-next-date-header {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
-  color: #94a3b8;
+  color: #475569;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-  padding-bottom: 4px;
-  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
   padding-left: 4px;
 }
 

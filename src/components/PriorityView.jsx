@@ -318,10 +318,10 @@ const PriorityView = () => {
   const displayTotal = thisWeekTasks.length === 0 ? 5 : thisWeekTasks.length;
   const weeklyCompleted = thisWeekTasks.filter(t => t.completed).length;
 
-  const renderInlineOptions = () => {
+  const renderInlineOptions = (key) => {
     if (!selectedTask) return null;
     return (
-      <div className="inline-options-card">
+      <div className="inline-options-card" key={key}>
         {/* Close Button top right */}
         <div className="inline-close-btn" onClick={(e) => { e.stopPropagation(); setSelectedTask(null); setSelectedContext(''); }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -384,7 +384,7 @@ const PriorityView = () => {
             value={followUpTitle}
             onChange={(e) => setFollowUpTitle(e.target.value)}
           />
-          <div style={{ position: 'relative' }}>
+          <div className="follow-up-date-wrapper">
             <div className="follow-up-date-bubble" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '70px' }}>
               {formatDate(followUpDate, false).replace('due ', '')}
             </div>
@@ -445,11 +445,14 @@ const PriorityView = () => {
           {isOverdueExpanded && overdue.length > 0 && (
             <div className="priority-list">
               {overdueRender.map((t, idx) => (
-                selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions() : (
+                selectedTask?.id === t.id && selectedContext === 'overdue' ? renderInlineOptions(t.id) : (
                   <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
                     <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
                     <div className="priority-content">
-                      <h4 className="priority-title">{t.title}</h4>
+                      <h4 className="priority-title">
+                        {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                        {t.title}
+                      </h4>
                       <div className="priority-meta-row">
                         <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
                           <span className="dot"></span> {t.milestoneTitle} &rarr;
@@ -485,7 +488,7 @@ const PriorityView = () => {
           {todayFocus.length > 0 ? (
             <div className="priority-list">
               {todayFocus.map(t => (
-                selectedTask?.id === t.id && !t.completed && selectedContext === 'today' ? renderInlineOptions() : (
+                selectedTask?.id === t.id && !t.completed && selectedContext === 'today' ? renderInlineOptions(t.id) : (
                   <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={() => !t.completed && handleCardClick(t, 'today')}>
                     <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
                       {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
@@ -547,13 +550,16 @@ const PriorityView = () => {
                               <div className="tray-mini-check">
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
                               </div>
-                              <span className="tray-title">{t.title}</span>
+                              <span className="tray-title">
+                                {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                                {t.title}
+                              </span>
                             </div>
                           );
                         }
 
                         if (selectedTask?.id === t.id && selectedContext === 'week') {
-                          return renderInlineOptions();
+                          return renderInlineOptions(t.id);
                         }
 
                         if (t.isPriorityFocus) {
@@ -576,7 +582,10 @@ const PriorityView = () => {
                         return (
                           <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
                             <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                              <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>{t.title}</span>
+                              <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                                {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                                {t.title}
+                              </span>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
                                   <span className="dot"></span> {t.milestoneTitle} &rarr;
