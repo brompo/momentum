@@ -404,10 +404,13 @@ const PriorityView = () => {
       ? new Date(new Date().setDate(new Date().getDate() + val)).toISOString().split('T')[0] + 'T09:00'
       : val + 'T09:00';
 
-    const updates = { 
-      scheduledDate: dateString,
-      isPriorityFocus: false 
-    };
+    const updates = { scheduledDate: dateString };
+    
+    // Only remove from Today's Focus if we are actually closing the modal.
+    // If we stay open (e.g. 'Pick' button), keep it in the list so the modal doesn't vanish.
+    if (shouldClose) {
+      updates.isPriorityFocus = false;
+    }
     
     if (snoozeNote.trim()) {
       const newLog = {
