@@ -650,6 +650,7 @@
 
 .follow-up-input {
   flex: 1;
+  min-width: 0;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   padding: 10px 12px;
