@@ -83,7 +83,7 @@ const InlineOptionsCard = ({
             <span className="s-date">...</span>
             <input
               type="date"
-              onChange={(e) => handleSnooze(e.target.value)}
+              onChange={(e) => handleSnooze(e.target.value, false)}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -399,7 +399,7 @@ const PriorityView = () => {
     setSelectedTask(null);
   };
 
-  const handleSnooze = (val) => {
+  const handleSnooze = (val, shouldClose = true) => {
     let dateString;
     if (typeof val === 'number') {
       const date = new Date();
@@ -422,9 +422,15 @@ const PriorityView = () => {
       updates.logs = [...(selectedTask.logs || []), newLog];
     }
 
+    // Update both the store and the local selectedTask so UI reflects change immediately
     setItemProperty(selectedTask, updates);
-    setSelectedTask(null);
-    setSelectedContext('');
+
+    if (shouldClose) {
+      setSelectedTask(null);
+      setSelectedContext('');
+    } else {
+      setSelectedTask({ ...selectedTask, ...updates });
+    }
     setSnoozeNote('');
   };
 
