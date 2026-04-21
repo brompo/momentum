@@ -190,6 +190,8 @@ const PriorityView = () => {
     return t.toISOString().split('T')[0];
   });
   const [newActionTitle, setNewActionTitle] = useState('');
+  const [expandedTaskIds, setExpandedTaskIds] = useState(new Set());
+  const [newActivityTitles, setNewActivityTitles] = useState({}); // {taskId: string}
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -446,6 +448,45 @@ const PriorityView = () => {
     setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
   };
 
+  const toggleTaskExpansion = (taskId, e) => {
+    e?.stopPropagation();
+    setExpandedTaskIds(prev => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
+  };
+
+  const handleToggleActivity = (task, subtaskId, e) => {
+    e?.stopPropagation();
+    const newSubtasks = (task.subtasks || []).map(s =>
+      s.id === subtaskId ? { ...s, completed: !s.completed } : s
+    );
+    setItemProperty(task, { subtasks: newSubtasks });
+    // Also update selectedTask if it's currently open
+    if (selectedTask?.id === task.id) {
+      setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
+    }
+  };
+
+  const handleAddActivityFromList = (task) => {
+    const title = newActivityTitles[task.id];
+    if (!title?.trim()) return;
+    const newSubtask = {
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      completed: false
+    };
+    const newSubtasks = [...(task.subtasks || []), newSubtask];
+    setItemProperty(task, { subtasks: newSubtasks });
+    // Update local state if modal is open
+    if (selectedTask?.id === task.id) {
+      setSelectedTask({ ...selectedTask, subtasks: newSubtasks });
+    }
+    setNewActivityTitles(prev => ({ ...prev, [task.id]: '' }));
+  };
+
   const handleDelete = () => {
     if (selectedTask.type === 'result') {
       deleteTask(selectedTask.goalId, selectedTask.milestoneId, selectedTask.id);
@@ -552,6 +593,76 @@ const PriorityView = () => {
   const displayTotal = thisWeekTasks.length === 0 ? 5 : thisWeekTasks.length;
   const weeklyCompleted = thisWeekTasks.filter(t => t.completed).length;
 
+  const renderTaskCard = (t, context) => {
+    const isExpanded = expandedTaskIds.has(t.id);
+    const activitiesCount = (t.subtasks || []).length;
+    
+    return (
+      <div key={t.id} className={`priority-card ${context} ${t.completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}`}>
+        <div className="priority-card-main-row">
+          <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
+            {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
+          </div>
+          
+          <div className="priority-content" onClick={() => !t.completed && handleCardClick(t, context)}>
+            <h4 className="priority-title">
+              {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
+              {t.title}
+            </h4>
+            <div className="priority-meta-row">
+              <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
+                <span className="dot"></span> {t.milestoneTitle} &rarr;
+              </div>
+              {context !== 'today' && !t.isPriorityFocus && (
+                <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
+              )}
+            </div>
+          </div>
+
+          {(activitiesCount > 0 || isExpanded) && (
+            <div className="expand-toggle" onClick={(e) => toggleTaskExpansion(t.id, e)}>
+              {isExpanded ? (
+                <span>▾ hide</span>
+              ) : (
+                <span>▸ {activitiesCount} actions</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {isExpanded && (
+          <div className="activities-scaffolding-tray" onClick={(e) => e.stopPropagation()}>
+            <div className="scaffolding-header">ACTIONS</div>
+            <div className="scaffolding-list">
+              {(t.subtasks || []).map(sub => (
+                <div key={sub.id} className={`scaffolding-item ${sub.completed ? 'completed' : ''}`} onClick={(e) => handleToggleActivity(t, sub.id, e)}>
+                  <div className="scaffolding-square-check">
+                    {sub.completed && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
+                  </div>
+                  <span className="scaffolding-text">{sub.title}</span>
+                </div>
+              ))}
+              <div className="scaffolding-add-row">
+                <div className="scaffolding-square-add"></div>
+                <input 
+                  type="text"
+                  className="scaffolding-add-input"
+                  placeholder="Add activity..."
+                  value={newActivityTitles[t.id] || ''}
+                  onChange={(e) => setNewActivityTitles(prev => ({ ...prev, [t.id]: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddActivityFromList(t)}
+                />
+              </div>
+            </div>
+            <div className="scaffolding-footer">
+              <span className="dot"></span> Progress only moves when this step is marked done
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderInlineOptions = (key) => {
     if (!selectedTask) return null;
     return (
@@ -629,23 +740,7 @@ const PriorityView = () => {
 
           {isOverdueExpanded && overdue.length > 0 && (
             <div className="priority-list">
-              {overdueRender.map((t, idx) => (
-                <div key={t.id} className="priority-card overdue" onClick={() => handleCardClick(t, 'overdue')}>
-                  <div className="priority-radio" onClick={(e) => handleToggle(t, e)}></div>
-                  <div className="priority-content">
-                    <h4 className="priority-title">
-                      {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                      {t.title}
-                    </h4>
-                    <div className="priority-meta-row">
-                      <div className="milestone-context-pill overdue" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                        <span className="dot"></span> {t.milestoneTitle} &rarr;
-                      </div>
-                      {!t.isPriorityFocus && <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {overdueRender.map(t => renderTaskCard(t, 'overdue'))}
 
               {overdue.length > maxOverdue && (
                 <div className="show-more-link">
@@ -670,27 +765,7 @@ const PriorityView = () => {
           </div>
           {todayFocus.length > 0 ? (
             <div className="priority-list">
-              {todayFocus.map(t => (
-                <div key={t.id} className={`priority-card due-week ${t.completed ? 'completed' : ''}`} onClick={() => !t.completed && handleCardClick(t, 'today')}>
-                  <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
-                    {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
-                  </div>
-                  <div className="priority-content">
-                    <h4 className="priority-title">
-                      {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
-                      {t.title}
-                    </h4>
-                    <div className="priority-meta-row">
-                      <div className={`milestone-context-pill ${t.completed ? 'completed' : 'due-week'}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
-                        <span className="dot"></span> {t.milestoneTitle} &rarr;
-                      </div>
-                      {!t.completed && (
-                        <span className="swap-text clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>swap ⇆</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {todayFocus.map(t => renderTaskCard(t, 'today'))}
             </div>
           ) : (
             <div className="priority-card completed-blank">
@@ -724,54 +799,7 @@ const PriorityView = () => {
                   <div key={dateStr} className="this-week-date-group">
                     <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
                     <div className="date-group-items">
-                      {thisWeekGroups[dateStr].map(t => {
-                        if (t.completed) {
-                          return (
-                            <div key={t.id} className="tray-item completed" onClick={(e) => handleToggle(t, e)}>
-                              <div className="tray-mini-check">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
-                              </div>
-                              <span className="tray-title">
-                                {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                                {t.title}
-                              </span>
-                            </div>
-                          );
-                        }
-
-                        if (t.isPriorityFocus) {
-                          return (
-                            <div key={t.id} className="tray-item focused" onClick={() => handleCardClick(t, 'week')}>
-                              <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ borderColor: '#d97706', width: '18px', height: '18px' }}></div>
-                              <div className="tray-content">
-                                <span className="tray-title" style={{ color: '#d97706' }}>
-                                  {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                                  {t.title}
-                                </span>
-                                <div className="tray-milestone" style={{ color: '#d97706', opacity: 0.8 }}>{t.milestoneTitle}</div>
-                              </div>
-                            </div>
-                          );
-                        }
-
-                        return (
-                          <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'week')}>
-                            <div className="priority-radio" onClick={(e) => handleToggle(t, e)} style={{ width: '18px', height: '18px', flexShrink: 0, marginTop: '2px' }}></div>
-                            <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                              <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                                {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                                {t.title}
-                              </span>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                                  <span className="dot"></span> {t.milestoneTitle} &rarr;
-                                </div>
-                                <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                      {thisWeekGroups[dateStr].map(t => renderTaskCard(t, 'week'))}
                     </div>
                   </div>
                 ))}
