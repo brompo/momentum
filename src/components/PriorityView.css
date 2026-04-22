@@ -177,6 +177,18 @@
   cursor: pointer;
   margin-top: 2px;
   /* Align with title baseline */
+  position: relative;
+  z-index: 2;
+}
+
+.priority-radio:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.priority-card.completed .priority-radio {
+  background: #10b981;
+  border-color: #10b981;
 }
 
 .priority-content {
@@ -184,6 +196,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.priority-card.completed {
+  opacity: 0.6;
+}
+
+.priority-card.completed .priority-title {
+  text-decoration: line-through;
+  color: #94a3b8;
 }
 
 .priority-title {

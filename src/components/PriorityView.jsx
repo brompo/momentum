@@ -47,8 +47,22 @@ const InlineOptionsCard = ({
             rows={1}
           />
         </div>
-        <div className="options-date-pill">
+        <div className="options-date-pill" style={{ position: 'relative' }}>
           {task.scheduledDate ? formatDate(task.scheduledDate, false).replace('due ', '') : 'No Date'} ✏️
+          <input
+            type="date"
+            onChange={(e) => handleSnooze(e.target.value, false)}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              opacity: 0,
+              cursor: 'pointer',
+              zIndex: 1
+            }}
+          />
         </div>
       </div>
 
