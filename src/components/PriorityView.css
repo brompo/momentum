@@ -208,6 +208,11 @@
   color: #94a3b8;
 }
 
+.priority-card.in-focus {
+  background: #fffdf5;
+  /* Warmer, more distinct background */
+}
+
 .priority-title {
   margin: 0;
   font-size: 0.9rem;
@@ -767,6 +772,22 @@
   margin-right: 6px;
 }
 
+.focus-indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #fffbeb;
+  color: #d97706;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #fef3c7;
+  margin-right: 8px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
 /* ── Grouping Enhancements ── */
 .tray-list.grouped {
   display: flex;
@@ -785,15 +806,47 @@
 }
 
 .up-next-date-header {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  color: #475569;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
-  padding-bottom: 6px;
+  border-bottom: 1.5px solid #f1f5f9;
+  padding-bottom: 8px;
   margin-bottom: 10px;
-  padding-left: 4px;
+  padding-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.up-next-date-header:hover {
+  color: #334155;
+  border-bottom-color: #e2e8f0;
+}
+
+.collapse-arrow {
+  font-size: 10px;
+  width: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.collapsed-count {
+  margin-left: auto;
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 0.65rem;
+  letter-spacing: normal;
+  text-transform: lowercase;
+  background: #f8fafc;
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
 .date-group-items {
@@ -1060,6 +1113,12 @@
   color: #94a3b8;
   padding: 0;
   margin-left: 10px;
+}
+
+.in-focus-indicator {
+  color: #f59e0b !important;
+  font-weight: 700 !important;
+  opacity: 0.9;
 }
 
 .expand-toggle {

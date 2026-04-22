@@ -156,8 +156,8 @@ const InlineOptionsCard = ({
             </div>
           ))}
           <div className="add-action-row">
-            <input 
-              type="text" 
+            <input
+              type="text"
               className="add-action-input"
               placeholder="Add needed action..."
               value={newActionTitle}
@@ -205,15 +205,11 @@ const PriorityView = () => {
   });
   const [newActionTitle, setNewActionTitle] = useState('');
   const [expandedTaskIds, setExpandedTaskIds] = useState(new Set());
+  const [collapsedDates, setCollapsedDates] = useState(new Set());
+  const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
   const [newActivityTitles, setNewActivityTitles] = useState({}); // {taskId: string}
   const textareaRef = useRef(null);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-    }
-  }, [editTitle, selectedTask]);
 
   // Date logic
   const todayDate = new Date();
@@ -348,6 +344,43 @@ const PriorityView = () => {
   todayFocus.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1));
 
   const incompleteFocusCount = todayFocus.filter(t => !t.completed).length;
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [editTitle, selectedTask]);
+
+  // Auto-collapse logic for past dates
+  useEffect(() => {
+    if (!hasAutoCollapsed && isThisWeekExpanded) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const pastDates = new Set();
+      Object.keys(thisWeekGroups).forEach(dateStr => {
+        if (dateStr < todayStr) {
+          pastDates.add(dateStr);
+        }
+      });
+      if (pastDates.size > 0) {
+        setCollapsedDates(prev => {
+          const next = new Set(prev);
+          pastDates.forEach(d => next.add(d));
+          return next;
+        });
+      }
+      setHasAutoCollapsed(true);
+    }
+  }, [isThisWeekExpanded, thisWeekGroups, hasAutoCollapsed]);
+
+  const toggleDateCollapse = (dateStr) => {
+    setCollapsedDates(prev => {
+      const next = new Set(prev);
+      if (next.has(dateStr)) next.delete(dateStr);
+      else next.add(dateStr);
+      return next;
+    });
+  };
 
   const setItemProperty = (item, propObj) => {
     if (item.type === 'result') {
@@ -517,15 +550,18 @@ const PriorityView = () => {
   };
 
   const handleSnooze = (val, shouldClose = true) => {
-    const dateString = typeof val === 'number' 
+    const dateString = typeof val === 'number'
       ? new Date(new Date().setDate(new Date().getDate() + val)).toISOString().split('T')[0] + 'T09:00'
       : val + 'T09:00';
 
-    const updates = { 
+    const newDate = new Date(dateString);
+    const isStillThisWeek = newDate >= startOfWeek && newDate <= endOfWeek;
+
+    const updates = {
       scheduledDate: dateString,
-      isPriorityFocus: false 
+      isPriorityFocus: selectedTask.isPriorityFocus && isStillThisWeek
     };
-    
+
     if (snoozeNote.trim()) {
       const newLog = {
         id: crypto.randomUUID(),
@@ -610,25 +646,30 @@ const PriorityView = () => {
   const renderTaskCard = (t, context, isLean = false) => {
     const isExpanded = expandedTaskIds.has(t.id);
     const activitiesCount = (t.subtasks || []).length;
-    
+
     return (
-      <div key={t.id} className={`priority-card ${context} ${t.completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''} ${isLean ? 'lean' : ''}`}>
+      <div key={t.id} className={`priority-card ${context} ${t.completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''} ${isLean ? 'lean' : ''} ${t.isPriorityFocus ? 'in-focus' : ''}`}>
         <div className="priority-card-main-row">
           <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
             {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
           </div>
-          
+
           <div className="priority-content" onClick={() => !t.completed && handleCardClick(t, context)}>
             <h4 className="priority-title">
               {t.isCritical && <span className="critical-tag-badge">CRITICAL</span>}
+              {t.isPriorityFocus && context !== 'today' && <span className="focus-indicator-badge">FOCUS</span>}
               {t.title}
             </h4>
             <div className="priority-meta-row">
               <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
                 <span className="dot"></span> {t.milestoneTitle} &rarr;
               </div>
-              {context !== 'today' && !t.isPriorityFocus && (
-                <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
+              {context !== 'today' && (
+                t.isPriorityFocus ? (
+                  <span className="reset-delete-btn in-focus-indicator">focused ✓</span>
+                ) : (
+                  <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
+                )
               )}
             </div>
           </div>
@@ -658,7 +699,7 @@ const PriorityView = () => {
               ))}
               <div className="scaffolding-add-row">
                 <div className="scaffolding-square-add"></div>
-                <input 
+                <input
                   type="text"
                   className="scaffolding-add-input"
                   placeholder="Add activity..."
@@ -804,14 +845,24 @@ const PriorityView = () => {
             <div className="this-week-expanded-tray animate-slide-down">
 
               <div className="tray-list grouped">
-                {Object.keys(thisWeekGroups).sort().map(dateStr => (
-                  <div key={dateStr} className="this-week-date-group">
-                    <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
-                    <div className="date-group-items">
-                      {thisWeekGroups[dateStr].map(t => renderTaskCard(t, 'week', true))}
+                {Object.keys(thisWeekGroups).sort().map(dateStr => {
+                  const isCollapsed = collapsedDates.has(dateStr);
+                  const groupTasks = thisWeekGroups[dateStr];
+                  return (
+                    <div key={dateStr} className={`this-week-date-group ${isCollapsed ? 'collapsed' : ''}`}>
+                      <div className="up-next-date-header" onClick={() => toggleDateCollapse(dateStr)}>
+                        <span className="collapse-arrow">{isCollapsed ? '▸' : '▾'}</span>
+                        {formatDateHeader(dateStr)}
+                        {isCollapsed && <span className="collapsed-count">{groupTasks.length} {groupTasks.length === 1 ? 'task' : 'tasks'}</span>}
+                      </div>
+                      {!isCollapsed && (
+                        <div className="date-group-items">
+                          {groupTasks.map(t => renderTaskCard(t, 'week', true))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
