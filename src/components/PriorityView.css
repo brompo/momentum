@@ -1789,3 +1789,45 @@
 .mini-pause-btn:hover {
   background: rgba(245, 158, 11, 0.2);
 }
+
+/* Completed Steps Separator */
+.completed-divider {
+  display: flex;
+  align-items: center;
+  margin: 8px 0 8px 0;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.completed-divider:hover {
+  opacity: 0.8;
+}
+
+.completed-divider::before,
+.completed-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.completed-divider span {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.completed-divider .collapse-arrow {
+  font-size: 0.8rem;
+  color: #bdc3c7;
+  width: 12px;
+  display: inline-block;
+  text-align: center;
+}

@@ -211,6 +211,7 @@ const PriorityView = () => {
   const [expandedTaskIds, setExpandedTaskIds] = useState(new Set());
   const [collapsedDates, setCollapsedDates] = useState(new Set());
   const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
+  const [isTodayCompletedCollapsed, setIsTodayCompletedCollapsed] = useState(true);
   const [newActivityTitles, setNewActivityTitles] = useState({}); // {taskId: string}
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [quickAddTitle, setQuickAddTitle] = useState('');
@@ -871,7 +872,26 @@ const PriorityView = () => {
           </div>
           {todayFocus.length > 0 ? (
             <div className="priority-list">
-              {todayFocus.map(t => renderTaskCard(t, 'today'))}
+              {(() => {
+                const firstCompletedIndex = todayFocus.findIndex(t => t.completed);
+                return todayFocus.map((t, idx) => (
+                  <React.Fragment key={t.id}>
+                    {idx === firstCompletedIndex && firstCompletedIndex !== -1 && (
+                      <div 
+                        className={`completed-divider clickable ${isTodayCompletedCollapsed ? 'collapsed' : ''}`}
+                        onClick={() => setIsTodayCompletedCollapsed(!isTodayCompletedCollapsed)}
+                      >
+                        <span className="collapse-arrow">{isTodayCompletedCollapsed ? '▸' : '▾'}</span>
+                        <span>COMPLETED</span>
+                        <span style={{ fontSize: '0.6rem', opacity: 0.6, fontWeight: 500 }}>
+                          ({todayFocus.filter(x => x.completed).length})
+                        </span>
+                      </div>
+                    )}
+                    {(!t.completed || !isTodayCompletedCollapsed) && renderTaskCard(t, 'today')}
+                  </React.Fragment>
+                ));
+              })()}
             </div>
           ) : (
             <div className="priority-card completed-blank">
