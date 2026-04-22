@@ -212,7 +212,9 @@
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1e293b;
+  /*color: #1e293b;*/
+  color: #475569;
+
 }
 
 .priority-meta-row {
@@ -233,7 +235,6 @@
   /* Reduced from 2x8 for leaner look */
   background: transparent;
   /* Removed bulk */
-  border: 1px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s;
   color: #64748b;
