@@ -142,7 +142,7 @@
 .priority-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
   padding: 10px 12px;
   /* Tightened from 12x14 */
   border-radius: 10px;
@@ -237,9 +237,9 @@
   /* Force everything to the right */
   gap: 4px;
   justify-content: flex-start;
-  margin-left: auto;
+  margin-left: 8px;
   text-align: right;
-  min-width: 80px;
+  min-width: 40px;
 }
 
 .priority-date-indicator {

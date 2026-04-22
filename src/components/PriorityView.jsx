@@ -664,13 +664,14 @@ const PriorityView = () => {
               <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
                 <span className="dot"></span> {t.milestoneTitle} &rarr;
               </div>
-              {context !== 'today' && !t.isPriorityFocus && (
-                <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
-              )}
             </div>
           </div>
 
           <div className="priority-card-right-column">
+            {context !== 'today' && !t.isPriorityFocus && (
+              <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
+            )}
+
             {(context === 'today' || context === 'overdue') && t.scheduledDate && (
               <span className={`priority-date-indicator ${context === 'overdue' ? 'is-overdue' : ''}`}>
                 {formatDate(t.scheduledDate, context === 'overdue')}
