@@ -79,11 +79,11 @@
   width: 10px;
   height: 10px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.7);
+  background: #f1f5f9;
 }
 
 .pulse-dot.filled {
-  background: #14b8a6;
+  background: #f49d0d;
 }
 
 .priority-section {
@@ -227,6 +227,31 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-top: 2px;
+  gap: 4px;
+}
+
+.priority-card-right-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  /* Force everything to the right */
+  gap: 4px;
+  justify-content: flex-start;
+  margin-left: auto;
+  text-align: right;
+  min-width: 80px;
+}
+
+.priority-date-indicator {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+  padding-right: 2px;
+}
+
+.priority-date-indicator.is-overdue {
+  color: #ef4444;
 }
 
 .milestone-context-pill {
@@ -1122,9 +1147,6 @@
 }
 
 .expand-toggle {
-  margin-left: auto;
-  margin-top: 2px;
-  /* Align with title baseline */
   font-size: 0.75rem;
   font-weight: 600;
   color: #94a3b8;

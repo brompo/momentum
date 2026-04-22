@@ -315,7 +315,7 @@ const PriorityView = () => {
 
   overdue.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
-  thisWeekTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1));
+  thisWeekTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
   upNext.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
 
@@ -341,7 +341,7 @@ const PriorityView = () => {
   };
 
   todayFocus.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
-  todayFocus.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1));
+  todayFocus.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
   const incompleteFocusCount = todayFocus.filter(t => !t.completed).length;
 
@@ -670,15 +670,23 @@ const PriorityView = () => {
             </div>
           </div>
 
-          {(activitiesCount > 0 || isExpanded) && (
-            <div className="expand-toggle" onClick={(e) => toggleTaskExpansion(t.id, e)}>
-              {isExpanded ? (
-                <span>▾ hide</span>
-              ) : (
-                <span>▸ {activitiesCount} actions</span>
-              )}
-            </div>
-          )}
+          <div className="priority-card-right-column">
+            {(context === 'today' || context === 'overdue') && t.scheduledDate && (
+              <span className={`priority-date-indicator ${context === 'overdue' ? 'is-overdue' : ''}`}>
+                {formatDate(t.scheduledDate, context === 'overdue')}
+              </span>
+            )}
+
+            {(activitiesCount > 0 || isExpanded) && (
+              <div className="expand-toggle" onClick={(e) => toggleTaskExpansion(t.id, e)}>
+                {isExpanded ? (
+                  <span>▾ hide</span>
+                ) : (
+                  <span>▸ {activitiesCount} actions</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {isExpanded && (
@@ -763,14 +771,6 @@ const PriorityView = () => {
 
       <div className="priority-scroll-container">
 
-        <div className="weekly-pulse-card relative-z">
-          <span className="pulse-text">This week — {weeklyCompleted} of {displayTotal} steps done</span>
-          <div className="pulse-dots">
-            {Array.from({ length: Math.min(displayTotal, 20) }).map((_, i) => (
-              <span key={i} className={`pulse-dot ${i < weeklyCompleted ? 'filled' : ''}`}></span>
-            ))}
-          </div>
-        </div>
 
         <div className="priority-section overdue relative-z">
           <div
@@ -805,7 +805,13 @@ const PriorityView = () => {
         <div className="priority-section due-week relative-z">
           <div className="priority-section-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="dot" style={{ background: '#f49d0d' }}></span> WEEKLY FOCUS
+              <span className="dot" style={{ background: '#f49d0d' }}></span> 
+              WEEKLY FOCUS
+              <div className="pulse-dots" style={{ marginLeft: '12px' }}>
+                {Array.from({ length: Math.min(todayFocus.length, 10) }).map((_, i) => (
+                  <span key={i} className={`pulse-dot ${(i < todayFocus.filter(t => t.completed).length) ? 'filled' : ''}`}></span>
+                ))}
+              </div>
             </div>
             <span className="header-count">{todayFocus.filter(t => t.completed).length} of {todayFocus.length} done</span>
           </div>
@@ -849,7 +855,15 @@ const PriorityView = () => {
                       <div className="up-next-date-header" onClick={() => toggleDateCollapse(dateStr)}>
                         <span className="collapse-arrow">{isCollapsed ? '▸' : '▾'}</span>
                         {formatDateHeader(dateStr)}
-                        {isCollapsed && <span className="collapsed-count">{groupTasks.length} {groupTasks.length === 1 ? 'task' : 'tasks'}</span>}
+                        {isCollapsed && (
+                          <span className="collapsed-count">
+                            {groupTasks.filter(t => t.completed).length === groupTasks.length ? (
+                              <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}><path d="M20 6L9 17l-5-5"></path></svg> all done</>
+                            ) : (
+                              `${groupTasks.filter(t => t.completed).length} of ${groupTasks.length} done`
+                            )}
+                          </span>
+                        )}
                       </div>
                       {!isCollapsed && (
                         <div className="date-group-items">
