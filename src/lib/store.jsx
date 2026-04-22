@@ -170,23 +170,25 @@ export const StoreProvider = ({ children }) => {
   };
 
   const addMilestone = (goalId, title, priority = 'Low') => {
+    const newMs = {
+      id: crypto.randomUUID(),
+      title,
+      priority,
+      tasks: [],
+      note: '',
+      active: true,
+      createdAt: new Date().toISOString()
+    };
     setGoals(prev => prev.map(goal => {
       if (goal.id === goalId) {
         return {
           ...goal,
-          milestones: [...(goal.milestones || []), {
-            id: crypto.randomUUID(),
-            title,
-            priority,
-            tasks: [],
-            note: '',
-            active: true,
-            createdAt: new Date().toISOString()
-          }]
+          milestones: [...(goal.milestones || []), newMs]
         };
       }
       return goal;
     }));
+    return newMs;
   };
 
   const updateMilestone = (goalId, milestoneId, updates) => {

@@ -189,7 +189,11 @@ const InlineOptionsCard = ({
 };
 
 const PriorityView = () => {
-  const { goals, updateTask, toggleTask, addTask, deleteTask, setSelectedGoalId, setSelectedMilestoneId, setActiveTab } = useStore();
+  const { 
+    goals, updateTask, toggleTask, addTask, deleteTask, 
+    setSelectedGoalId, setSelectedMilestoneId, setActiveTab,
+    addGoal, addMilestone 
+  } = useStore();
 
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
   const [isUpNextExpanded, setIsUpNextExpanded] = useState(false);
@@ -208,6 +212,11 @@ const PriorityView = () => {
   const [collapsedDates, setCollapsedDates] = useState(new Set());
   const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
   const [newActivityTitles, setNewActivityTitles] = useState({}); // {taskId: string}
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddTitle, setQuickAddTitle] = useState('');
+  const [quickAddGoalId, setQuickAddGoalId] = useState('');
+  const [quickAddMilestoneId, setQuickAddMilestoneId] = useState('');
+  const [quickAddDate, setQuickAddDate] = useState(new Date().toISOString().split('T')[0]);
   const textareaRef = useRef(null);
 
 
@@ -629,6 +638,39 @@ const PriorityView = () => {
     // helper logic
   } // (just wrapping previous to keep line numbers if needed but not required)
 
+  const handleQuickAddSubmit = () => {
+    if (!quickAddTitle.trim()) return;
+
+    let targetGoalId = quickAddGoalId;
+    let targetMilestoneId = quickAddMilestoneId;
+
+    // Fallback logic if Goal/Milestone not specified
+    if (!targetGoalId) {
+      let inboxGoal = goals.find(g => g.title === 'Inbox');
+      if (!inboxGoal) {
+        inboxGoal = addGoal('Inbox', 'growth', 'Quick capture for unsorted tasks');
+      }
+      targetGoalId = inboxGoal.id;
+    }
+
+    if (!targetMilestoneId) {
+      const targetGoal = goals.find(g => g.id === targetGoalId) || { milestones: [] };
+      let generalMs = targetGoal.milestones?.find(m => m.title === 'General');
+      if (!generalMs) {
+        generalMs = addMilestone(targetGoalId, 'General');
+      }
+      targetMilestoneId = generalMs.id;
+    }
+
+    addTask(targetGoalId, targetMilestoneId, quickAddTitle.trim(), 0, quickAddDate);
+    
+    // Reset and close
+    setQuickAddTitle('');
+    setQuickAddGoalId('');
+    setQuickAddMilestoneId('');
+    setIsQuickAddOpen(false);
+  };
+
   const handleNavigateToMilestone = (item, e) => {
     e?.stopPropagation();
     setSelectedGoalId(item.goalId);
@@ -917,6 +959,89 @@ const PriorityView = () => {
       {selectedTask && (
         <div className="inline-options-overlay" onClick={() => { setSelectedTask(null); setSelectedContext(''); }}>
           {renderInlineOptions(selectedTask.id)}
+        </div>
+      )}
+
+      {/* Floating Action Button */}
+      <div className="priority-fab" onClick={() => setIsQuickAddOpen(true)}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </div>
+
+      {/* Quick Add Modal */}
+      {isQuickAddOpen && (
+        <div className="modal-overlay quick-add-overlay animate-fade-in" onClick={() => setIsQuickAddOpen(false)}>
+          <div className="quick-add-modal glass-card" onClick={e => e.stopPropagation()}>
+            <div className="quick-add-header">
+              <h3>Quick Add Step</h3>
+              <button className="close-btn" onClick={() => setIsQuickAddOpen(false)}>×</button>
+            </div>
+            
+            <div className="quick-add-form">
+              <input
+                autoFocus
+                type="text"
+                placeholder="What needs to be done?"
+                className="quick-add-input-title"
+                value={quickAddTitle}
+                onChange={e => setQuickAddTitle(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleQuickAddSubmit()}
+              />
+
+              <div className="quick-add-row">
+                <div className="field-group">
+                  <label>Goal</label>
+                  <select 
+                    value={quickAddGoalId} 
+                    onChange={e => {
+                      setQuickAddGoalId(e.target.value);
+                      setQuickAddMilestoneId('');
+                    }}
+                  >
+                    <option value="">- Inbox -</option>
+                    {goals.map(g => (
+                      <option key={g.id} value={g.id}>{g.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="field-group">
+                  <label>Milestone</label>
+                  <select 
+                    value={quickAddMilestoneId} 
+                    onChange={e => setQuickAddMilestoneId(e.target.value)}
+                    disabled={!quickAddGoalId}
+                  >
+                    <option value="">- General -</option>
+                    {(goals.find(g => g.id === quickAddGoalId)?.milestones || []).map(m => (
+                      <option key={m.id} value={m.id}>{m.title}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="quick-add-row">
+                <div className="field-group">
+                  <label>Schedule For</label>
+                  <input 
+                    type="date" 
+                    value={quickAddDate}
+                    onChange={e => setQuickAddDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button 
+                className="quick-add-submit-btn" 
+                onClick={handleQuickAddSubmit}
+                disabled={!quickAddTitle.trim()}
+              >
+                Add Step
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
