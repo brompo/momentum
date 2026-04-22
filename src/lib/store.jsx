@@ -30,6 +30,12 @@ export const StoreProvider = ({ children }) => {
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(null);
   const [previousTab, setPreviousTab] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('ga_theme') || 'dark');
+  
+  // Focus Timer State
+  const [activeFocusTask, setActiveFocusTask] = useState(null);
+  const [focusElapsedSeconds, setFocusElapsedSeconds] = useState(0);
+  const [isFocusMinimized, setIsFocusMinimized] = useState(false);
+  const [isFocusPaused, setIsFocusPaused] = useState(false);
 
   const [pillars, setPillars] = useState(() => {
     const saved = localStorage.getItem('ga_pillars');
@@ -95,6 +101,24 @@ export const StoreProvider = ({ children }) => {
     // Update local timestamp on every change even if not syncing
     setLastLocalUpdate(new Date().toISOString());
   }, [goals, pillars, notes, featureMap, sync.token]);
+
+  // Global Focus Timer Internal Logic
+  useEffect(() => {
+    let interval = null;
+    if (activeFocusTask && !isFocusPaused) {
+      interval = setInterval(() => {
+        setFocusElapsedSeconds(prev => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [activeFocusTask, isFocusPaused]);
+
+  // Auto-minimize on tab change
+  useEffect(() => {
+    if (activeFocusTask) setIsFocusMinimized(true);
+  }, [activeTab]);
 
   // Actions
 
@@ -610,6 +634,24 @@ export const StoreProvider = ({ children }) => {
     updateFeatureMapItem,
     deleteFeatureMapItem,
     releaseFeature,
+    // Focus Timer Actions
+    activeFocusTask,
+    focusElapsedSeconds,
+    isFocusPaused,
+    setIsFocusPaused,
+    startFocus: (task) => {
+      setActiveFocusTask(task);
+      setFocusElapsedSeconds(0);
+      setIsFocusMinimized(false);
+      setIsFocusPaused(false);
+    },
+    stopFocus: () => {
+      setActiveFocusTask(null);
+      setFocusElapsedSeconds(0);
+      setIsFocusPaused(false);
+    },
+    toggleFocusMinimize: () => setIsFocusMinimized(prev => !prev),
+    setIsFocusMinimized,
     // Sync
     sync,
     syncLocalToCloud,

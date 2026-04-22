@@ -68,7 +68,7 @@ const InlineOptionsCard = ({
 
       <div className="options-row-actions">
         <div className="action-pill-card focus" onClick={handleToggleFocusFromModal}>
-          <span>⚡</span> {task.isPriorityFocus ? "Remove focus" : "Focus today"}
+          <span>⚡</span> {task.isPriorityFocus ? "Remove Priority" : "Set as Priority"}
         </div>
         <div className="action-pill-card delete" onClick={handleDelete}>
           <span>🗑️</span> Won't do
@@ -192,7 +192,7 @@ const PriorityView = () => {
   const { 
     goals, updateTask, toggleTask, addTask, deleteTask, 
     setSelectedGoalId, setSelectedMilestoneId, setActiveTab,
-    addGoal, addMilestone 
+    addGoal, addMilestone, activeFocusTask, startFocus 
   } = useStore();
 
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
@@ -353,6 +353,13 @@ const PriorityView = () => {
   todayFocus.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
   const incompleteFocusCount = todayFocus.filter(t => !t.completed).length;
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [editTitle, selectedTask]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -711,7 +718,11 @@ const PriorityView = () => {
 
           <div className="priority-card-right-column">
             {context !== 'today' && !t.isPriorityFocus && (
-              <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>focus ⇡</span>
+              <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>priority ⬆️</span>
+            )}
+
+            {!t.completed && (
+              <span className="reset-delete-btn focus-mode-trigger" onClick={(e) => { e.stopPropagation(); startFocus(t); }}>focus ⏱️</span>
             )}
 
             {(context === 'today' || context === 'overdue') && t.scheduledDate && (
@@ -864,7 +875,7 @@ const PriorityView = () => {
             </div>
           ) : (
             <div className="priority-card completed-blank">
-              Nothing specifically queued for today. Use 'focus ⇡' to add items!
+              Nothing specifically queued for today. Use 'priority ⬆️' to add items!
             </div>
           )}
         </div>
@@ -991,8 +1002,8 @@ const PriorityView = () => {
               />
 
               <div className="quick-add-row">
-                <div className="field-group">
-                  <label>Goal</label>
+                <div className="field-group goal-select-group">
+                  <label>GOAL</label>
                   <select 
                     value={quickAddGoalId} 
                     onChange={e => {
@@ -1000,21 +1011,23 @@ const PriorityView = () => {
                       setQuickAddMilestoneId('');
                     }}
                   >
-                    <option value="">- Inbox -</option>
+                    <option value="">- Select Goal or Inbox -</option>
                     {goals.map(g => (
                       <option key={g.id} value={g.id}>{g.title}</option>
                     ))}
                   </select>
                 </div>
+              </div>
 
-                <div className="field-group">
-                  <label>Milestone</label>
+              <div className="quick-add-row">
+                <div className="field-group milestone-select-group">
+                  <label>MILESTONE</label>
                   <select 
                     value={quickAddMilestoneId} 
                     onChange={e => setQuickAddMilestoneId(e.target.value)}
                     disabled={!quickAddGoalId}
                   >
-                    <option value="">- General -</option>
+                    <option value="">- Select Milestone or General -</option>
                     {(goals.find(g => g.id === quickAddGoalId)?.milestones || []).map(m => (
                       <option key={m.id} value={m.id}>{m.title}</option>
                     ))}
@@ -1044,6 +1057,7 @@ const PriorityView = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

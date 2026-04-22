@@ -399,10 +399,30 @@ function App() {
   const { 
     activeTab, selectedGoalId, setSelectedGoalId, 
     selectedMilestoneId, setSelectedMilestoneId,
-    goals, previousTab, setPreviousTab, setActiveTab 
+    goals, previousTab, setPreviousTab, setActiveTab,
+    activeFocusTask, focusElapsedSeconds, isFocusPaused, 
+    isFocusMinimized, toggleFocusMinimize, stopFocus, 
+    setIsFocusPaused, toggleTask 
   } = useStore();
 
   const selectedGoal = goals.find(g => g.id === selectedGoalId);
+
+  const formatTime = (totalSeconds) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    const parts = [];
+    if (hrs > 0) parts.push(hrs.toString().padStart(2, '0'));
+    parts.push(mins.toString().padStart(2, '0'));
+    parts.push(secs.toString().padStart(2, '0'));
+    return parts.join(':');
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(date);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -437,13 +457,112 @@ function App() {
     }
   };
 
+  const renderFocusedMode = () => {
+    if (!activeFocusTask || isFocusMinimized) return null;
+    
+    const goal = goals.find(g => g.id === activeFocusTask.goalId);
+    const ms = goal?.milestones.find(m => m.id === activeFocusTask.milestoneId);
+    
+    return (
+      <div className="focused-mode-overlay animate-fade-in" onClick={(e) => e.stopPropagation()}>
+        <div className="focused-mode-container">
+          <div className="focused-header">
+            <button className="focused-back-btn" onClick={() => toggleFocusMinimize()}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 9l-7 7-7-7"/></svg>
+              Minimize
+            </button>
+            <div className="focused-context-pill">
+              {goal?.title} · {ms?.title}
+            </div>
+          </div>
+          
+          <div className="focused-timer-section">
+            <div className="timer-ring-container">
+              <svg className="timer-ring-svg" viewBox="0 0 100 100">
+                <circle className="ring-bg" cx="50" cy="50" r="45" />
+                <circle className="ring-progress" cx="50" cy="50" r="45" />
+              </svg>
+              <div className={`timer-content ${isFocusPaused ? 'paused' : ''}`}>
+                <span className="timer-digits">{formatTime(focusElapsedSeconds)}</span>
+                <button 
+                  className="timer-pause-toggle-btn"
+                  onClick={() => setIsFocusPaused(!isFocusPaused)}
+                >
+                  {isFocusPaused ? (
+                    <><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> RESUME</>
+                  ) : (
+                    <><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h4z"/></svg> PAUSE</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="focused-task-details">
+            <h2 className="focused-task-title">{activeFocusTask.title}</h2>
+            <p className="focused-due-date">
+              Active Session · {formatDate(activeFocusTask.scheduledDate)}
+            </p>
+          </div>
+          
+          <div className="focused-actions">
+            <button className="mark-done-big-btn" onClick={() => {
+              toggleTask(activeFocusTask.goalId, activeFocusTask.milestoneId, activeFocusTask.id);
+              stopFocus();
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              Mark done
+            </button>
+            <button className="stop-timer-link" onClick={() => stopFocus()}>
+              Stop timer, come back later
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMiniTimer = () => {
+    if (!activeFocusTask || !isFocusMinimized) return null;
+
+    return (
+      <div className="mini-timer-pill-container" onClick={() => toggleFocusMinimize()}>
+        <div className="mini-timer-pill glass-card animate-slide-up">
+          <div className="mini-timer-left">
+            <button className="mini-pause-btn" onClick={(e) => { e.stopPropagation(); setIsFocusPaused(!isFocusPaused); }}>
+              {isFocusPaused ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              ) : (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              )}
+            </button>
+            <span className="mini-timer-digits">{formatTime(focusElapsedSeconds)}</span>
+          </div>
+          <div className="mini-timer-divider"></div>
+          <div className="mini-timer-right">
+            <span className="mini-timer-task">{activeFocusTask.title}</span>
+            <span className="mini-timer-label">FOCUSED</span>
+          </div>
+          <button className="mini-timer-stop" onClick={(e) => { e.stopPropagation(); stopFocus(); }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="app-container">
       <main className="main-content">
         {renderContent()}
       </main>
+      
+      {renderMiniTimer()}
+      
       <TabBar />
       <ReloadPrompt />
+      
+      {renderFocusedMode()}
     </div>
   );
 }
