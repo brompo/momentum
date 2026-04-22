@@ -143,7 +143,8 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 10px 12px; /* Tightened from 12x14 */
+  padding: 10px 12px;
+  /* Tightened from 12x14 */
   border-radius: 10px;
   background: white;
   border: 1px solid #e2e8f0;
@@ -227,8 +228,10 @@
   gap: 4px;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 0px; /* Reduced from 2x8 for leaner look */
-  background: transparent; /* Removed bulk */
+  padding: 2px 0px;
+  /* Reduced from 2x8 for leaner look */
+  background: transparent;
+  /* Removed bulk */
   border: 1px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s;
@@ -249,7 +252,8 @@
 /* Interactivity Pills */
 .reset-delete-btn {
   font-size: 0.7rem;
-  color: #0284c7; /* Blue link style instead of red button */
+  color: #0284c7;
+  /* Blue link style instead of red button */
   padding: 0;
   margin-left: 10px;
   font-weight: 600;
@@ -498,8 +502,10 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(2px);
-  z-index: 9998; /* Much higher to clear nav bars */
-  touch-action: none; /* Prevent scroll leak */
+  z-index: 9998;
+  /* Much higher to clear nav bars */
+  touch-action: none;
+  /* Prevent scroll leak */
 }
 
 .relative-z {
@@ -542,7 +548,8 @@
   top: 8px;
   right: 8px;
   cursor: pointer;
-  padding: 12px; /* Increased hit area */
+  padding: 12px;
+  /* Increased hit area */
   z-index: 100;
   opacity: 0.6;
   transition: opacity 0.2s;
@@ -1159,7 +1166,6 @@
   font-size: 16px;
   color: #475569;
   outline: none;
-  padding: 4px 0;
 }
 
 .scaffolding-add-input::placeholder {
