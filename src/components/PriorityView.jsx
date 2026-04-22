@@ -712,11 +712,6 @@ const PriorityView = () => {
 
   return (
     <div className="priority-view safe-area animate-fade-in">
-      {selectedTask && (
-        <div className="inline-options-overlay" onClick={() => { setSelectedTask(null); setSelectedContext(''); }}>
-          {renderInlineOptions(selectedTask.id)}
-        </div>
-      )}
 
       <div className="priority-header">
         <div className="priority-header-titles">
@@ -856,6 +851,12 @@ const PriorityView = () => {
         </div>
 
       </div>
+
+      {selectedTask && (
+        <div className="inline-options-overlay" onClick={() => { setSelectedTask(null); setSelectedContext(''); }}>
+          {renderInlineOptions(selectedTask.id)}
+        </div>
+      )}
     </div>
   );
 };
