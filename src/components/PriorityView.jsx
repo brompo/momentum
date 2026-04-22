@@ -593,12 +593,12 @@ const PriorityView = () => {
   const displayTotal = thisWeekTasks.length === 0 ? 5 : thisWeekTasks.length;
   const weeklyCompleted = thisWeekTasks.filter(t => t.completed).length;
 
-  const renderTaskCard = (t, context) => {
+  const renderTaskCard = (t, context, isLean = false) => {
     const isExpanded = expandedTaskIds.has(t.id);
     const activitiesCount = (t.subtasks || []).length;
     
     return (
-      <div key={t.id} className={`priority-card ${context} ${t.completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}`}>
+      <div key={t.id} className={`priority-card ${context} ${t.completed ? 'completed' : ''} ${isExpanded ? 'expanded' : ''} ${isLean ? 'lean' : ''}`}>
         <div className="priority-card-main-row">
           <div className="priority-radio" onClick={(e) => handleToggle(t, e)}>
             {t.completed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>}
@@ -799,7 +799,7 @@ const PriorityView = () => {
                   <div key={dateStr} className="this-week-date-group">
                     <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
                     <div className="date-group-items">
-                      {thisWeekGroups[dateStr].map(t => renderTaskCard(t, 'week'))}
+                      {thisWeekGroups[dateStr].map(t => renderTaskCard(t, 'week', true))}
                     </div>
                   </div>
                 ))}
@@ -827,22 +827,7 @@ const PriorityView = () => {
                   <div key={dateStr} className="up-next-date-group">
                     <div className="up-next-date-header">{formatDateHeader(dateStr)}</div>
                     <div className="date-group-items">
-                      {upNextGroups[dateStr].map(t => (
-                        <div key={t.id} className="tray-item normal" onClick={() => handleCardClick(t, 'upnext')}>
-                          <div className="tray-content" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                            <span className="tray-title" style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                              {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                              {t.title}
-                            </span>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <div className="milestone-context-pill tray" onClick={(e) => handleNavigateToMilestone(t, e)}>
-                                <span className="dot"></span> {t.milestoneTitle} &rarr;
-                              </div>
-                              <span className="add-focus-btn clickable" onClick={(e) => handleToggleFocusFromCard(t, e)}>focus ⇡</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                      {upNextGroups[dateStr].map(t => renderTaskCard(t, 'upnext', true))}
                     </div>
                   </div>
                 ))}
