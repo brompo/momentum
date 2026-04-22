@@ -1109,7 +1109,6 @@
 
 .scaffolding-item {
   display: flex;
-  align-items: flex-start;
   gap: 10px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1121,7 +1120,7 @@
   border-radius: 4px;
   border: 1.5px solid #cbd5e1;
   display: flex;
-  align-items: flex-start;
+  align-items: anchor-center;
   justify-content: center;
   flex-shrink: 0;
   background: white;
