@@ -232,13 +232,13 @@ const PriorityView = () => {
     return p ? p.title : 'General';
   };
 
-  const formatDate = (dateString, isOverdue) => {
+  const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const text = `${months[date.getMonth()]} ${date.getDate()}`;
-      return isOverdue ? `was due ${text}` : `due ${text}`;
+      return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
     } catch (e) {
       return dateString;
     }
