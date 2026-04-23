@@ -166,7 +166,9 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
   const allTasks = milestone.tasks || [];
   const completedTasks = allTasks.filter(t => t.completed);
-  const pendingTasks = allTasks.filter(t => !t.completed);
+  const pendingTasks = allTasks
+    .filter(t => !t.completed)
+    .sort((a, b) => new Date(a.scheduledDate || '9999-12-31') - new Date(b.scheduledDate || '9999-12-31'));
   const progress = allTasks.length > 0
     ? Math.round((completedTasks.length / allTasks.length) * 100)
     : 0;
