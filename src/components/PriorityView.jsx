@@ -197,7 +197,7 @@ const PriorityView = () => {
 
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
   const [isUpNextExpanded, setIsUpNextExpanded] = useState(false);
-  const [isAutomationExpanded, setIsAutomationExpanded] = useState(true);
+  const [isEfficiencyExpanded, setIsEfficiencyExpanded] = useState(true);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
@@ -299,7 +299,7 @@ const PriorityView = () => {
     loopDate.setDate(loopDate.getDate() - 1);
   }
 
-  const automationTasks = [];
+  const efficiencyTasks = [];
   const thisWeekTasks = [];
   const upNext = [];
   const todayFocus = [];
@@ -311,7 +311,9 @@ const PriorityView = () => {
 
     const completedToday = t.completed && t.completedAt && (new Date(t.completedAt).toLocaleDateString('en-CA') === todayDate.toLocaleDateString('en-CA'));
 
-    if (tDate >= startOfWeek && tDate <= endOfWeek) {
+    const isEfficiencyGoal = t.goalTitle?.toLowerCase().includes('personal efficiency');
+
+    if (tDate >= startOfWeek && tDate <= endOfWeek && !isEfficiencyGoal) {
       thisWeekTasks.push(t);
     }
 
@@ -320,15 +322,15 @@ const PriorityView = () => {
     }
 
     if (!t.completed) {
-      if (t.goalTitle?.toLowerCase().includes('personal efficiency')) {
-        automationTasks.push(t);
+      if (isEfficiencyGoal) {
+        efficiencyTasks.push(t);
       } else if (tDate > endOfWeek) {
         upNext.push(t);
       }
     }
   });
 
-  automationTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+  efficiencyTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
@@ -693,7 +695,7 @@ const PriorityView = () => {
 
   const headerDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(todayDate);
   
-  const automationThisWeekCount = automationTasks.filter(t => {
+  const efficiencyThisWeekCount = efficiencyTasks.filter(t => {
     const d = new Date(t.scheduledDate);
     return d >= startOfWeek && d <= endOfWeek;
   }).length;
@@ -720,13 +722,13 @@ const PriorityView = () => {
             </h4>
             <div className="priority-meta-row">
               <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
-                <span className="dot"></span> {context === 'automation' ? t.goalTitle : t.milestoneTitle} &rarr;
+                <span className="dot"></span> {context === 'efficiency' ? t.goalTitle : t.milestoneTitle} &rarr;
               </div>
             </div>
           </div>
 
           <div className="priority-card-right-column">
-            {context !== 'today' && context !== 'automation' && !t.isPriorityFocus && (
+            {context !== 'today' && context !== 'efficiency' && !t.isPriorityFocus && (
               <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>priority ⬆️</span>
             )}
 
@@ -734,7 +736,7 @@ const PriorityView = () => {
               <span className="reset-delete-btn focus-mode-trigger" onClick={(e) => { e.stopPropagation(); startFocus(t); }}>focus ⏱️</span>
             )}
 
-            {(context === 'today' || context === 'overdue' || context === 'automation') && t.scheduledDate && (
+            {(context === 'today' || context === 'overdue' || context === 'efficiency') && t.scheduledDate && (
               <span className={`priority-date-indicator ${context === 'overdue' ? 'is-overdue' : ''}`}>
                 {formatDate(t.scheduledDate, context === 'overdue')}
               </span>
@@ -835,26 +837,26 @@ const PriorityView = () => {
       <div className="priority-scroll-container">
 
 
-        <div className="priority-section automation relative-z">
+        <div className="priority-section efficiency relative-z">
           <div
             className="priority-section-header clickable"
-            onClick={() => setIsAutomationExpanded(!isAutomationExpanded)}
-            style={{ marginBottom: isAutomationExpanded && automationTasks.length > 0 ? '12px' : '0' }}
+            onClick={() => setIsEfficiencyExpanded(!isEfficiencyExpanded)}
+            style={{ marginBottom: isEfficiencyExpanded && efficiencyTasks.length > 0 ? '12px' : '0' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="dot"></span> AUTOMATION
+              <span className="dot"></span> EFFICIENCY
             </div>
-            <span className="header-count-status">{automationThisWeekCount} this week {isAutomationExpanded ? '▾' : '▸'}</span>
+            <span className="header-count-status">{efficiencyThisWeekCount} this week {isEfficiencyExpanded ? '▾' : '▸'}</span>
           </div>
 
-          {isAutomationExpanded && automationTasks.length > 0 && (
+          {isEfficiencyExpanded && efficiencyTasks.length > 0 && (
             <div className="priority-list">
-              {automationTasks.map(t => renderTaskCard(t, 'automation', true))}
+              {efficiencyTasks.map(t => renderTaskCard(t, 'efficiency', true))}
             </div>
           )}
-          {isAutomationExpanded && automationTasks.length === 0 && (
+          {isEfficiencyExpanded && efficiencyTasks.length === 0 && (
             <div className="priority-card completed-blank" style={{ marginTop: '12px' }}>
-              No automation tasks scheduled.
+              No efficiency tasks scheduled.
             </div>
           )}
         </div>

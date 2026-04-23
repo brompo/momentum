@@ -1832,28 +1832,28 @@
   text-align: center;
 }
 
-/* Automation Section Theme (Purple) */
-.priority-section.automation .dot {
+/* Efficiency Section Theme (Purple) */
+.priority-section.efficiency .dot {
   background: #a855f7 !important;
   /* Purple */
 }
 
-.priority-section.automation .header-count-status {
+.priority-section.efficiency .header-count-status {
   font-size: 0.75rem;
   font-weight: 600;
   color: #94a3b8;
 }
 
-.priority-card.automation {
+.priority-card.efficiency {
   border-left: 2px solid #a855f7;
 }
 
-.milestone-context-pill.automation {
+.milestone-context-pill.efficiency {
   background: rgba(168, 85, 247, 0.05);
   border: 1px solid rgba(168, 85, 247, 0.1);
   color: #a855f7;
 }
 
-.milestone-context-pill.automation .dot {
+.milestone-context-pill.efficiency .dot {
   background: #a855f7 !important;
 }
