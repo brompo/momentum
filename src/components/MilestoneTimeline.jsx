@@ -63,7 +63,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
         </div>
         {nextTask && (
           <div className="ms-condensed-next">
-            <span className="label">Next step: </span>
+            <span className="label">Next: </span>
             <span className="title">{nextTask.title}</span>
             {nextTask.scheduledDate && <span className="date">({formatDateMMM(nextTask.scheduledDate)})</span>}
           </div>
@@ -96,6 +96,10 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
       <div key={ms.id} className="ms-card draft" onClick={() => onMilestoneClick(ms.id)}>
         <div className="ms-card-header-layout">
           <div className="ms-card-actions">
+            <div className="ms-card-meta-inline">
+              {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} STEPS` : <span className="ms-status-alert">no steps</span>}
+              {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
+            </div>
             <button
               className="ms-focus-pill"
               onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}
@@ -106,10 +110,6 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
           <div className="ms-title-area">
             <span className="ms-card-title">{ms.title}</span>
           </div>
-        </div>
-        <div className="ms-card-meta">
-          {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} steps` : <span className="ms-status-alert">no steps</span>}
-          {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
         </div>
       </div>
     );

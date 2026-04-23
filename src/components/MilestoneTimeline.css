@@ -188,6 +188,11 @@
   font-weight: 800;
 }
 
+.ms-card.one-thing .ms-focus-pill.active {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
 
 .ms-focus-pill:hover {
   border-color: #fb923c;
@@ -211,7 +216,7 @@
 }
 
 .ms-card.one-thing {
-  border-width: 1px;
+  border-width: 0.5px;
   border-color: #f59e0b;
   background: #fffbef;
   /* Very subtle warm yellow */
@@ -256,6 +261,10 @@
   align-items: baseline;
   gap: 6px;
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .ms-condensed-next .label {
@@ -270,13 +279,13 @@
   font-size: 0.78rem;
   font-weight: 500;
   color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ms-condensed-next .date {
   font-size: 0.7rem;
   color: #94a3b8;
-}
-
-.ms-condensed-next .date {
   opacity: 0.8 !important;
+  flex-shrink: 0;
 }
