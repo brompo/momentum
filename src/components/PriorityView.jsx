@@ -726,7 +726,7 @@ const PriorityView = () => {
           </div>
 
           <div className="priority-card-right-column">
-            {context !== 'today' && !t.isPriorityFocus && (
+            {context !== 'today' && context !== 'automation' && !t.isPriorityFocus && (
               <span className="reset-delete-btn" onClick={(e) => { e.stopPropagation(); handleToggleFocusFromCard(t, e) }}>priority ⬆️</span>
             )}
 
@@ -734,7 +734,7 @@ const PriorityView = () => {
               <span className="reset-delete-btn focus-mode-trigger" onClick={(e) => { e.stopPropagation(); startFocus(t); }}>focus ⏱️</span>
             )}
 
-            {(context === 'today' || context === 'overdue') && t.scheduledDate && (
+            {(context === 'today' || context === 'overdue' || context === 'automation') && t.scheduledDate && (
               <span className={`priority-date-indicator ${context === 'overdue' ? 'is-overdue' : ''}`}>
                 {formatDate(t.scheduledDate, context === 'overdue')}
               </span>
