@@ -264,6 +264,8 @@ const PriorityView = () => {
           milestoneId: ms.id,
           pillarTitle: getPillarTitle(g.pillarId),
           milestoneTitle: ms.title,
+          milestoneInFocus: ms.inFocus,
+          milestoneIsOneThing: ms.isOneThing,
           type: 'result'
         },
         ...(result.subtasks || []).map(task => ({
@@ -274,6 +276,8 @@ const PriorityView = () => {
           resultId: result.id,
           pillarTitle: getPillarTitle(g.pillarId),
           milestoneTitle: ms.title,
+          milestoneInFocus: ms.inFocus,
+          milestoneIsOneThing: ms.isOneThing,
           type: 'task'
         }))
       ])
@@ -323,7 +327,9 @@ const PriorityView = () => {
 
     if (!t.completed) {
       if (isEfficiencyGoal) {
-        efficiencyTasks.push(t);
+        if (t.milestoneInFocus || t.milestoneIsOneThing) {
+          efficiencyTasks.push(t);
+        }
       } else if (tDate > endOfWeek) {
         upNext.push(t);
       }
