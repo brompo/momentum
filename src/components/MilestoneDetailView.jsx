@@ -180,12 +180,16 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     } catch (e) { return dateString; }
   };
 
-  const msIndex = goal.milestones.findIndex(m => m.id === milestoneId);
-  const firstIncompleteIdx = goal.milestones.findIndex(m => !m.completed);
-
-  // Fail-safe status: only Truly "done" if flag is set AND no tasks are pending
   const isTrulyDone = milestone.completed && pendingTasks.length === 0;
-  const msStatus = isTrulyDone ? 'done' : (msIndex === firstIncompleteIdx ? 'active' : 'upcoming');
+  
+  let msStatus = 'upcoming';
+  if (isTrulyDone) {
+    msStatus = 'done';
+  } else if (milestone.isOneThing || milestone.inFocus) {
+    msStatus = 'active';
+  } else {
+    msStatus = 'draft';
+  }
 
   const activeTask = pendingTasks.length > 0 ? pendingTasks[0] : null;
 
@@ -200,37 +204,46 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   return (
     <div className="milestone-detail-view animate-fade-in" style={{ '--pillar-color': themeColor, '--pillar-color-faint': themeColorFaint }}>
       <div className="ms-detail-top-section">
-        <button className="back-btn-simple" onClick={onBack}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-          {goal.title}
-        </button>
+        <div className="ms-detail-header-row">
+          <button className="minimal-icon-btn" onClick={onBack} title="Back to Goal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          
+          <div className="ms-header-goal-title">{goal.title}</div>
 
-        <div className="ms-detail-nav-actions">
           <button className="minimal-icon-btn delete-ms-btn" onClick={handleDeleteMilestone} title="Delete Milestone">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
           </button>
         </div>
 
         {isEditingTitle ? (
-          <input
+          <textarea
             autoFocus
-            style={{ width: '100%', fontSize: '1.4rem', fontWeight: 800, border: 'none', borderBottom: '2px solid #10b981', outline: 'none', margin: '12px 0' }}
+            className="ms-title-edit-textarea"
             value={editForm.title}
-            onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+            onChange={e => {
+              setEditForm({ ...editForm, title: e.target.value });
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
             onBlur={() => {
               setIsEditingTitle(false);
               handleUpdate({ title: editForm.title });
             }}
-            onKeyDown={e => e.key === 'Enter' && e.target.blur()}
+            onFocus={(e) => {
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+            rows="1"
           />
         ) : (
           <h1 className="ms-title-large" onClick={() => setIsEditingTitle(true)}>{milestone.title}</h1>
         )}
 
         <div className="ms-top-status">
-          {msStatus === 'active' && <span className="ms-pill active">Active</span>}
+          {msStatus === 'active' && <span className="ms-pill active">{milestone.isOneThing ? 'One Thing' : 'Active'}</span>}
           {msStatus === 'done' && <span className="ms-pill done">Done</span>}
-          {msStatus === 'upcoming' && <span className="ms-pill upcoming">Upcoming</span>}
+          {msStatus === 'draft' && <span className="ms-pill draft">Draft</span>}
           <span className="ms-top-stats">{progress}% · {completedTasks.length} of {allTasks.length} steps done</span>
         </div>
 

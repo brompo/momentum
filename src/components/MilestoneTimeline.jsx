@@ -29,6 +29,10 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
       <div key={ms.id} className={`ms-card in-focus ${isOneThing ? 'one-thing' : ''}`} onClick={() => onMilestoneClick(ms.id)}>
         <div className="ms-card-header-layout">
           <div className="ms-card-actions">
+            <div className="ms-card-meta-inline">
+              {taskCount > 0 ? `${completedTaskCount}/${taskCount} STEPS` : <span className="ms-status-alert">no steps</span>}
+              {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
+            </div>
             {!isOneThing && oneThingList.length === 0 && (
               <button 
                 className="ms-promote-btn" 
@@ -57,17 +61,11 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
         <div className="ms-inline-progress-bg">
           <div className="ms-inline-progress-fill" style={{ width: `${progressPct}%` }}></div>
         </div>
-        <div className="ms-card-meta">
-          {taskCount > 0 ? `${completedTaskCount} / ${taskCount} steps` : <span className="ms-status-alert">no steps</span>}
-          {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
-        </div>
         {nextTask && (
-          <div className="flat-next-box-new">
-            <span className="next-label">Next: </span>
-            <span className="next-title">{nextTask.title}</span>
-            {nextTask.scheduledDate && (
-              <span className="next-date">{formatDateMMM(nextTask.scheduledDate)}</span>
-            )}
+          <div className="ms-condensed-next">
+            <span className="label">Next Step: </span>
+            <span className="title">{nextTask.title}</span>
+            {nextTask.scheduledDate && <span className="date">({formatDateMMM(nextTask.scheduledDate)})</span>}
           </div>
         )}
       </div>

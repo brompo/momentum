@@ -13,12 +13,25 @@
   position: relative;
 }
 
-.ms-detail-nav-actions {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+.ms-detail-header-row {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ms-header-goal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .minimal-icon-btn {
@@ -59,11 +72,27 @@
 }
 
 .ms-title-large {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #0f172a;
-  margin: 12px 0;
-  line-height: 1.25;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.ms-title-edit-textarea {
+  width: 100%;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--pillar-color, #10b981);
+  outline: none;
+  margin: 0 0 16px 0;
+  resize: none;
+  font-family: inherit;
+  padding: 0;
+  overflow: hidden;
 }
 
 .ms-top-status {
@@ -90,7 +119,8 @@
   color: var(--pillar-color, #10b981);
 }
 
-.ms-pill.upcoming {
+.ms-pill.upcoming,
+.ms-pill.draft {
   background: #f1f5f9;
   color: #475569;
 }
