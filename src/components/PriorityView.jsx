@@ -197,7 +197,7 @@ const PriorityView = () => {
 
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
   const [isUpNextExpanded, setIsUpNextExpanded] = useState(false);
-  const [isOverdueExpanded, setIsOverdueExpanded] = useState(false);
+  const [isAutomationExpanded, setIsAutomationExpanded] = useState(true);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedContext, setSelectedContext] = useState('');
   const [editTitle, setEditTitle] = useState('');
@@ -260,6 +260,7 @@ const PriorityView = () => {
         {
           ...result,
           goalId: g.id,
+          goalTitle: g.title,
           milestoneId: ms.id,
           pillarTitle: getPillarTitle(g.pillarId),
           milestoneTitle: ms.title,
@@ -268,6 +269,7 @@ const PriorityView = () => {
         ...(result.subtasks || []).map(task => ({
           ...task,
           goalId: g.id,
+          goalTitle: g.title,
           milestoneId: ms.id,
           resultId: result.id,
           pillarTitle: getPillarTitle(g.pillarId),
@@ -297,7 +299,7 @@ const PriorityView = () => {
     loopDate.setDate(loopDate.getDate() - 1);
   }
 
-  const overdue = [];
+  const automationTasks = [];
   const thisWeekTasks = [];
   const upNext = [];
   const todayFocus = [];
@@ -318,12 +320,15 @@ const PriorityView = () => {
     }
 
     if (!t.completed) {
-      if (tDate < todayDate) overdue.push(t);
-      else if (tDate > endOfWeek) upNext.push(t);
+      if (t.goalTitle?.toLowerCase().includes('personal efficiency')) {
+        automationTasks.push(t);
+      } else if (tDate > endOfWeek) {
+        upNext.push(t);
+      }
     }
   });
 
-  overdue.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+  automationTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
@@ -687,8 +692,11 @@ const PriorityView = () => {
   };
 
   const headerDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(todayDate);
-  const maxOverdue = 3;
-  const overdueRender = overdue.slice(0, maxOverdue);
+  
+  const automationThisWeekCount = automationTasks.filter(t => {
+    const d = new Date(t.scheduledDate);
+    return d >= startOfWeek && d <= endOfWeek;
+  }).length;
 
   const displayTotal = thisWeekTasks.length === 0 ? 5 : thisWeekTasks.length;
   const weeklyCompleted = thisWeekTasks.filter(t => t.completed).length;
@@ -712,7 +720,7 @@ const PriorityView = () => {
             </h4>
             <div className="priority-meta-row">
               <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
-                <span className="dot"></span> {t.milestoneTitle} &rarr;
+                <span className="dot"></span> {context === 'automation' ? t.goalTitle : t.milestoneTitle} &rarr;
               </div>
             </div>
           </div>
@@ -827,32 +835,26 @@ const PriorityView = () => {
       <div className="priority-scroll-container">
 
 
-        <div className="priority-section overdue relative-z">
+        <div className="priority-section automation relative-z">
           <div
             className="priority-section-header clickable"
-            onClick={() => setIsOverdueExpanded(!isOverdueExpanded)}
-            style={{ marginBottom: isOverdueExpanded && overdue.length > 0 ? '12px' : '0' }}
+            onClick={() => setIsAutomationExpanded(!isAutomationExpanded)}
+            style={{ marginBottom: isAutomationExpanded && automationTasks.length > 0 ? '12px' : '0' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="dot"></span> OVERDUE
+              <span className="dot"></span> AUTOMATION
             </div>
-            <span className="header-count-alert">{overdue.length} total ›</span>
+            <span className="header-count-status">{automationThisWeekCount} this week {isAutomationExpanded ? '▾' : '▸'}</span>
           </div>
 
-          {isOverdueExpanded && overdue.length > 0 && (
+          {isAutomationExpanded && automationTasks.length > 0 && (
             <div className="priority-list">
-              {overdueRender.map(t => renderTaskCard(t, 'overdue'))}
-
-              {overdue.length > maxOverdue && (
-                <div className="show-more-link">
-                  Show {overdue.length - maxOverdue} more overdue steps ›
-                </div>
-              )}
+              {automationTasks.map(t => renderTaskCard(t, 'automation', true))}
             </div>
           )}
-          {isOverdueExpanded && overdue.length === 0 && (
+          {isAutomationExpanded && automationTasks.length === 0 && (
             <div className="priority-card completed-blank" style={{ marginTop: '12px' }}>
-              All caught up here!
+              No automation tasks scheduled.
             </div>
           )}
         </div>
