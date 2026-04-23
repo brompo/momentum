@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './MilestoneDetailView.css';
 
 const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
-  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone } = useStore();
+  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone, promoteTaskToNext } = useStore();
 
   const goal = goals.find(g => g.id === goalId);
   const milestone = goal?.milestones?.find(m => m.id === milestoneId);
@@ -100,35 +100,58 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const renderTaskEditForm = (task) => {
     return (
       <form onSubmit={(e) => handleSaveEditTask(e, task.id)} className="inline-task-edit-form">
-        <input
+        <textarea
           autoFocus
           placeholder="Step title..."
           value={taskEditForm.title}
-          onChange={e => setTaskEditForm({ ...taskEditForm, title: e.target.value })}
-          className="inline-edit-input"
+          onChange={e => {
+            setTaskEditForm({ ...taskEditForm, title: e.target.value });
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
+          className="inline-edit-textarea"
+          rows="1"
+          onFocus={(e) => {
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
         />
         <div className="inline-edit-actions">
-          <input
-            type="date"
-            value={taskEditForm.scheduledDate.split('T')[0]}
-            onChange={e => setTaskEditForm({ ...taskEditForm, scheduledDate: e.target.value + 'T09:00' })}
-            className="inline-edit-date"
-          />
-
-          <label className={`critical-toggle-label ${taskEditForm.isCritical ? 'active' : ''}`}>
+          <div className="inline-edit-meta-inputs">
             <input
-              type="checkbox"
-              checked={taskEditForm.isCritical}
-              onChange={e => setTaskEditForm({ ...taskEditForm, isCritical: e.target.checked })}
+              type="date"
+              value={taskEditForm.scheduledDate.split('T')[0]}
+              onChange={e => setTaskEditForm({ ...taskEditForm, scheduledDate: e.target.value + 'T09:00' })}
+              className="inline-edit-date"
             />
-            Critical
-          </label>
 
-          <div style={{ flex: 1 }}></div>
+            <label className={`critical-toggle-label ${taskEditForm.isCritical ? 'active' : ''}`}>
+              <input
+                type="checkbox"
+                checked={taskEditForm.isCritical}
+                onChange={e => setTaskEditForm({ ...taskEditForm, isCritical: e.target.checked })}
+              />
+              Critical
+            </label>
+          </div>
 
-          <button type="button" onClick={() => handleDeleteTask(task.id)} className="edit-btn-delete">Delete</button>
-          <button type="button" onClick={() => setEditingTaskId(null)} className="edit-btn-cancel">Cancel</button>
-          <button type="submit" className="edit-btn-save">Save</button>
+          <div className="inline-edit-button-group">
+            <button type="button" onClick={() => handleDeleteTask(task.id)} className="edit-btn-delete" title="Delete Step">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+            </button>
+            <button 
+              type="button" 
+              onClick={() => {
+                promoteTaskToNext(goalId, milestoneId, task.id);
+                setEditingTaskId(null);
+              }} 
+              className="edit-btn-promote"
+            >
+              NEXT STEP ↑
+            </button>
+            <button type="button" onClick={() => setEditingTaskId(null)} className="edit-btn-cancel">Cancel</button>
+            <button type="submit" className="edit-btn-save">Save</button>
+          </div>
         </div>
       </form>
     );
@@ -258,19 +281,22 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
               </div>
             </div>
           ) : (
-            <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)} style={{ cursor: 'pointer' }}>
-              <div className="next-step-header-row">
-                <div
-                  className="next-step-label-clickable"
-                  onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
-                >
-                  {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
+            <div className={`next-step-minimal-row ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)}>
+              <div className="ns-accent-line"></div>
+              <div className="ns-minimal-content">
+                <div className="ns-minimal-header">
+                  <div
+                    className="ns-minimal-label"
+                    onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
+                  >
+                    {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
+                  </div>
+                  {activeTask.scheduledDate && (
+                    <div className="ns-minimal-date">{formatDateMMM(activeTask.scheduledDate)}</div>
+                  )}
                 </div>
-                {activeTask.scheduledDate && (
-                  <div className="next-step-date-mini"> {formatDateMMM(activeTask.scheduledDate)}</div>
-                )}
+                <div className="ns-minimal-title">{activeTask.title}</div>
               </div>
-              <div className="next-step-title">{activeTask.title}</div>
             </div>
           )
         )}

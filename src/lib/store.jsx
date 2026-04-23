@@ -596,6 +596,31 @@ export const StoreProvider = ({ children }) => {
     });
   };
 
+  const promoteTaskToNext = (goalId, milestoneId, taskId) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              const tasks = [...(ms.tasks || [])];
+              const idx = tasks.findIndex(t => t.id === taskId);
+              if (idx > -1) {
+                const [task] = tasks.splice(idx, 1);
+                // Set scheduled date to today 09:00 if promoting
+                const today = new Date().toISOString().split('T')[0] + 'T09:00';
+                const updatedTask = { ...task, scheduledDate: today };
+                return { ...ms, tasks: [updatedTask, ...tasks] };
+              }
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
   const value = {
     goals,
     notes,
@@ -629,6 +654,7 @@ export const StoreProvider = ({ children }) => {
     updateMilestone,
     deleteMilestone,
     deleteTask,
+    promoteTaskToNext,
     featureMap,
     addFeatureMapItem,
     updateFeatureMapItem,

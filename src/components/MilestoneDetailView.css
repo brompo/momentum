@@ -274,7 +274,7 @@
   border-bottom: 2px solid var(--pillar-color, #3b82f6);
   outline: none;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 10px;
   padding: 4px 0;
   color: #0f172a;
@@ -344,6 +344,8 @@
   color: #ef4444;
   opacity: 0.7;
   cursor: pointer;
+  margin-right: auto;
+  /* Isolate to far left */
 }
 
 .edit-btn-delete:hover {
@@ -441,4 +443,129 @@
 .next-step-card.critical .next-step-label::before {
   content: '⚠️';
   font-size: 0.8rem;
+}
+
+/* ── Minimalistic Next Step Row ── */
+.next-step-minimal-row {
+  display: flex;
+  gap: 12px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 4px -5px 12px -5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.next-step-minimal-row:hover {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: #e2e8f0;
+}
+
+.ns-accent-line {
+  width: 3px;
+  background: var(--pillar-color, #3b82f6);
+  border-radius: 2px;
+  align-self: stretch;
+}
+
+.next-step-minimal-row.critical .ns-accent-line {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.ns-minimal-content {
+  flex: 1;
+}
+
+.ns-minimal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.ns-minimal-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--pillar-color, #3b82f6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.next-step-minimal-row.critical .ns-minimal-label {
+  color: #ef4444;
+}
+
+.ns-minimal-date {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.ns-minimal-title {
+  font-size: 0.90rem;
+  font-weight: 600;
+  color: #303646;
+  line-height: 1.3;
+}
+
+/* ── Specific Overrides for Promoted Task Form ── */
+.inline-edit-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 12px;
+  color: #0f172a;
+  resize: none;
+  outline: none;
+  min-height: 44px;
+  line-height: 1.4;
+  overflow: hidden;
+  border-bottom: 2px solid var(--pillar-color, #10b981);
+  margin-bottom: 8px;
+}
+
+.inline-edit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px 12px 12px;
+}
+
+.inline-edit-meta-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-edit-button-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.edit-btn-promote {
+  border: 1px solid #94a3b8;
+  background: white;
+  color: #64748b;
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn-promote:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #64748b;
 }
