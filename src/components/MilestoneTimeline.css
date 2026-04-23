@@ -42,7 +42,7 @@
 /* Milestone Card - High Density */
 .ms-card {
   background: #fdfdfd;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: .5px solid rgba(0, 0, 0, 0.04);
   border-radius: 9px;
   padding: 8px 12px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -182,25 +182,12 @@
 }
 
 .ms-focus-pill.active {
-  background: var(--pillar-color, #10b981);
-  color: white;
-  border-color: var(--pillar-color, #10b981);
+  background: var(--pillar-color-faint, rgba(16, 185, 129, 0.12));
+  color: var(--pillar-color, #10b981);
+  border-color: transparent;
+  font-weight: 800;
 }
 
-/* Specifically keep the One Thing badge 'shouting' */
-.ms-card.one-thing .ms-focus-pill.active {
-  background: #f59e0b;
-  color: white;
-  border-color: #f59e0b;
-}
-
-.ms-focus-pill.active:hover {
-  filter: brightness(0.9);
-}
-
-.ms-card.one-thing .ms-focus-pill.active:hover {
-  background: #d97706;
-}
 
 .ms-focus-pill:hover {
   border-color: #fb923c;
@@ -224,7 +211,7 @@
 }
 
 .ms-card.one-thing {
-  border-width: 2px;
+  border-width: 1px;
   border-color: #f59e0b;
   background: #fffbef;
   /* Very subtle warm yellow */
@@ -264,7 +251,7 @@
 }
 
 .ms-condensed-next {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   align-items: baseline;
   gap: 6px;
@@ -272,20 +259,24 @@
 }
 
 .ms-condensed-next .label {
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-size: 0.65rem;
+  font-weight: 700;
   color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
 }
 
 .ms-condensed-next .title {
   font-size: 0.78rem;
-  font-weight: 600;
-  color: #475569;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .ms-condensed-next .date {
   font-size: 0.7rem;
   color: #94a3b8;
+}
+
+.ms-condensed-next .date {
+  opacity: 0.8 !important;
 }

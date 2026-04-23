@@ -63,7 +63,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
         </div>
         {nextTask && (
           <div className="ms-condensed-next">
-            <span className="label">Next Step: </span>
+            <span className="label">Next step: </span>
             <span className="title">{nextTask.title}</span>
             {nextTask.scheduledDate && <span className="date">({formatDateMMM(nextTask.scheduledDate)})</span>}
           </div>
