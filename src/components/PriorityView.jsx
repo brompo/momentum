@@ -189,10 +189,10 @@ const InlineOptionsCard = ({
 };
 
 const PriorityView = () => {
-  const { 
-    goals, updateTask, toggleTask, addTask, deleteTask, 
+  const {
+    goals, updateTask, toggleTask, addTask, deleteTask,
     setSelectedGoalId, setSelectedMilestoneId, setActiveTab,
-    addGoal, addMilestone, activeFocusTask, startFocus 
+    addGoal, addMilestone, activeFocusTask, startFocus
   } = useStore();
 
   const [isThisWeekExpanded, setIsThisWeekExpanded] = useState(false);
@@ -331,6 +331,18 @@ const PriorityView = () => {
   });
 
   efficiencyTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+
+  // Only take the NEXT step for each milestone
+  const seenEfficiencyMilestones = new Set();
+  const nextStepsOnly = [];
+  efficiencyTasks.forEach(t => {
+    if (!seenEfficiencyMilestones.has(t.milestoneId)) {
+      seenEfficiencyMilestones.add(t.milestoneId);
+      nextStepsOnly.push(t);
+    }
+  });
+
+  const finalEfficiencyTasks = nextStepsOnly;
   thisWeekTasks.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
   thisWeekTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
@@ -678,7 +690,7 @@ const PriorityView = () => {
     }
 
     addTask(targetGoalId, targetMilestoneId, quickAddTitle.trim(), 0, quickAddDate);
-    
+
     // Reset and close
     setQuickAddTitle('');
     setQuickAddGoalId('');
@@ -693,8 +705,15 @@ const PriorityView = () => {
     setActiveTab('Goals');
   };
 
+  const handleNavigateToGoal = (goalId, e) => {
+    e?.stopPropagation();
+    setSelectedGoalId(goalId);
+    setSelectedMilestoneId(null);
+    setActiveTab('Goals');
+  };
+
   const headerDate = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(todayDate);
-  
+
   const efficiencyThisWeekCount = efficiencyTasks.filter(t => {
     const d = new Date(t.scheduledDate);
     return d >= startOfWeek && d <= endOfWeek;
@@ -722,7 +741,7 @@ const PriorityView = () => {
             </h4>
             <div className="priority-meta-row">
               <div className={`milestone-context-pill ${context}`} onClick={(e) => handleNavigateToMilestone(t, e)}>
-                <span className="dot"></span> {context === 'efficiency' ? t.goalTitle : t.milestoneTitle} &rarr;
+                <span className="dot"></span> {t.milestoneTitle} &rarr;
               </div>
             </div>
           </div>
@@ -846,15 +865,26 @@ const PriorityView = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="dot"></span> EFFICIENCY
             </div>
-            <span className="header-count-status">{efficiencyThisWeekCount} this week {isEfficiencyExpanded ? '▾' : '▸'}</span>
+            <span className="header-count-status">
+              {finalEfficiencyTasks.length === 1 ? 'NEXT STEP' : 'NEXT STEPS'} {isEfficiencyExpanded ? '▾' : '▸'}
+            </span>
           </div>
 
-          {isEfficiencyExpanded && efficiencyTasks.length > 0 && (
-            <div className="priority-list">
-              {efficiencyTasks.map(t => renderTaskCard(t, 'efficiency', true))}
+          {isEfficiencyExpanded && finalEfficiencyTasks.length > 0 && (
+            <div 
+              className="efficiency-goal-shortcut-row"
+              onClick={(e) => handleNavigateToGoal(finalEfficiencyTasks[0].goalId, e)}
+            >
+              In goal: <span>{finalEfficiencyTasks[0].goalTitle} &rarr;</span>
             </div>
           )}
-          {isEfficiencyExpanded && efficiencyTasks.length === 0 && (
+
+          {isEfficiencyExpanded && finalEfficiencyTasks.length > 0 && (
+            <div className="priority-list">
+              {finalEfficiencyTasks.map(t => renderTaskCard(t, 'efficiency', true))}
+            </div>
+          )}
+          {isEfficiencyExpanded && finalEfficiencyTasks.length === 0 && (
             <div className="priority-card completed-blank" style={{ marginTop: '12px' }}>
               No efficiency tasks scheduled.
             </div>
@@ -864,7 +894,7 @@ const PriorityView = () => {
         <div className="priority-section due-week relative-z">
           <div className="priority-section-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="dot" style={{ background: '#f49d0d' }}></span> 
+              <span className="dot" style={{ background: '#f49d0d' }}></span>
               WEEKLY FOCUS
               <div className="pulse-dots" style={{ marginLeft: '12px' }}>
                 {Array.from({ length: Math.min(todayFocus.length, 10) }).map((_, i) => (
@@ -881,7 +911,7 @@ const PriorityView = () => {
                 return todayFocus.map((t, idx) => (
                   <React.Fragment key={t.id}>
                     {idx === firstCompletedIndex && firstCompletedIndex !== -1 && (
-                      <div 
+                      <div
                         className={`completed-divider clickable ${isTodayCompletedCollapsed ? 'collapsed' : ''}`}
                         onClick={() => setIsTodayCompletedCollapsed(!isTodayCompletedCollapsed)}
                       >
@@ -1013,7 +1043,7 @@ const PriorityView = () => {
               <h3>Quick Add Step</h3>
               <button className="close-btn" onClick={() => setIsQuickAddOpen(false)}>×</button>
             </div>
-            
+
             <div className="quick-add-form">
               <input
                 autoFocus
@@ -1028,8 +1058,8 @@ const PriorityView = () => {
               <div className="quick-add-row">
                 <div className="field-group goal-select-group">
                   <label>GOAL</label>
-                  <select 
-                    value={quickAddGoalId} 
+                  <select
+                    value={quickAddGoalId}
                     onChange={e => {
                       setQuickAddGoalId(e.target.value);
                       setQuickAddMilestoneId('');
@@ -1046,8 +1076,8 @@ const PriorityView = () => {
               <div className="quick-add-row">
                 <div className="field-group milestone-select-group">
                   <label>MILESTONE</label>
-                  <select 
-                    value={quickAddMilestoneId} 
+                  <select
+                    value={quickAddMilestoneId}
                     onChange={e => setQuickAddMilestoneId(e.target.value)}
                     disabled={!quickAddGoalId}
                   >
@@ -1062,16 +1092,16 @@ const PriorityView = () => {
               <div className="quick-add-row">
                 <div className="field-group">
                   <label>Schedule For</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={quickAddDate}
                     onChange={e => setQuickAddDate(e.target.value)}
                   />
                 </div>
               </div>
 
-              <button 
-                className="quick-add-submit-btn" 
+              <button
+                className="quick-add-submit-btn"
                 onClick={handleQuickAddSubmit}
                 disabled={!quickAddTitle.trim()}
               >

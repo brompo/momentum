@@ -95,20 +95,26 @@
   opacity: 0.8;
 }
 
-.ms-card-top {
+.ms-card-header-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 6px;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.ms-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .ms-card-title {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.3;
-  flex: 1;
-  margin-right: 12px;
+  line-height: 1.35;
+  width: 100%;
 }
 
 .ms-card-meta {
@@ -229,11 +235,7 @@
   filter: drop-shadow(0 0 2px rgba(245,158,11, 0.4));
 }
 
-.ms-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* .ms-card-actions moved up */
 
 .ms-promote-btn {
   font-size: 0.65rem;

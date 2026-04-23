@@ -1108,7 +1108,7 @@
 }
 
 .priority-card.lean .priority-title {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #475569;
 }
 
@@ -1845,7 +1845,7 @@
 }
 
 .priority-card.efficiency {
-  border-left: 2px solid #a855f7;
+  border-left: 1px solid #a855f7;
 }
 
 .milestone-context-pill.efficiency {
@@ -1856,4 +1856,24 @@
 
 .milestone-context-pill.efficiency .dot {
   background: #a855f7 !important;
+}
+
+.efficiency-goal-shortcut-row {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 0 12px 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.efficiency-goal-shortcut-row span {
+  color: #a855f7;
+  font-weight: 700;
+}
+
+.efficiency-goal-shortcut-row:hover {
+  transform: translateX(4px);
+  opacity: 0.8;
 }

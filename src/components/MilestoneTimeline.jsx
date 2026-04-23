@@ -27,11 +27,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
 
     return (
       <div key={ms.id} className={`ms-card in-focus ${isOneThing ? 'one-thing' : ''}`} onClick={() => onMilestoneClick(ms.id)}>
-        <div className="ms-card-top">
-          <div className="ms-title-area">
-             {isOneThing && <span className="one-thing-crown" title="The One Thing">★</span>}
-             <span className="ms-card-title">{ms.title}</span>
-          </div>
+        <div className="ms-card-header-layout">
           <div className="ms-card-actions">
             {!isOneThing && oneThingList.length === 0 && (
               <button 
@@ -43,7 +39,7 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
               </button>
             )}
             <button
-              className="ms-focus-pill active"
+              className={`ms-focus-pill ${isOneThing || ms.inFocus ? 'active' : ''}`}
               onClick={(e) => { 
                 e.stopPropagation(); 
                 isOneThing ? onToggleOneThing(ms.id) : onToggleFocus(ms.id, ms.inFocus); 
@@ -51,6 +47,11 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
             >
               {isOneThing ? 'one thing' : 'active'}
             </button>
+          </div>
+          
+          <div className="ms-title-area">
+             {isOneThing && <span className="one-thing-crown" title="The One Thing">★</span>}
+             <span className="ms-card-title">{ms.title}</span>
           </div>
         </div>
         <div className="ms-inline-progress-bg">
@@ -76,7 +77,10 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
   const renderDone = (ms) => {
     return (
       <div key={ms.id} className="ms-card completed" onClick={() => onMilestoneClick(ms.id)}>
-        <div className="ms-card-top">
+        <div className="ms-card-header-layout">
+          <div className="ms-card-actions">
+            <span className="ms-card-meta">{formatDateMMM(ms.updatedAt || new Date())}</span>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#0d9488" stroke="none">
               <circle cx="12" cy="12" r="12" fill="#0d9488" />
@@ -84,7 +88,6 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
             </svg>
             <span className="ms-card-title">{ms.title}</span>
           </div>
-          <span className="ms-card-meta">{formatDateMMM(ms.updatedAt || new Date())}</span>
         </div>
       </div>
     );
@@ -93,14 +96,18 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
   const renderDraft = (ms) => {
     return (
       <div key={ms.id} className="ms-card draft" onClick={() => onMilestoneClick(ms.id)}>
-        <div className="ms-card-top">
-          <span className="ms-card-title">{ms.title}</span>
-          <button
-            className="ms-focus-pill"
-            onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}
-          >
-            active ↑
-          </button>
+        <div className="ms-card-header-layout">
+          <div className="ms-card-actions">
+            <button
+              className="ms-focus-pill"
+              onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}
+            >
+              active ↑
+            </button>
+          </div>
+          <div className="ms-title-area">
+            <span className="ms-card-title">{ms.title}</span>
+          </div>
         </div>
         <div className="ms-card-meta">
           {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} steps` : <span className="ms-status-alert">no steps</span>}

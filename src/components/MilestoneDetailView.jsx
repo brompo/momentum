@@ -4,10 +4,10 @@ import './MilestoneDetailView.css';
 
 const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone } = useStore();
-  
+
   const goal = goals.find(g => g.id === goalId);
   const milestone = goal?.milestones?.find(m => m.id === milestoneId);
-  
+
   const [editForm, setEditForm] = useState({
     title: '',
     priority: 'Low',
@@ -17,8 +17,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState(null); // For 'new' task form
   const [editingTaskId, setEditingTaskId] = useState(null); // For editing existing tasks
-  const [taskForm, setTaskForm] = useState({ 
-    title: '', 
+  const [taskForm, setTaskForm] = useState({
+    title: '',
     scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00',
     isCritical: false
   });
@@ -67,7 +67,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
       setActiveTaskId(null);
     }
   };
- 
+
   const handleStartEditTask = (task, e) => {
     e.stopPropagation();
     setTaskEditForm({
@@ -77,7 +77,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     });
     setEditingTaskId(task.id);
   };
- 
+
   const handleSaveEditTask = (e, taskId) => {
     e && e.preventDefault();
     if (taskEditForm.title.trim()) {
@@ -89,7 +89,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
       setEditingTaskId(null);
     }
   };
- 
+
   const handleDeleteTask = (taskId) => {
     if (window.confirm('Delete this step?')) {
       deleteTask(goalId, milestoneId, taskId);
@@ -104,28 +104,28 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           autoFocus
           placeholder="Step title..."
           value={taskEditForm.title}
-          onChange={e => setTaskEditForm({...taskEditForm, title: e.target.value})}
+          onChange={e => setTaskEditForm({ ...taskEditForm, title: e.target.value })}
           className="inline-edit-input"
         />
         <div className="inline-edit-actions">
-          <input 
-            type="date" 
-            value={taskEditForm.scheduledDate.split('T')[0]} 
-            onChange={e => setTaskEditForm({...taskEditForm, scheduledDate: e.target.value + 'T09:00'})} 
+          <input
+            type="date"
+            value={taskEditForm.scheduledDate.split('T')[0]}
+            onChange={e => setTaskEditForm({ ...taskEditForm, scheduledDate: e.target.value + 'T09:00' })}
             className="inline-edit-date"
           />
-          
+
           <label className={`critical-toggle-label ${taskEditForm.isCritical ? 'active' : ''}`}>
-             <input 
-               type="checkbox" 
-               checked={taskEditForm.isCritical} 
-               onChange={e => setTaskEditForm({...taskEditForm, isCritical: e.target.checked})}
-             />
-             Critical
+            <input
+              type="checkbox"
+              checked={taskEditForm.isCritical}
+              onChange={e => setTaskEditForm({ ...taskEditForm, isCritical: e.target.checked })}
+            />
+            Critical
           </label>
 
           <div style={{ flex: 1 }}></div>
-          
+
           <button type="button" onClick={() => handleDeleteTask(task.id)} className="edit-btn-delete">Delete</button>
           <button type="button" onClick={() => setEditingTaskId(null)} className="edit-btn-cancel">Cancel</button>
           <button type="submit" className="edit-btn-save">Save</button>
@@ -144,8 +144,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const allTasks = milestone.tasks || [];
   const completedTasks = allTasks.filter(t => t.completed);
   const pendingTasks = allTasks.filter(t => !t.completed);
-  const progress = allTasks.length > 0 
-    ? Math.round((completedTasks.length / allTasks.length) * 100) 
+  const progress = allTasks.length > 0
+    ? Math.round((completedTasks.length / allTasks.length) * 100)
     : 0;
 
   const formatDateMMM = (dateString) => {
@@ -159,7 +159,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
   const msIndex = goal.milestones.findIndex(m => m.id === milestoneId);
   const firstIncompleteIdx = goal.milestones.findIndex(m => !m.completed);
-  
+
   // Fail-safe status: only Truly "done" if flag is set AND no tasks are pending
   const isTrulyDone = milestone.completed && pendingTasks.length === 0;
   const msStatus = isTrulyDone ? 'done' : (msIndex === firstIncompleteIdx ? 'active' : 'upcoming');
@@ -181,11 +181,11 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
           {goal.title}
         </button>
-        
+
         <div className="ms-detail-nav-actions">
-           <button className="minimal-icon-btn delete-ms-btn" onClick={handleDeleteMilestone} title="Delete Milestone">
-             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
-           </button>
+          <button className="minimal-icon-btn delete-ms-btn" onClick={handleDeleteMilestone} title="Delete Milestone">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+          </button>
         </div>
 
         {isEditingTitle ? (
@@ -193,7 +193,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
             autoFocus
             style={{ width: '100%', fontSize: '1.4rem', fontWeight: 800, border: 'none', borderBottom: '2px solid #10b981', outline: 'none', margin: '12px 0' }}
             value={editForm.title}
-            onChange={e => setEditForm({...editForm, title: e.target.value})}
+            onChange={e => setEditForm({ ...editForm, title: e.target.value })}
             onBlur={() => {
               setIsEditingTitle(false);
               handleUpdate({ title: editForm.title });
@@ -260,8 +260,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           ) : (
             <div className={`next-step-card ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)} style={{ cursor: 'pointer' }}>
               <div className="next-step-header-row">
-                <div 
-                  className="next-step-label-clickable" 
+                <div
+                  className="next-step-label-clickable"
                   onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
                 >
                   {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
@@ -297,7 +297,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                       {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
                       {t.title}
                     </div>
-                    
+
                     <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
                       <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
                     </div>
@@ -310,38 +310,38 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
         {/* Hidden but functional add task form */}
         <div style={{ marginTop: '32px' }}>
-             {activeTaskId === 'new' ? (
-                <form onSubmit={handleAddTask} style={{ background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                   <input
-                      autoFocus
-                      placeholder="Enter step title..."
-                      value={taskForm.title}
-                      onChange={e => setTaskForm({...taskForm, title: e.target.value})}
-                      style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
-                   />
-                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({...taskForm, scheduledDate: e.target.value + 'T09:00'})} style={{ fontSize: '16px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
-                      
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: taskForm.isCritical ? '#ef4444' : '#64748b', cursor: 'pointer', fontWeight: 600 }}>
-                         <input 
-                           type="checkbox" 
-                           checked={taskForm.isCritical} 
-                           onChange={e => setTaskForm({...taskForm, isCritical: e.target.checked})}
-                         />
-                         Critical
-                      </label>
+          {activeTaskId === 'new' ? (
+            <form onSubmit={handleAddTask} style={{ background: 'white', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <input
+                autoFocus
+                placeholder="Enter step title..."
+                value={taskForm.title}
+                onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
+              />
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })} style={{ fontSize: '16px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
 
-                      <div style={{ flex: 1 }}></div>
-                      
-                      <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Cancel</button>
-                      <button type="submit" style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>Add Step</button>
-                   </div>
-                </form>
-             ) : (
-                <button onClick={() => setActiveTaskId('new')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                   <span>+</span> Add a new step
-                </button>
-             )}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: taskForm.isCritical ? '#ef4444' : '#64748b', cursor: 'pointer', fontWeight: 600 }}>
+                  <input
+                    type="checkbox"
+                    checked={taskForm.isCritical}
+                    onChange={e => setTaskForm({ ...taskForm, isCritical: e.target.checked })}
+                  />
+                  Critical
+                </label>
+
+                <div style={{ flex: 1 }}></div>
+
+                <button type="button" onClick={() => setActiveTaskId(null)} style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>Cancel</button>
+                <button type="submit" style={{ border: 'none', background: 'none', fontSize: '14px', fontWeight: 700, color: '#3b82f6' }}>Add Step</button>
+              </div>
+            </form>
+          ) : (
+            <button onClick={() => setActiveTaskId('new')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <span>+</span> Add a new step
+            </button>
+          )}
         </div>
       </div>
     </div>
