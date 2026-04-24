@@ -599,3 +599,28 @@
   color: #0f172a;
   border-color: #64748b;
 }
+/* ── Phase Separators ── */
+.ms-phase-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px 10px;
+}
+
+.phase-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.phase-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f5f9;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}

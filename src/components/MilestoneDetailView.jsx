@@ -182,6 +182,18 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     } catch (e) { return dateString; }
   };
 
+  const getPhase = (title) => {
+    const parts = title.split(':');
+    if (parts.length > 1) return parts[0].trim().toUpperCase();
+    return null;
+  };
+
+  const getTitleWithoutPhase = (title) => {
+    const parts = title.split(':');
+    if (parts.length > 1) return parts.slice(1).join(':').trim();
+    return title;
+  };
+
   const isTrulyDone = milestone.completed && pendingTasks.length === 0;
   
   let msStatus = 'upcoming';
@@ -259,28 +271,51 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           <div className="timeline-header">Completed Steps</div>
         )}
 
-        {completedTasks.map((t, idx) => (
-          <div key={t.id} className="tl-row">
-            <div className="tl-left">
-              <div className="tl-node done clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
-              </div>
-              <div className="tl-line done"></div>
-            </div>
-            <div className="tl-right">
-              {editingTaskId === t.id ? (
-                renderTaskEditForm(t)
-              ) : (
-                <>
-                  <div className="tl-title" onClick={(e) => handleStartEditTask(t, e)}>{t.title}</div>
-                  <div className="tl-meta done">
-                    Completed {formatDateMMM(t.scheduledDate || new Date().toISOString())}
-                  </div>
-                </>
+        {(() => {
+          const groups = [];
+          completedTasks.forEach(t => {
+            const p = getPhase(t.title) || 'General';
+            let g = groups.find(group => group.name === p);
+            if (!g) {
+              g = { name: p, tasks: [] };
+              groups.push(g);
+            }
+            g.tasks.push(t);
+          });
+
+          return groups.map((g, gIdx) => (
+            <React.Fragment key={g.name}>
+              {g.name !== 'General' && (
+                <div className="ms-phase-separator">
+                  <div className="phase-line"></div>
+                  <div className="phase-label">{g.name}</div>
+                </div>
               )}
-            </div>
-          </div>
-        ))}
+              {g.tasks.map((t, tIdx) => (
+                <div key={t.id} className="tl-row">
+                  <div className="tl-left">
+                    <div className="tl-node done clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+                    </div>
+                    <div className="tl-line done"></div>
+                  </div>
+                  <div className="tl-right">
+                    {editingTaskId === t.id ? (
+                      renderTaskEditForm(t)
+                    ) : (
+                      <>
+                        <div className="tl-title" onClick={(e) => handleStartEditTask(t, e)}>{getTitleWithoutPhase(t.title)}</div>
+                        <div className="tl-meta done">
+                          Completed {formatDateMMM(t.scheduledDate || new Date().toISOString())}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </React.Fragment>
+          ));
+        })()}
 
         {activeTask && (
           editingTaskId === activeTask.id ? (
@@ -296,23 +331,39 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
               </div>
             </div>
           ) : (
-            <div className={`next-step-minimal-row ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)}>
-              <div className="ns-accent-line"></div>
-              <div className="ns-minimal-content">
-                <div className="ns-minimal-header">
-                  <div
-                    className="ns-minimal-label"
-                    onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
-                  >
-                    {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
+            <>
+              {(() => {
+                const currentPhase = getPhase(activeTask.title);
+                const prevTask = completedTasks.length > 0 ? completedTasks[completedTasks.length - 1] : null;
+                const prevPhase = prevTask ? getPhase(prevTask.title) : null;
+                if (currentPhase && currentPhase !== prevPhase) {
+                  return (
+                    <div className="ms-phase-separator">
+                      <div className="phase-line"></div>
+                      <div className="phase-label">{currentPhase}</div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              <div className={`next-step-minimal-row ${activeTask.isCritical ? 'critical' : ''}`} onClick={(e) => handleStartEditTask(activeTask, e)}>
+                <div className="ns-accent-line"></div>
+                <div className="ns-minimal-content">
+                  <div className="ns-minimal-header">
+                    <div
+                      className="ns-minimal-label"
+                      onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, activeTask.id); }}
+                    >
+                      {activeTask.isCritical ? 'CRITICAL Next Step' : 'Next Step'}
+                    </div>
+                    {activeTask.scheduledDate && (
+                      <div className="ns-minimal-date">{formatDateMMM(activeTask.scheduledDate)}</div>
+                    )}
                   </div>
-                  {activeTask.scheduledDate && (
-                    <div className="ns-minimal-date">{formatDateMMM(activeTask.scheduledDate)}</div>
-                  )}
+                  <div className="ns-minimal-title">{getTitleWithoutPhase(activeTask.title)}</div>
                 </div>
-                <div className="ns-minimal-title">{activeTask.title}</div>
               </div>
-            </div>
+            </>
           )
         )}
 
@@ -320,34 +371,65 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           <div className="timeline-header" style={{ marginTop: '8px' }}>Upcoming</div>
         )}
 
-        {pendingTasks.slice(1).map((t, idx) => {
-          return (
-            <div key={t.id} className="tl-row">
-              <div className="tl-left">
-                <div className="tl-node upcoming clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
-                  {completedTasks.length + idx + 2}
-                </div>
-                {idx < pendingTasks.length - 2 && <div className="tl-line grey"></div>}
-              </div>
-              <div className="tl-right">
-                {editingTaskId === t.id ? (
-                  renderTaskEditForm(t)
-                ) : (
-                  <>
-                    <div className="tl-title-upcoming" onClick={(e) => handleStartEditTask(t, e)}>
-                      {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
-                      {t.title}
-                    </div>
+        {(() => {
+          const upcoming = pendingTasks.slice(1);
+          const phaseMap = new Map();
+          
+          upcoming.forEach(t => {
+            const p = getPhase(t.title) || 'General';
+            if (!phaseMap.has(p)) phaseMap.set(p, []);
+            phaseMap.get(p).push(t);
+          });
 
-                    <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                      <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
+          const activePhase = activeTask ? getPhase(activeTask.title) : null;
+          const sortedEntries = Array.from(phaseMap.entries()).sort(([nameA], [nameB]) => {
+            if (activePhase) {
+               if (nameA === activePhase) return -1;
+               if (nameB === activePhase) return 1;
+            }
+            return 0;
+          });
+
+          return sortedEntries.map(([phaseName, tasks]) => (
+            <React.Fragment key={phaseName}>
+              {phaseName !== 'General' && phaseName !== activePhase && (
+                <div className="ms-phase-separator">
+                  <div className="phase-line"></div>
+                  <div className="phase-label">{phaseName}</div>
+                </div>
+              )}
+              {tasks.map((t) => {
+                const globalIdx = pendingTasks.findIndex(pt => pt.id === t.id);
+                return (
+                  <div key={t.id} className="tl-row">
+                    <div className="tl-left">
+                      <div className="tl-node upcoming clickable" onClick={(e) => { e.stopPropagation(); toggleTask(goalId, milestoneId, t.id); }}>
+                        {completedTasks.length + globalIdx + 1}
+                      </div>
+                      <div className="tl-line grey"></div>
                     </div>
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })}
+                    <div className="tl-right">
+                      {editingTaskId === t.id ? (
+                        renderTaskEditForm(t)
+                      ) : (
+                        <>
+                          <div className="tl-title-upcoming" onClick={(e) => handleStartEditTask(t, e)}>
+                            {t.isCritical && <span className="critical-tag-badge mini">CRITICAL</span>}
+                            {getTitleWithoutPhase(t.title)}
+                          </div>
+
+                          <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                            <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          ));
+        })()}
 
         {/* Hidden but functional add task form */}
         <div style={{ marginTop: '32px' }}>
