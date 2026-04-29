@@ -3,7 +3,7 @@ import { useStore } from '../lib/store';
 import './MilestoneDetailView.css';
 
 const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
-  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone, promoteTaskToNext } = useStore();
+  const { goals, updateMilestone, addTask, toggleTask, deleteTask, updateTask, deleteMilestone, promoteTaskToNext, moveTask } = useStore();
 
   const goal = goals.find(g => g.id === goalId);
   const milestone = goal?.milestones?.find(m => m.id === milestoneId);
@@ -149,6 +149,24 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
             >
               NEXT STEP ↑
             </button>
+            <div className="edit-btn-move-group">
+              <button 
+                type="button" 
+                onClick={() => moveTask(goalId, milestoneId, task.id, -1)} 
+                className="edit-btn-move"
+                title="Move Up"
+              >
+                ↑
+              </button>
+              <button 
+                type="button" 
+                onClick={() => moveTask(goalId, milestoneId, task.id, 1)} 
+                className="edit-btn-move"
+                title="Move Down"
+              >
+                ↓
+              </button>
+            </div>
             <button type="button" onClick={() => setEditingTaskId(null)} className="edit-btn-cancel">Cancel</button>
             <button type="submit" className="edit-btn-save">Save</button>
           </div>
@@ -166,15 +184,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
 
   const allTasks = milestone.tasks || [];
   const completedTasks = allTasks.filter(t => t.completed);
-  const pendingTasks = allTasks
-    .filter(t => !t.completed)
-    .sort((a, b) => {
-      const dateA = new Date(a.scheduledDate || '9999-12-31').getTime();
-      const dateB = new Date(b.scheduledDate || '9999-12-31').getTime();
-      if (dateA !== dateB) return dateA - dateB;
-      // If dates are equal, respect the order in the original allTasks array
-      return allTasks.indexOf(a) - allTasks.indexOf(b);
-    });
+  const pendingTasks = allTasks.filter(t => !t.completed);
   const progress = allTasks.length > 0
     ? Math.round((completedTasks.length / allTasks.length) * 100)
     : 0;

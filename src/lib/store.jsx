@@ -635,6 +635,32 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  const moveTask = (goalId, milestoneId, taskId, direction) => {
+    setGoals(prev => prev.map(goal => {
+      if (goal.id === goalId) {
+        return {
+          ...goal,
+          milestones: (goal.milestones || []).map(ms => {
+            if (ms.id === milestoneId) {
+              const tasks = [...(ms.tasks || [])];
+              const idx = tasks.findIndex(t => t.id === taskId);
+              if (idx > -1) {
+                const newIdx = idx + direction;
+                if (newIdx >= 0 && newIdx < tasks.length) {
+                  const [task] = tasks.splice(idx, 1);
+                  tasks.splice(newIdx, 0, task);
+                  return { ...ms, tasks };
+                }
+              }
+            }
+            return ms;
+          })
+        };
+      }
+      return goal;
+    }));
+  };
+
   const value = {
     goals,
     notes,
@@ -660,6 +686,17 @@ export const StoreProvider = ({ children }) => {
     logGoalProgress,
     toggleMilestoneActive,
     toggleOneThing,
+    getRemainingTime: (endDate) => {
+      if (!endDate) return 'No deadline';
+      const end = new Date(endDate);
+      const now = new Date();
+      const diffTime = end - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return 'Overdue';
+      const diffMonths = Math.floor(diffDays / 30);
+      if (diffMonths > 0) return `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+      return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    },
     toggleMilestoneCompleted,
     addTask,
     toggleTask,
@@ -669,6 +706,7 @@ export const StoreProvider = ({ children }) => {
     deleteMilestone,
     deleteTask,
     promoteTaskToNext,
+    moveTask,
     featureMap,
     addFeatureMapItem,
     updateFeatureMapItem,
