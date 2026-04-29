@@ -168,7 +168,13 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const completedTasks = allTasks.filter(t => t.completed);
   const pendingTasks = allTasks
     .filter(t => !t.completed)
-    .sort((a, b) => new Date(a.scheduledDate || '9999-12-31') - new Date(b.scheduledDate || '9999-12-31'));
+    .sort((a, b) => {
+      const dateA = new Date(a.scheduledDate || '9999-12-31').getTime();
+      const dateB = new Date(b.scheduledDate || '9999-12-31').getTime();
+      if (dateA !== dateB) return dateA - dateB;
+      // If dates are equal, respect the order in the original allTasks array
+      return allTasks.indexOf(a) - allTasks.indexOf(b);
+    });
   const progress = allTasks.length > 0
     ? Math.round((completedTasks.length / allTasks.length) * 100)
     : 0;

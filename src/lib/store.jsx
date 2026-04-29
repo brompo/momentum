@@ -607,9 +607,23 @@ export const StoreProvider = ({ children }) => {
               const idx = tasks.findIndex(t => t.id === taskId);
               if (idx > -1) {
                 const [task] = tasks.splice(idx, 1);
-                // Set scheduled date to today 09:00 if promoting
-                const today = new Date().toISOString().split('T')[0] + 'T09:00';
-                const updatedTask = { ...task, scheduledDate: today };
+                
+                // Find the earliest date among current pending tasks to ensure we jump ahead of them
+                const pendingTasks = tasks.filter(t => !t.completed);
+                let earliestDate = new Date().toISOString().split('T')[0] + 'T09:00';
+                
+                if (pendingTasks.length > 0) {
+                  const currentEarliest = pendingTasks.reduce((min, t) => {
+                    if (!t.scheduledDate) return min;
+                    return t.scheduledDate < min ? t.scheduledDate : min;
+                  }, earliestDate);
+                  
+                  // Use the earlier of Today or the current earliest task date
+                  earliestDate = currentEarliest;
+                }
+
+                const updatedTask = { ...task, scheduledDate: earliestDate };
+                // Move to front of array - this works as a tie-breaker for the UI sort
                 return { ...ms, tasks: [updatedTask, ...tasks] };
               }
             }
