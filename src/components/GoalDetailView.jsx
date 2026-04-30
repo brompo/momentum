@@ -25,7 +25,7 @@ const GoalDetailView = ({ goal, onBack }) => {
 
   const [activeMilestoneId, setActiveMilestoneId] = useState(null);
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [taskForm, setTaskForm] = useState({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+  const [taskForm, setTaskForm] = useState({ title: '', value: '', scheduledDate: '', priority: 'Low', subtasks: [] });
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
   const [editingMilestoneId, setEditingMilestoneId] = useState(null);
@@ -97,7 +97,7 @@ const GoalDetailView = ({ goal, onBack }) => {
         {},
         taskForm.subtasks || []
       );
-      setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+      setTaskForm({ title: '', value: '', scheduledDate: '', priority: 'Low', subtasks: [] });
     }
     setActiveMilestoneId(null);
   };
@@ -326,7 +326,7 @@ const GoalDetailView = ({ goal, onBack }) => {
           onMilestoneClick={(id) => setSelectedMilestoneId(id)}
           onToggleComplete={(id) => toggleMilestoneCompleted(goal.id, id)}
           onAddTask={(msId) => {
-            setTaskForm({ title: '', value: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', priority: 'Low', subtasks: [] });
+            setTaskForm({ title: '', value: '', scheduledDate: '', priority: 'Low', subtasks: [] });
             setActiveMilestoneId(msId);
           }}
           onToggleTask={toggleTask}

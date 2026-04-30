@@ -19,7 +19,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
   const [editingTaskId, setEditingTaskId] = useState(null); // For editing existing tasks
   const [taskForm, setTaskForm] = useState({
     title: '',
-    scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00',
+    scheduledDate: '',
     isCritical: false
   });
   const [taskEditForm, setTaskEditForm] = useState({
@@ -63,7 +63,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     e.preventDefault();
     if (taskForm.title.trim()) {
       addTask(goalId, milestoneId, taskForm.title, 1, taskForm.scheduledDate, milestone.priority, taskForm.isCritical);
-      setTaskForm({ title: '', scheduledDate: new Date().toISOString().split('T')[0] + 'T09:00', isCritical: false });
+      setTaskForm({ title: '', scheduledDate: '', isCritical: false });
       setActiveTaskId(null);
     }
   };
@@ -72,7 +72,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
     e.stopPropagation();
     setTaskEditForm({
       title: task.title,
-      scheduledDate: task.scheduledDate || new Date().toISOString().split('T')[0] + 'T09:00',
+      scheduledDate: task.scheduledDate || '',
       isCritical: !!task.isCritical
     });
     setEditingTaskId(task.id);
@@ -120,8 +120,8 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
           <div className="inline-edit-meta-inputs">
             <input
               type="date"
-              value={taskEditForm.scheduledDate.split('T')[0]}
-              onChange={e => setTaskEditForm({ ...taskEditForm, scheduledDate: e.target.value + 'T09:00' })}
+              value={taskEditForm.scheduledDate ? taskEditForm.scheduledDate.split('T')[0] : ''}
+              onChange={e => setTaskEditForm({ ...taskEditForm, scheduledDate: e.target.value ? e.target.value + 'T09:00' : '' })}
               className="inline-edit-date"
             />
 
@@ -435,7 +435,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                           </div>
 
                           <div className="tl-meta upcoming" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                            <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>
+                            {t.scheduledDate && <span style={{ fontSize: '0.75rem' }}>Target: {formatDateMMM(t.scheduledDate)}</span>}
                           </div>
                         </>
                       )}
@@ -459,7 +459,7 @@ const MilestoneDetailView = ({ goalId, milestoneId, onBack }) => {
                 style={{ width: '100%', border: 'none', borderBottom: '2px solid #3b82f6', outline: 'none', fontSize: '16px', marginBottom: '12px' }}
               />
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <input type="date" value={taskForm.scheduledDate.split('T')[0]} onChange={e => setTaskForm({ ...taskForm, scheduledDate: e.target.value + 'T09:00' })} style={{ fontSize: '16px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
+                <input type="date" value={taskForm.scheduledDate ? taskForm.scheduledDate.split('T')[0] : ''} onChange={e => setTaskForm({ ...taskForm, scheduledDate: e.target.value ? e.target.value + 'T09:00' : '' })} style={{ fontSize: '16px', border: 'none', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px' }} />
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: taskForm.isCritical ? '#ef4444' : '#64748b', cursor: 'pointer', fontWeight: 600 }}>
                   <input
