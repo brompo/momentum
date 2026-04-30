@@ -1,6 +1,22 @@
 {
   "achieved": [
     {
+      "version": "0.2.2",
+      "date": "2026-04-30",
+      "description": "Added the ability to manual re-sort tasks and journal entries",
+      "changes": [
+        "I want to be able to manually sort steps on the Milestone"
+      ]
+    },
+    {
+      "version": "0.2.1",
+      "date": "2026-04-30",
+      "description": "Added the ability to reorder stages",
+      "changes": [
+        "I want to be able to manually reorder the stages"
+      ]
+    },
+    {
       "version": "0.2.0",
       "date": "2026-04-16",
       "description": "Data Sharing between Devices",

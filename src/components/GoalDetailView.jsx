@@ -391,18 +391,24 @@ const GoalDetailView = ({ goal, onBack }) => {
                 <div className="form-group-v2">
                   <label>Start</label>
                   <input
-                    type="date"
+                    type={editForm.startDate ? "date" : "text"}
+                    placeholder="Set start date"
                     value={editForm.startDate}
                     onChange={e => setEditForm({ ...editForm, startDate: e.target.value })}
+                    onFocus={(e) => (e.target.type = "date")}
+                    onBlur={(e) => !editForm.startDate && (e.target.type = "text")}
                     className="modal-input-v2"
                   />
                 </div>
                 <div className="form-group-v2">
                   <label>End</label>
                   <input
-                    type="date"
+                    type={editForm.endDate ? "date" : "text"}
+                    placeholder="Set target date"
                     value={editForm.endDate}
                     onChange={e => setEditForm({ ...editForm, endDate: e.target.value })}
+                    onFocus={(e) => (e.target.type = "date")}
+                    onBlur={(e) => !editForm.endDate && (e.target.type = "text")}
                     className="modal-input-v2"
                   />
                 </div>
@@ -429,6 +435,66 @@ const GoalDetailView = ({ goal, onBack }) => {
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
+      )}
+      {activeMilestoneId && (
+        <div className="modal-overlay glass" onClick={() => setActiveMilestoneId(null)}>
+          <div className="modal-content glass-card animate-pop-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header-modern">
+               <h2>Add Step</h2>
+               <button className="modal-close-icon" onClick={() => setActiveMilestoneId(null)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <form onSubmit={(e) => handleAddTask(e, activeMilestoneId)} className="modal-form-v2">
+              <div className="form-group-v2">
+                <label>Step Title</label>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="What needs to be done next?"
+                  value={taskForm.title}
+                  onChange={e => setTaskForm({ ...taskForm, title: e.target.value })}
+                  className="modal-input-v2"
+                  required
+                />
+              </div>
+
+              <div className="timeline-grid">
+                <div className="form-group-v2">
+                  <label>Target Date (Optional)</label>
+                  <input
+                    type={taskForm.scheduledDate ? "date" : "text"}
+                    placeholder="Set date"
+                    value={taskForm.scheduledDate ? taskForm.scheduledDate.split('T')[0] : ''}
+                    onChange={e => setTaskForm({ ...taskForm, scheduledDate: e.target.value ? e.target.value + 'T09:00' : '' })}
+                    onFocus={(e) => (e.target.type = "date")}
+                    onBlur={(e) => !taskForm.scheduledDate && (e.target.type = "text")}
+                    className="modal-input-v2"
+                  />
+                </div>
+                <div className="form-group-v2">
+                  <label>Priority</label>
+                  <select
+                    value={taskForm.priority || 'Low'}
+                    onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}
+                    className="modal-select-v2"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-footer-v2">
+                <button type="button" className="btn-cancel-v2" onClick={() => setActiveMilestoneId(null)}>Cancel</button>
+                <div style={{ flex: 1 }}></div>
+                <button type="submit" className="btn-create-v2">Add Step</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

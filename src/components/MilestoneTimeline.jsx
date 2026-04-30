@@ -33,6 +33,13 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
               {taskCount > 0 ? `${completedTaskCount}/${taskCount} STEPS` : <span className="ms-status-alert">no steps</span>}
               {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
             </div>
+            <button 
+              className="ms-add-step-btn" 
+              onClick={(e) => { e.stopPropagation(); onAddTask(ms.id); }}
+              title="Add Step"
+            >
+              + Step
+            </button>
             {!isOneThing && oneThingList.length === 0 && (
               <button 
                 className="ms-promote-btn" 
@@ -100,6 +107,13 @@ const MilestoneTimeline = ({ goal, onMilestoneClick, onToggleComplete, onAddTask
               {ms.tasks && ms.tasks.length > 0 ? `${ms.tasks.length} STEPS` : <span className="ms-status-alert">no steps</span>}
               {ms.endDate && ` · ${formatDateMMM(ms.endDate, true)}`}
             </div>
+            <button 
+              className="ms-add-step-btn" 
+              onClick={(e) => { e.stopPropagation(); onAddTask(ms.id); }}
+              title="Add Step"
+            >
+              + Step
+            </button>
             <button
               className="ms-focus-pill"
               onClick={(e) => { e.stopPropagation(); onToggleFocus(ms.id, ms.inFocus); }}

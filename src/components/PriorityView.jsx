@@ -217,7 +217,7 @@ const PriorityView = () => {
   const [quickAddTitle, setQuickAddTitle] = useState('');
   const [quickAddGoalId, setQuickAddGoalId] = useState('');
   const [quickAddMilestoneId, setQuickAddMilestoneId] = useState('');
-  const [quickAddDate, setQuickAddDate] = useState(new Date().toISOString().split('T')[0]);
+  const [quickAddDate, setQuickAddDate] = useState('');
   const textareaRef = useRef(null);
 
 
@@ -1099,9 +1099,12 @@ const PriorityView = () => {
                 <div className="field-group">
                   <label>Schedule For</label>
                   <input
-                    type="date"
+                    type={quickAddDate ? "date" : "text"}
+                    placeholder="Set date (optional)"
                     value={quickAddDate}
                     onChange={e => setQuickAddDate(e.target.value)}
+                    onFocus={(e) => (e.target.type = "date")}
+                    onBlur={(e) => !quickAddDate && (e.target.type = "text")}
                   />
                 </div>
               </div>

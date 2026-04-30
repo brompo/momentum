@@ -126,18 +126,24 @@ const GoalsView = ({ onSelectGoal }) => {
                   <div className="form-group-v2">
                     <label>Start Date</label>
                     <input
-                      type="date"
+                      type={newGoal.startDate ? "date" : "text"}
+                      placeholder="Set start date"
                       value={newGoal.startDate}
                       onChange={e => setNewGoal({ ...newGoal, startDate: e.target.value })}
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => !newGoal.startDate && (e.target.type = "text")}
                       className="modal-input-v2"
                     />
                   </div>
                   <div className="form-group-v2">
                     <label>Target Date</label>
                     <input
-                      type="date"
+                      type={newGoal.endDate ? "date" : "text"}
+                      placeholder="Set target date"
                       value={newGoal.endDate}
                       onChange={e => setNewGoal({ ...newGoal, endDate: e.target.value })}
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => !newGoal.endDate && (e.target.type = "text")}
                       className="modal-input-v2"
                     />
                   </div>
